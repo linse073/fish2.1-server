@@ -7,12 +7,15 @@ function build() {
     echo "====================="
     echo "start build skyent..."
     cd $basepath/skynet
-
     if [[ "$platform" == "Darwin" ]]; then
         make macosx
     else
         make linux
     fi
+
+    cd $basepath
+    lib_dir="lib"
+    [ ! -d "$lib_dir" ] && mkdir -p "$lib_dir"
 
     echo "====================="
     echo "start build lua-kcp..."
