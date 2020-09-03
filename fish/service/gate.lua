@@ -16,6 +16,7 @@ local function on_recv(data, from)
         local session = skynet_m.call_lua(agent_mgr, "new", skynet_m.self(), from)
         local ack = string.pack("zz>I4", UDP_HELLO_ACK, version, session)
         socket.sendto(udp, from, ack)
+        skynet_m.log(string.format("Reveive connect message from %s.", util.udp_address(from)))
     else
         local agent, gate = skynet_m.call_lua(agent_mgr, "get", from)
         if agent then
