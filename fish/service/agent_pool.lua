@@ -69,7 +69,10 @@ function CMD.free(agent)
     end
 end
 
-skynet_m.start(function()
+function CMD.start()
     new_agent(100)
+end
+
+skynet_m.start(function()
 	skynet_m.dispatch_lua(CMD)
 end)
