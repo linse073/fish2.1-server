@@ -62,10 +62,10 @@ function channel:processPack(data)
                     self._user_id = user_id
                     self._room = room
                     skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
-                    init:send(string.pack("BB", s_to_c.join_resp, 0))
+                    self:send(string.pack("BB", s_to_c.join_resp, 0))
                 else
                     skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
-                    init:send(string.pack("BB", s_to_c.join_resp, 1))
+                    self:send(string.pack("BB", s_to_c.join_resp, 1))
                     skynet_m.send_lua(agent_mgr, "kick", self._from)
                 end
             else
@@ -88,7 +88,7 @@ function channel:kick()
     if self._room then
         skynet_m.send_lua(self._room, "kick", self._user_id)
     end
-    init:send(string.pack("B", s_to_c.kick))
+    self:send(string.pack("B", s_to_c.kick))
 end
 
 function channel:update()
