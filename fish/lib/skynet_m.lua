@@ -64,7 +64,7 @@ end
 
 function skynet_m.log(...)
     skynet.error(...)
-    print(...)
+    -- print(...)
 end
 
 function skynet_m.warn(err)
