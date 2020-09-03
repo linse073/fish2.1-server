@@ -15,7 +15,7 @@ function build() {
     echo "====================="
     echo "start build lua-kcp..."
     cd $basepath/3rd/lua-kcp
-    make -f kcp.mk
+    make -f ../kcp.mk
 
     echo "====================="
     echo "clean..."
