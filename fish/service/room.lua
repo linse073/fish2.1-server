@@ -23,5 +23,6 @@ skynet_m.start(function()
     lockstep_i = setmetatable({}, lockstep)
     lockstep_i:init()
 
+    -- NOTICE: use dispatch_lua_queue if need
     skynet_m.dispatch_lua(CMD)
 end)
