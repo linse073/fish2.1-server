@@ -4,6 +4,7 @@ local timer = require "timer"
 local util = require "util"
 local message = require "message"
 local s_to_c = message.s_to_c
+local c_to_s = message.c_to_s
 
 local string = string
 local floor = math.floor
@@ -54,18 +55,18 @@ function channel:processPack(data)
     if self._room then
         skynet_m.send_lua(self._room, "process", self._user_id, data)
     else
-        local user_id, room_id = string.unpack(">I4>I2", data)
-        if user_id and room_id then
+        local msg_id, user_id, room_id = string.unpack(">I2>I4>I2", data)
+        if msg_id==c_to_s.join and user_id and room_id then
             local room = skynet_m.call_lua(room_mgr, room_id)
             if room then
                 if skynet_m.call_lua(room, "join", user_id, skynet_m.self()) then
                     self._user_id = user_id
                     self._room = room
                     skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
-                    self:send(string.pack("BB", s_to_c.join_resp, 0))
+                    self:send(string.pack(">I2B", s_to_c.join_resp, 0))
                 else
                     skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
-                    self:send(string.pack("BB", s_to_c.join_resp, 1))
+                    self:send(string.pack(">I2B", s_to_c.join_resp, 1))
                     skynet_m.send_lua(agent_mgr, "kick", self._from)
                 end
             else
@@ -88,7 +89,7 @@ function channel:kick()
     if self._room then
         skynet_m.send_lua(self._room, "kick", self._user_id)
     end
-    self:send(string.pack("B", s_to_c.kick))
+    self:send(string.pack(">I2", s_to_c.kick))
 end
 
 function channel:update()

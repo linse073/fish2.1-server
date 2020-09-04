@@ -2,18 +2,19 @@
 local message = {}
 
 message.c_to_s = {
-    ready = 11,
-    quit = 12,
-    op = 13,
+    join = 1001,
+    ready = 1002,
+    quit = 1003,
+    op = 1004,
 }
 
 message.s_to_c = {
-    join_resp = 51,
-    kick = 52,
-    leave_room = 53,
-    join_room = 54,
-    room_data = 55,
-    sync_data = 56,
+    join_resp = 2001,
+    kick = 2002,
+    leave_room = 2003,
+    join_room = 2004,
+    room_data = 2005,
+    sync_data = 2006,
 }
 
 message.cmd = {

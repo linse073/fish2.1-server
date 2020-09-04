@@ -104,7 +104,7 @@ function lockstep:kick(user_id)
         self._count = self._count-1
         if info.ready then
             self._ready_count = self._ready_count-1
-            self:broadcast(string.pack("B>I4", s_to_c.leave, user_id))
+            self:broadcast(string.pack(">I2>I4", s_to_c.leave, user_id))
         end
         if self._count == 0 then
             self:clear()
@@ -118,7 +118,7 @@ function lockstep:process(user_id, data)
         skynet_m.log(string.format("Can't find user %d.", user_id))
         return
     end
-    local cmd = string.unpack(data, "B")
+    local cmd = string.unpack(data, ">I2")
     local func = CMD[cmd]
     if func then
         self[func](self, info, data)
@@ -180,7 +180,7 @@ function lockstep:update()
             self._next_scale_time = nil
             self._time_scale = 1
             -- TODO: sync data and key step
-            local msg = string.pack("B>I4", s_to_c.sync_data, self._next_key_step+self._key_step)
+            local msg = string.pack(">I2>I4", s_to_c.sync_data, self._next_key_step+self._key_step)
             self:broadcast(msg)
             table.insert(self._history, {self._next_key_step, self._cmd})
             self._cmd = {}
@@ -226,13 +226,13 @@ function lockstep:ready(info, data)
     if info.ready then
         skynet_m.log(string.format("User %d is ready.", info.user_id))
     else
-        self:broadcast(string.pack("B>I4B", s_to_c.join_room, info.user_id, info.pos))
+        self:broadcast(string.pack(">I2>I4B", s_to_c.join_room, info.user_id, info.pos))
         info.ready = true
         self._ready_count = self._ready_count+1
         if self._ready_count == 1 then
             self:start()
         end
-        local msg = string.pack("BBB>I4", s_to_c.room_data, info.pos, logic_step, self._rand_seed)
+        local msg = string.pack(">I2BB>I4", s_to_c.room_data, info.pos, logic_step, self._rand_seed)
         msg = msg .. string.pack(">I4>I4>I4", self._last_key_step, self._next_key_step, self._next_logic_step)
         msg = msg .. string.pack("B", self._ready_count-1)
         for _, v in pairs(self._user) do
