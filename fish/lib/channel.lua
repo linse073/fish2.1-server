@@ -5,6 +5,7 @@ local util = require "util"
 local message = require "message"
 local s_to_c = message.s_to_c
 local c_to_s = message.c_to_s
+local error_code = message.error_code
 
 local string = string
 local floor = math.floor
@@ -63,19 +64,25 @@ function channel:processPack(data)
                     self._user_id = user_id
                     self._room = room
                     skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
-                    self:send(string.pack(">I2B", s_to_c.join_resp, 0))
+                    self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
                 else
                     skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
-                    self:send(string.pack(">I2B", s_to_c.join_resp, 1))
-                    skynet_m.send_lua(agent_mgr, "kick", self._from)
+                    self:joinFail(error_code.room_full)
                 end
             else
                 skynet_m.log(string.format("Illegal room %d from %s.", room_id, util.udp_address(self._from)))
+                self:joinFail(error_code.room_not_exist)
             end
         else
             skynet_m.log(string.format("Illegale message from %s.", util.udp_address(self._from)))
+            self:joinFail(error_code.unknow_error)
         end
     end
+end
+
+function channel:joinFail(code)
+    self:send(string.pack(">I2>I2", s_to_c.join_resp, code))
+    skynet_m.send_lua(agent_mgr, "kick", self._from)
 end
 
 function channel:send(data)

@@ -22,4 +22,11 @@ message.cmd = {
     fire = 2,
 }
 
+message.error_code = {
+    ok = 0,
+    room_full = 3001,
+    room_not_exist = 3002,
+    unknow_error = 3003,
+}
+
 return message
