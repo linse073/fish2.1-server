@@ -75,7 +75,7 @@ function channel:processPack(data)
             end
         else
             skynet_m.log(string.format("Illegale message from %s.", util.udp_address(self._from)))
-            self:joinFail(error_code.unknow_error)
+            self:joinFail(error_code.unknown_error)
         end
     end
 end
