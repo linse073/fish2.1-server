@@ -19,6 +19,7 @@ local step_per_second = skynet_m.getenv_num("step_per_second")
 local init_key_step = skynet_m.getenv_num("init_key_step")
 local logic_step = skynet_m.getenv_num("logic_step")
 local step_interval = 100/step_per_second
+local half_step_interval = step_interval*0.5
 local MAX_USER = 4
 
 local agent_mgr
@@ -57,8 +58,8 @@ function lockstep:join(user_id, agent)
         user_id = user_id,
         agent = agent,
         ready = false,
-        idle_time = 0, -- TODO: kick user by idle_time
         pos = free_pos,
+        lost_cmd = 0,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -70,7 +71,8 @@ function lockstep:clear()
     self._history = {}
     self._cmd = {}
     self._cmd_count = 0
-    self._cmd_rate = -1
+    self._cmd_rate = {}
+    self._all_cmd_time = nil
     self._step = 0
     self._key_step = init_key_step
     self._next_key_step = self._step+self._key_step
@@ -84,7 +86,6 @@ function lockstep:clear()
     self._next_scale_interval = (step_interval*self._key_step)*0.5
     self._next_scale_time = self._elapsed_time+self._next_scale_interval
     self._next_sync_time = self._next_scale_time
-    self._next_rate_time = self._elapsed_time+self._next_scale_interval*0.8
     self._rand_seed = 0
     timer.del_all()
 end
@@ -134,40 +135,60 @@ function lockstep:broadcast(msg)
     end
 end
 
-function lockstep:sync()
+function lockstep:update()
+    local now = skynet_m.now()
+    local etime = (now-self._last_time)*self._time_scale
+    self._last_time = now
+    self._elapsed_time = self._elapsed_time+etime
     if self._next_sync_time and self._elapsed_time >= self._next_sync_time then
         if self._cmd_count > 0 then
+            for _, v in pairs(self._user) do
+                if self._cmd[v.user_id] then
+                    v.lost_cmd = 0
+                else
+                    v.lost_cmd = v.lost_cmd+1
+                    if v.lost_cmd >= 5 then
+                        skynet_m.send_lua(agent_mgr, "quit", v.user_id)
+                    end
+                end
+            end
+            local cmd_rate = -1
+            if self._all_cmd_time then
+                if self._all_cmd_time <= self._next_sync_time-half_step_interval then
+                    cmd_rate = 1
+                elseif self._all_cmd_time <= self._next_sync_time then
+                    cmd_rate = 0
+                end
+            end
+            table.insert(self._cmd_rate, cmd_rate)
+            local rate_len = #self._cmd_rate
+            if rate_len >= 5 then
+                local rate_value = 0
+                for i = rate_len-5, rate_len do
+                    rate_value = rate_value+self._cmd_rate[i]
+                end
+                if rate_value >= 3 then
+                    self._key_step = self._key_step-1
+                    self._cmd_rate = {}
+                elseif rate_value <=-3 then
+                    self._key_step = self._key_step+1
+                    self._cmd_rate = {}
+                end
+            end
             self._next_sync_time = nil
             self._next_scale_interval = nil
             self._next_scale_time = nil
             self._time_scale = 1
-            if self._cmd_rate == -1 then
-                if self._key_step < 5 then
-                    self._key_step = self._key_step+1
-                end
-            elseif self._cmd_rate == 1 then
-                if self._key_step > 1 then
-                    self._key_step = self._key_step-1
-                end
-            end
             -- TODO: sync data and key step
             local msg = string.pack("B>I4", s_to_c.sync_data, self._next_key_step+self._key_step)
             self:broadcast(msg)
             table.insert(self._history, {self._next_key_step, self._cmd})
             self._cmd = {}
             self._cmd_count = 0
-            self._cmd_rate = -1
+            self._all_cmd_time = nil
             -- TODO: bullet collision detect
         end
     end
-end
-
-function lockstep:update()
-    local now = skynet_m.now()
-    local etime = (now-self._last_time)*self._time_scale
-    self._last_time = now
-    self._elapsed_time = self._elapsed_time+etime
-    self:sync()
     if self._next_scale_time and self._elapsed_time >= self._next_scale_time then
         if self._cmd_count == 0 then
             self._next_scale_interval = self._next_scale_interval*0.5
@@ -191,7 +212,6 @@ function lockstep:update()
             self._next_scale_interval = (step_interval*self._key_step)*0.5
             self._next_scale_time = self._elapsed_time+self._next_scale_interval
             self._next_sync_time = self._next_scale_time
-            self._next_rate_time = self._elapsed_time+self._next_scale_interval*0.8
             -- TODO: do cmd
         end
         if self._step == self._next_logic_step then
@@ -237,18 +257,9 @@ function lockstep:op(info, data)
         self._cmd[info.user_id] = {data}
         self._cmd_count = self._cmd_count+1
         if self._cmd_count == self._ready_count then
-            if self._next_sync_time then
-                if self._elapsed_time <= self._next_rate_time then
-                    self._cmd_rate = 1
-                elseif self._elapsed_time <= self._next_sync_time then
-                    self._cmd_rate = 0
-                end
-            else
-                self._cmd_rate = 1
-            end
+            self._all_cmd_time = self._elapsed_time
         end
     end
-    self:sync()
 end
 
 return {__index=lockstep}
