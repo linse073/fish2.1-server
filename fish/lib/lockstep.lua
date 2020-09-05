@@ -140,66 +140,62 @@ function lockstep:update()
     local etime = (now-self._last_time)*self._time_scale
     self._last_time = now
     self._elapsed_time = self._elapsed_time+etime
-    if self._next_sync_time and self._elapsed_time >= self._next_sync_time then
-        if self._cmd_count > 0 then
-            for _, v in pairs(self._user) do
-                if self._cmd[v.user_id] then
-                    v.lost_cmd = 0
-                else
-                    v.lost_cmd = v.lost_cmd+1
-                    if v.lost_cmd >= 5 then
-                        skynet_m.send_lua(agent_mgr, "quit", v.user_id)
-                    end
+    if self._next_sync_time and self._cmd_count > 0 and self._elapsed_time >= self._next_sync_time then
+        for _, v in pairs(self._user) do
+            if self._cmd[v.user_id] then
+                v.lost_cmd = 0
+            else
+                v.lost_cmd = v.lost_cmd+1
+                if v.lost_cmd >= 5 then
+                    skynet_m.send_lua(agent_mgr, "quit", v.user_id)
                 end
             end
-            local cmd_rate = -1
-            if self._all_cmd_time then
-                if self._all_cmd_time <= self._next_sync_time-half_step_interval then
-                    cmd_rate = 1
-                elseif self._all_cmd_time <= self._next_sync_time then
-                    cmd_rate = 0
-                end
+        end
+        local cmd_rate = -1
+        if self._all_cmd_time then
+            if self._all_cmd_time <= self._next_sync_time-half_step_interval then
+                cmd_rate = 1
+            elseif self._all_cmd_time <= self._next_sync_time then
+                cmd_rate = 0
             end
-            table.insert(self._cmd_rate, cmd_rate)
-            local rate_len = #self._cmd_rate
-            if rate_len >= 5 then
-                local rate_value = 0
-                for i = rate_len-5, rate_len do
-                    rate_value = rate_value+self._cmd_rate[i]
-                end
-                if rate_value >= 3 then
-                    self._key_step = self._key_step-1
-                    self._cmd_rate = {}
-                elseif rate_value <=-3 then
-                    self._key_step = self._key_step+1
-                    self._cmd_rate = {}
-                end
+        end
+        table.insert(self._cmd_rate, cmd_rate)
+        local rate_len = #self._cmd_rate
+        if rate_len >= 5 then
+            local rate_value = 0
+            for i = rate_len-5, rate_len do
+                rate_value = rate_value+self._cmd_rate[i]
             end
-            self._next_sync_time = nil
+            if rate_value >= 3 then
+                self._key_step = self._key_step-1
+                self._cmd_rate = {}
+            elseif rate_value <=-3 then
+                self._key_step = self._key_step+1
+                self._cmd_rate = {}
+            end
+        end
+        self._next_sync_time = nil
+        self._next_scale_interval = nil
+        self._next_scale_time = nil
+        self._time_scale = 1
+        -- TODO: sync data and key step
+        local msg = string.pack(">I2>I4", s_to_c.sync_data, self._next_key_step+self._key_step)
+        self:broadcast(msg)
+        table.insert(self._history, {self._next_key_step, self._cmd})
+        self._cmd = {}
+        self._cmd_count = 0
+        self._all_cmd_time = nil
+        -- TODO: bullet collision detect
+    end
+    if self._next_scale_time and self._cmd_count == 0 and self._elapsed_time >= self._next_scale_time then
+        self._next_scale_interval = self._next_scale_interval*0.5
+        self._next_scale_time = self._elapsed_time+self._next_scale_interval
+        if self._next_scale_interval > 1 then
+            self._time_scale = self._time_scale*0.5
+        else
+            self._time_scale = 0
             self._next_scale_interval = nil
             self._next_scale_time = nil
-            self._time_scale = 1
-            -- TODO: sync data and key step
-            local msg = string.pack(">I2>I4", s_to_c.sync_data, self._next_key_step+self._key_step)
-            self:broadcast(msg)
-            table.insert(self._history, {self._next_key_step, self._cmd})
-            self._cmd = {}
-            self._cmd_count = 0
-            self._all_cmd_time = nil
-            -- TODO: bullet collision detect
-        end
-    end
-    if self._next_scale_time and self._elapsed_time >= self._next_scale_time then
-        if self._cmd_count == 0 then
-            self._next_scale_interval = self._next_scale_interval*0.5
-            self._next_scale_time = self._elapsed_time+self._next_scale_interval
-            if self._next_scale_interval > 1 then
-                self._time_scale = self._time_scale*0.5
-            else
-                self._time_scale = 0
-                self._next_scale_interval = nil
-                self._next_scale_time = nil
-            end
         end
     end
     if self._elapsed_time >= self._next_step_time then
