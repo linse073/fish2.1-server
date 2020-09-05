@@ -4,7 +4,7 @@ local queue = require "skynet.queue"
 
 local assert = assert
 local tonumber = tonumber
-local print = print
+-- local print = print
 local os = os
 local string = string
 
@@ -37,7 +37,7 @@ end
 
 function skynet_m.dispatch_lua(CMD)
     return skynet.dispatch("lua", function(session, _, command, ...)
-		local f = assert(CMD[command])
+		local f = assert(CMD[command], string.format("Service %s without command %s.", SERVICE_NAME, command))
         if session == 0 then
             f(...)
         else
@@ -49,7 +49,7 @@ end
 function skynet_m.dispatch_lua_queue(CMD)
     local lock = queue()
     return skynet.dispatch("lua", function(session, _, command, ...)
-		local f = assert(CMD[command])
+		local f = assert(CMD[command], string.format("Service %s without command %s.", SERVICE_NAME, command))
         if session == 0 then
             lock(f, ...)
         else
