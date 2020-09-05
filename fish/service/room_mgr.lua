@@ -5,7 +5,7 @@ local room_list = {}
 
 local function create_room()
     for i = 1, room_count do
-        room_list = skynet_m.newservice("room")
+        room_list[i] = skynet_m.newservice("room")
     end
 end
 
