@@ -60,6 +60,7 @@ function lockstep:join(user_id, agent)
         ready = false,
         pos = free_pos,
         lost_cmd = 0,
+        cmd_count = 0,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -179,8 +180,12 @@ function lockstep:update()
         self._next_scale_time = nil
         self._time_scale = 1
         -- TODO: sync data and key step
-        local msg = string.pack(">I2>I4", s_to_c.sync_data, self._next_key_step+self._key_step)
-        self:broadcast(msg)
+        local msg = string.pack(">I2>I4>I4", s_to_c.sync_data, self._next_key_step, self._next_key_step+self._key_step)
+        for _, v in pairs(self._user) do
+            if v.ready then
+                skynet_m.send_lua(v.agent, "send", msg..string.pack(">I4", v.cmd_count))
+            end
+        end
         table.insert(self._history, {self._next_key_step, self._cmd})
         self._cmd = {}
         self._cmd_count = 0
@@ -255,6 +260,10 @@ function lockstep:op(info, data)
         if self._cmd_count == self._ready_count then
             self._all_cmd_time = self._elapsed_time
         end
+    end
+    local cmd_count = string.unpack(data, ">I4")
+    if cmd_count > info.cmd_count then
+        info.cmd_count = cmd_count
     end
 end
 
