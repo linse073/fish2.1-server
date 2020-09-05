@@ -3,9 +3,11 @@ local timer = require "timer"
 local message = require "message"
 local c_to_s = message.c_to_s
 local s_to_c = message.s_to_c
+local op_cmd = message.op_cmd
 
 local string = string
 local pairs = pairs
+local ipairs = ipairs
 local table = table
 local floor = math.floor
 
@@ -61,6 +63,8 @@ function lockstep:join(user_id, agent)
         pos = free_pos,
         lost_cmd = 0,
         cmd_count = 0,
+        key_cmd_count = nil,
+        key_cmd = "",
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -70,7 +74,6 @@ end
 
 function lockstep:clear()
     self._history = {}
-    self._cmd = {}
     self._cmd_count = 0
     self._cmd_rate = {}
     self._all_cmd_time = nil
@@ -142,9 +145,14 @@ function lockstep:update()
     self._last_time = now
     self._elapsed_time = self._elapsed_time+etime
     if self._next_sync_time and self._cmd_count > 0 and self._elapsed_time >= self._next_sync_time then
+        local all_cmd, cmd_user_count = "", 0
         for _, v in pairs(self._user) do
-            if self._cmd[v.user_id] then
+            if v.key_cmd_count then
                 v.lost_cmd = 0
+                if v.key_cmd_count > 0 then
+                    all_cmd = all_cmd..string.pack(">I4", v.user_id)..v.key_cmd
+                    cmd_user_count = cmd_user_count+1
+                end
             else
                 v.lost_cmd = v.lost_cmd+1
                 if v.lost_cmd >= 5 then
@@ -181,13 +189,15 @@ function lockstep:update()
         self._time_scale = 1
         -- TODO: sync data and key step
         local msg = string.pack(">I2>I4>I4", s_to_c.sync_data, self._next_key_step, self._next_key_step+self._key_step)
+        local cmd_pack = string.pack("B", cmd_user_count)..all_cmd
         for _, v in pairs(self._user) do
             if v.ready then
-                skynet_m.send_lua(v.agent, "send", msg..string.pack(">I4", v.cmd_count))
+                skynet_m.send_lua(v.agent, "send", msg..string.pack(">I4", v.cmd_count)..cmd_pack)
             end
+            v.key_cmd_count = nil
+            v.key_cmd = ""
         end
-        table.insert(self._history, {self._next_key_step, self._cmd})
-        self._cmd = {}
+        table.insert(self._history, {self._next_key_step, cmd_pack})
         self._cmd_count = 0
         self._all_cmd_time = nil
         -- TODO: bullet collision detect
@@ -234,12 +244,16 @@ function lockstep:ready(info, data)
             self:start()
         end
         local msg = string.pack(">I2BB>I4", s_to_c.room_data, info.pos, logic_step, self._rand_seed)
-        msg = msg .. string.pack(">I4>I4>I4", self._last_key_step, self._next_key_step, self._next_logic_step)
-        msg = msg .. string.pack("B", self._ready_count-1)
+        msg = msg..string.pack(">I4>I4>I4", self._last_key_step, self._next_key_step, self._next_logic_step)
+        msg = msg..string.pack("B", self._ready_count-1)
         for _, v in pairs(self._user) do
             if v.ready and v.user_id~=info.user_id then
-                msg = msg .. string.pack(">I4B", v.user_id, v.pos)
+                msg = msg..string.pack(">I4B", v.user_id, v.pos)
             end
+        end
+        msg = msg..string.pack(">I4", #self._history)
+        for _, v in ipairs(self._history) do
+            msg = msg..string.pack(">I4", v[1])..v[2]
         end
         skynet_m.send_lua(info.agent, "send", msg)
         -- TODO: send room data to client
@@ -251,19 +265,24 @@ function lockstep:quit(info, data)
 end
 
 function lockstep:op(info, data)
-    local cmd = self._cmd[info.user_id]
-    if cmd then
-        table.insert(cmd, data)
-    else
-        self._cmd[info.user_id] = {data}
+    if not info.key_cmd_count then
+        info.key_cmd_count = 0
         self._cmd_count = self._cmd_count+1
         if self._cmd_count == self._ready_count then
             self._all_cmd_time = self._elapsed_time
         end
     end
-    local cmd_count = string.unpack(data, ">I4")
+    local cmd_count, key_count, first_cmd, index = string.unpack(data, ">I4BB", 3)
     if cmd_count > info.cmd_count then
         info.cmd_count = cmd_count
+    end
+    if first_cmd == op_cmd.idle then
+        if key_count ~= 1 then
+            skynet_m.log("Idle command count error.")
+        end
+    else
+        info.key_cmd_count = info.key_cmd_count+key_count
+        info.key_cmd = info.key_cmd..string.sub(data, index-1)
     end
 end
 

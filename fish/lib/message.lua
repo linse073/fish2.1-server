@@ -17,7 +17,7 @@ message.s_to_c = {
     sync_data = 2006,
 }
 
-message.cmd = {
+message.op_cmd = {
     idle = 1,
     fire = 2,
 }
