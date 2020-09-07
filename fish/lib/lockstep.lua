@@ -223,6 +223,7 @@ function lockstep:updateScaleTime()
             self._time_scale = 0
             self._next_scale_interval = nil
             self._next_scale_time = nil
+            break
         end
     end
 end
