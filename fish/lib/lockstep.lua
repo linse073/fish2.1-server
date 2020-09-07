@@ -197,7 +197,8 @@ function lockstep:updateSyncCmd()
         self._next_scale_time = nil
         self._time_scale = 1
         -- TODO: sync data and key step
-        local msg = string.pack(">I2>I4>I4", s_to_c.sync_data, self._next_key_step, self._next_key_step+self._key_step)
+        local again_key_step = self._next_key_step+self._key_step
+        local msg = string.pack(">I2>I4>I4", s_to_c.sync_data, self._next_key_step, again_key_step)
         local cmd_pack = string.pack("B", cmd_user_count)..all_cmd
         for _, v in pairs(self._user) do
             if v.ready then
@@ -206,7 +207,7 @@ function lockstep:updateSyncCmd()
             v.key_cmd_count = nil
             v.key_cmd = ""
         end
-        table.insert(self._history, {self._next_key_step, cmd_pack})
+        table.insert(self._history, {self._next_key_step, again_key_step, cmd_pack})
         self._cmd_count = 0
         self._all_cmd_time = nil
         -- TODO: bullet collision detect
@@ -281,7 +282,7 @@ function lockstep:ready(info, data)
         end
         msg = msg..string.pack(">I4", #self._history)
         for _, v in ipairs(self._history) do
-            msg = msg..string.pack(">I4s4", v[1], v[2])
+            msg = msg..string.pack(">I4>I4s4", v[1], v[2], v[3])
         end
         skynet_m.send_lua(info.agent, "send", msg)
         -- TODO: send room data to client
