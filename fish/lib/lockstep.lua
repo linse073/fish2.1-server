@@ -122,7 +122,7 @@ function lockstep:process(user_id, data)
         skynet_m.log(string.format("Can't find user %d.", user_id))
         return
     end
-    local cmd = string.unpack(data, ">I2")
+    local cmd = string.unpack(">I2", data)
     local func = CMD[cmd]
     if func then
         self[func](self, info, data)
@@ -159,7 +159,7 @@ function lockstep:updateSyncCmd()
             if v.key_cmd_count then
                 v.lost_cmd = 0
                 if v.key_cmd_count > 0 then
-                    all_cmd = all_cmd..string.pack(">I4", v.user_id)..v.key_cmd
+                    all_cmd = all_cmd..string.pack(">I4B", v.user_id, v.key_cmd_count)..v.key_cmd
                     cmd_user_count = cmd_user_count+1
                 end
             else
@@ -281,7 +281,7 @@ function lockstep:ready(info, data)
         end
         msg = msg..string.pack(">I4", #self._history)
         for _, v in ipairs(self._history) do
-            msg = msg..string.pack(">I4", v[1])..v[2]
+            msg = msg..string.pack(">I4s4", v[1], v[2])
         end
         skynet_m.send_lua(info.agent, "send", msg)
         -- TODO: send room data to client
@@ -300,7 +300,7 @@ function lockstep:op(info, data)
             self._all_cmd_time = self._elapsed_time
         end
     end
-    local cmd_count, key_count, first_cmd, index = string.unpack(data, ">I4BB", 3)
+    local cmd_count, key_count, first_cmd, index = string.unpack(">I4BB", data, 3)
     if cmd_count > info.cmd_count then
         info.cmd_count = cmd_count
     end

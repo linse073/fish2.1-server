@@ -58,7 +58,7 @@ function channel:processPack(data)
         skynet_m.send_lua(self._room, "process", self._user_id, data)
     else
         local msg_id, user_id, room_id = string.unpack(">I2>I4>I2", data)
-        if msg_id==c_to_s.join and user_id and room_id then
+        if msg_id == c_to_s.join then
             local room = skynet_m.call_lua(room_mgr, "get", room_id)
             if room then
                 if skynet_m.call_lua(room, "join", user_id, skynet_m.self()) then
