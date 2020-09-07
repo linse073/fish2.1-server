@@ -4,6 +4,7 @@ local message = require "message"
 local c_to_s = message.c_to_s
 local s_to_c = message.s_to_c
 local op_cmd = message.op_cmd
+local error_code = message.error_code
 
 local string = string
 local pairs = pairs
@@ -165,7 +166,7 @@ function lockstep:updateSyncCmd()
             else
                 v.lost_cmd = v.lost_cmd+1
                 if v.lost_cmd >= 5 then
-                    skynet_m.send_lua(agent_mgr, "quit", v.user_id)
+                    skynet_m.send_lua(agent_mgr, "quit", v.user_id, error_code.low_activity)
                 end
             end
         end
@@ -290,7 +291,7 @@ function lockstep:ready(info, data)
 end
 
 function lockstep:quit(info, data)
-    skynet_m.send_lua(agent_mgr, "quit", info.user_id)
+    skynet_m.send_lua(agent_mgr, "quit", info.user_id, error_code.ok)
 end
 
 function lockstep:op(info, data)
