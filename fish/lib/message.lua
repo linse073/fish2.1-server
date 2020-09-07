@@ -28,7 +28,7 @@ message.error_code = {
     room_not_exist = 3002,
     unknown_error = 3003,
     login_conflict = 3004,
-    not_activity = 3005,
+    low_activity = 3005,
 }
 
 return message

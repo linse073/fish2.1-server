@@ -121,7 +121,7 @@ end
 -- NOTICE: must use send_lua
 function channel:checkActivity()
     if not self._room then
-        skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.not_activity)
+        skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
     end
 end
 
