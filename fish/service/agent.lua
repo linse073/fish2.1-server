@@ -40,9 +40,9 @@ function CMD.send(data)
     end
 end
 
-function CMD.stop()
+function CMD.stop(code)
     if channel_i then
-        channel_i:kick()
+        channel_i:kick(code)
     else
         skynet_m.log(string.format("Agent %d has stop.", session))
     end

@@ -84,7 +84,7 @@ end
 
 function channel:joinFail(code)
     self:send(string.pack(">I2>I2", s_to_c.join_resp, code))
-    skynet_m.send_lua(agent_mgr, "kick", self._from)
+    -- skynet_m.send_lua(agent_mgr, "kick", self._from, code)
 end
 
 function channel:send(data)
@@ -94,11 +94,11 @@ function channel:send(data)
     self:addUpdate()
 end
 
-function channel:kick()
+function channel:kick(code)
     if self._room then
         skynet_m.send_lua(self._room, "kick", self._user_id)
     end
-    self:send(string.pack(">I2", s_to_c.kick))
+    self:send(string.pack(">I2>I2", s_to_c.kick, code))
 end
 
 function channel:update()
@@ -121,7 +121,7 @@ end
 -- NOTICE: must use send_lua
 function channel:checkActivity()
     if not self._room then
-        skynet_m.send_lua(agent_mgr, "kick", self._from)
+        skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.not_activity)
     end
 end
 

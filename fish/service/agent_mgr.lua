@@ -1,5 +1,6 @@
 local skynet_m = require "skynet_m"
 local util = require "util"
+local error_code = require("message").error_code
 
 local assert = assert
 local string = string
@@ -44,21 +45,21 @@ function CMD.bind(user_id, from)
         assert(old_info and old_info.user_id==user_id and info.agent~=old_info.agent,
             string.format("Unbind agent error from %s.", util.udp_address(user_from)))
         agent_list[user_from] = nil
-        skynet_m.send_lua(old_info.agent, "stop")
+        skynet_m.send_lua(old_info.agent, "stop", error_code.login_conflict)
         skynet_m.send_lua(agent_pool, "free", old_info.agent)
     end
     info.user_id = user_id
     user_list[user_id] = from
 end
 
-function CMD.kick(from)
+function CMD.kick(from, code)
     local info = agent_list[from]
     if info then
         agent_list[from] = nil
         if info.user_id then
             user_list[info.user_id] = nil
         end
-        skynet_m.send_lua(info.agent, "stop")
+        skynet_m.send_lua(info.agent, "stop", code)
         skynet_m.send_lua(agent_pool, "free", info.agent)
     end
 end
