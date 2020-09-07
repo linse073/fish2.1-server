@@ -80,16 +80,15 @@ function lockstep:clear()
     self._all_cmd_time = nil
     self._step = 0
     self._key_step = init_key_step
-    self._next_key_step = self._step+self._key_step
-    self._last_key_step = self._step
-    self._next_logic_step = self._step+logic_step
-    self._last_logic_step = self._step
+    self._next_key_step = self._key_step
+    self._last_key_step = 0
+    self._next_logic_step = logic_step
     self._time_scale = 1
     self._elapsed_time = 0
     self._last_time = 0
-    self._next_step_time = self._elapsed_time+step_interval
+    self._next_step_time = step_interval
     self._next_scale_interval = (step_interval*self._key_step)*0.5
-    self._next_scale_time = self._elapsed_time+self._next_scale_interval
+    self._next_scale_time = self._next_scale_interval
     self._next_sync_time = self._next_scale_time
     self._rand_seed = 0
     timer.del_all()
@@ -148,11 +147,9 @@ function lockstep:update()
     if self._cmd_count > 0 then
         self:updateSyncCmd()
     else
-        while self:updateScaleTime() do
-        end
+        self:updateScaleTime()
     end
-    while self:updateStep() do
-    end
+    self:updateStep()
 end
 
 function lockstep:updateSyncCmd()
@@ -217,7 +214,7 @@ function lockstep:updateSyncCmd()
 end
 
 function lockstep:updateScaleTime()
-    if self._next_scale_time and self._elapsed_time >= self._next_scale_time then
+    while self._next_scale_time and self._elapsed_time >= self._next_scale_time do
         self._next_scale_interval = self._next_scale_interval*0.5
         if self._next_scale_interval > 1 then
             self._time_scale = self._time_scale*0.5
@@ -227,27 +224,25 @@ function lockstep:updateScaleTime()
             self._next_scale_interval = nil
             self._next_scale_time = nil
         end
-        return true
     end
-    return false
 end
 
 function lockstep:updateStep()
-    if self._elapsed_time >= self._next_step_time then
+    while self._elapsed_time >= self._next_step_time do
         local step = self._step+1
         if step == self._next_key_step then
             local cmd_num = #self._history
             if cmd_num <= 0 or self._history[cmd_num][1] ~= self._next_key_step then
-                return false
+                break
             end
         end
         local step_time = self._next_step_time
         self._next_step_time = step_time+step_interval
         self._step = step
-        if self._step == self._next_key_step then
+        if step == self._next_key_step then
             assert(not self._next_sync_time, "Have not sync data.")
-            self._next_key_step = self._step+self._key_step
-            self._last_key_step = self._step
+            self._next_key_step = step+self._key_step
+            self._last_key_step = step
             self._next_scale_interval = (step_interval*self._key_step)*0.5
             self._next_scale_time = step_time+self._next_scale_interval
             self._next_sync_time = self._next_scale_time
@@ -255,18 +250,14 @@ function lockstep:updateStep()
             if self._cmd_count > 0 then
                 self:updateSyncCmd()
             else
-                while self:updateScaleTime() do
-                end
+                self:updateScaleTime()
             end
         end
-        if self._step == self._next_logic_step then
-            self._next_logic_step = self._step+logic_step
-            self._last_logic_step = self._step
+        if step == self._next_logic_step then
+            self._next_logic_step = step+logic_step
             -- TODO: do logic
         end
-        return true
     end
-    return false
 end
 
 function lockstep:ready(info, data)
