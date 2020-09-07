@@ -219,9 +219,9 @@ end
 function lockstep:updateScaleTime()
     if self._next_scale_time and self._elapsed_time >= self._next_scale_time then
         self._next_scale_interval = self._next_scale_interval*0.5
-        self._next_scale_time = self._next_scale_time+self._next_scale_interval
         if self._next_scale_interval > 1 then
             self._time_scale = self._time_scale*0.5
+            self._next_scale_time = self._next_scale_time+self._next_scale_interval
         else
             self._time_scale = 0
             self._next_scale_interval = nil
