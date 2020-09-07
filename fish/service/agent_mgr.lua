@@ -65,7 +65,7 @@ end
 
 -- TODO: finish
 function CMD.quit(user_id)
-    local from = user_list[user_list]
+    local from = user_list[user_id]
     if from then
         CMD.kick(from)
     end
