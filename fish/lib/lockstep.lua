@@ -108,7 +108,7 @@ function lockstep:kick(user_id)
         self._count = self._count-1
         if info.ready then
             self._ready_count = self._ready_count-1
-            self:broadcast(string.pack(">I2>I4", s_to_c.leave, user_id))
+            self:broadcast(string.pack(">I2>I4", s_to_c.leave_room, user_id))
         end
         if self._count == 0 then
             self:clear()
