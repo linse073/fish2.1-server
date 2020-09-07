@@ -40,6 +40,7 @@ function lockstep:init()
     self:clear()
     self._update_func = function()
         self:update()
+        timer.done_routine("lockstep_update")
     end
 end
 
@@ -97,7 +98,7 @@ end
 function lockstep:start()
     self._last_time = skynet_m.now()
     self._rand_seed = floor(self._last_time)
-    timer.add_routine("lockstep_update", self._update_func, 1, true)
+    timer.add_routine("lockstep_update", self._update_func, 1)
 end
 
 function lockstep:kick(user_id)

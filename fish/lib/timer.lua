@@ -1,7 +1,5 @@
 local skynet_m = require "skynet_m"
 
-local string = string
-
 local timer = {}
 
 local routine
@@ -12,14 +10,21 @@ skynet_m.init(function()
 end)
 
 local function gen_key(key)
-    return string.format("%d_%s", skynet_m.self(), key)
+    return skynet_m.self() .. key
 end
 
 -- NOTICE: allow routine_list[key] exist
-function timer.add_routine(key, func, interval, loop)
+function timer.add_routine(key, func, interval)
     key = gen_key(key)
     routine_list[key] = func
-    skynet_m.send_lua(routine, "add", skynet_m.self(), key, interval, loop)
+    skynet_m.send_lua(routine, "add", skynet_m.self(), key, interval)
+end
+
+function timer.done_routine(key)
+    key = gen_key(key)
+    if routine_list[key] then
+        skynet_m.send_lua(routine, "done", key)
+    end
 end
 
 function timer.del_routine(key)

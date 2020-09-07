@@ -9,11 +9,9 @@ local running = false
 local function time_routine()
     local now = skynet_m.now()
     for k, v in pairs(routine_list) do
-        if now >= v.time then
+        if v.done and now >= v.time then
             v.time = v.time + v.interval
-            if not v.loop then
-                routine_list[k] = nil
-            end
+            v.done = false
             skynet_m.send_lua(v.address, "routine", k)
         end
     end
@@ -26,13 +24,27 @@ function CMD.exit()
 end
 
 -- NOTICE: allow routine[key] exist
-function CMD.add(address, key, interval, loop)
-    routine_list[key] = {
-        address = address,
-        interval = interval,
-        loop = loop,
-        time = skynet_m.now() + interval,
-    }
+function CMD.add(address, key, interval)
+    local info = routine_list[key]
+    if info then
+        info.interval = interval
+        info.time = skynet_m.now() + interval
+        info.done = true
+    else
+        routine_list[key] = {
+            address = address,
+            interval = interval,
+            time = skynet_m.now() + interval,
+            done = true,
+        }
+    end
+end
+
+function CMD.done(key)
+    local info = routine_list[key]
+    if info then
+        info.done = true
+    end
 end
 
 function CMD.del(key)

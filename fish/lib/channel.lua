@@ -33,7 +33,8 @@ function channel:init(session, from, func)
     self:addUpdate()
     timer.add_routine("check_activity", function()
         self:checkActivity()
-    end, 3000, false)
+        timer.del_routine("check_activity")
+    end, 3000)
 end
 
 function channel:process(data)
@@ -105,7 +106,7 @@ function channel:update()
     self._kcp:lkcp_update(now)
     local nt = self._kcp:lkcp_check(now)-now
     if nt > 0 then
-        timer.add_routine("kcp_update", self._update_func, nt/10, false)
+        timer.add_routine("kcp_update", self._update_func, nt/10)
     end
     self._next_update = false
 end
@@ -113,7 +114,7 @@ end
 function channel:addUpdate()
     if not self._next_update then
         self._next_update = true
-        timer.add_routine("kcp_update", self._update_func, 0, false)
+        timer.add_routine("kcp_update", self._update_func, 0)
     end
 end
 
