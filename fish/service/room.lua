@@ -1,11 +1,14 @@
 local skynet_m = require "skynet_m"
 local lockstep = require "lockstep"
+local timer = require "timer"
 
 local setmetatable = setmetatable
 
 local lockstep_i
 
 local CMD = {}
+
+CMD.routine = timer.call_routine
 
 function CMD.join(user_id, agent)
     return lockstep_i:join(user_id, agent)
