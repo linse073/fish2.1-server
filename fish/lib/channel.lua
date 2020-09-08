@@ -100,6 +100,8 @@ function channel:kick(code)
         skynet_m.send_lua(self._room, "kick", self._user_id)
     end
     self:send(string.pack(">I2>I2", s_to_c.kick, code))
+    skynet_m.log(string.format("Kick user %d, code %d.", self._user_id, code))
+    self._kcp:lkcp_flush()
 end
 
 function channel:update()
