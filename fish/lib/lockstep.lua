@@ -219,10 +219,14 @@ function lockstep:updateSyncCmd()
                 rate_value = rate_value+self._cmd_rate[i]
             end
             if rate_value >= 3 then
-                self._key_step = self._key_step-1
+                if self._key_step > 1 then
+                    self._key_step = self._key_step-1
+                end
                 self._cmd_rate = {}
             elseif rate_value <=-3 then
-                self._key_step = self._key_step+1
+                if self._key_step < 5 then
+                    self._key_step = self._key_step+1
+                end
                 self._cmd_rate = {}
             end
         end
