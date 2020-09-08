@@ -215,7 +215,7 @@ function lockstep:updateSyncCmd()
         local rate_len = #self._cmd_rate
         if rate_len >= 5 then
             local rate_value = 0
-            for i = rate_len-5, rate_len do
+            for i = rate_len-4, rate_len do
                 rate_value = rate_value+self._cmd_rate[i]
             end
             if rate_value >= 3 then
