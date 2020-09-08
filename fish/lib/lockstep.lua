@@ -68,7 +68,6 @@ function lockstep:join(user_id, agent)
         agent = agent,
         ready = false,
         pos = free_pos,
-        lost_cmd = 0,
         cmd_count = 0,
         key_cmd_count = nil,
         key_cmd = "",
@@ -190,17 +189,9 @@ function lockstep:updateSyncCmd()
     if self._next_sync_time and self._elapsed_time >= self._next_sync_time then
         local all_cmd, cmd_user_count = "", 0
         for k, v in pairs(self._user) do
-            if v.key_cmd_count then
-                v.lost_cmd = 0
-                if v.key_cmd_count > 0 then
-                    all_cmd = all_cmd..string.pack(">I4B", k, v.key_cmd_count)..v.key_cmd
-                    cmd_user_count = cmd_user_count+1
-                end
-            else
-                v.lost_cmd = v.lost_cmd+1
-                if v.lost_cmd >= 5 then
-                    skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
-                end
+            if v.key_cmd_count and v.key_cmd_count > 0 then
+                all_cmd = all_cmd..string.pack(">I4B", k, v.key_cmd_count)..v.key_cmd
+                cmd_user_count = cmd_user_count+1
             end
         end
         local cmd_rate = -1
