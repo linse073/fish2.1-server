@@ -43,6 +43,10 @@ function lockstep:init()
         self:update()
         timer.done_routine("lockstep_update")
     end
+    self._check_func = function()
+        self:checkActivity()
+        timer.done_routine("lockstep_check")
+    end
 end
 
 function lockstep:join(user_id, agent)
@@ -58,6 +62,7 @@ function lockstep:join(user_id, agent)
         end
     end
     assert(free_pos~=0, "No free pos.")
+    local now = skynet_m.now()
     local info = {
         user_id = user_id,
         agent = agent,
@@ -67,11 +72,36 @@ function lockstep:join(user_id, agent)
         cmd_count = 0,
         key_cmd_count = nil,
         key_cmd = "",
+        status_time = now,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
     self._count = self._count+1
+    if not self._status_time then
+        self._status_time = now
+        timer.add_routine("lockstep_check", self._check_func, 100)
+    end
     return true
+end
+
+function lockstep:checkActivity()
+    local now = skynet_m.now()
+    if now - self._status_time >= 1000 then
+        for k, _ in pairs(self._user) do
+            skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
+        end
+        self._user = {}
+        self._pos = {}
+        self._count = 0
+        self._ready_count = 0
+        self:clear()
+    else
+        for k, v in pairs(self._user) do
+            if now - v.status_time >= 1000 then
+                skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
+            end
+        end
+    end
 end
 
 function lockstep:clear()
@@ -92,6 +122,7 @@ function lockstep:clear()
     self._next_scale_time = self._next_scale_interval
     self._next_sync_time = self._next_scale_time
     self._rand_seed = 0
+    self._status_time = nil
     timer.del_all()
 end
 
@@ -99,6 +130,7 @@ function lockstep:start()
     self._last_time = skynet_m.now()
     self._rand_seed = floor(self._last_time)
     timer.add_routine("lockstep_update", self._update_func, 1)
+    self._status_time = self._last_time
 end
 
 function lockstep:kick(user_id)
@@ -127,6 +159,7 @@ function lockstep:process(user_id, data)
     local func = CMD[cmd]
     if func then
         self[func](self, info, data)
+        info.status_time = skynet_m.now()
     else
         skynet_m.log(string.format("Receive illegal cmd %d from user %d.", cmd, user_id))
     end
@@ -150,23 +183,23 @@ function lockstep:update()
     else
         self:updateScaleTime()
     end
-    self:updateStep()
+    self:updateStep(now)
 end
 
 function lockstep:updateSyncCmd()
     if self._next_sync_time and self._elapsed_time >= self._next_sync_time then
         local all_cmd, cmd_user_count = "", 0
-        for _, v in pairs(self._user) do
+        for k, v in pairs(self._user) do
             if v.key_cmd_count then
                 v.lost_cmd = 0
                 if v.key_cmd_count > 0 then
-                    all_cmd = all_cmd..string.pack(">I4B", v.user_id, v.key_cmd_count)..v.key_cmd
+                    all_cmd = all_cmd..string.pack(">I4B", k, v.key_cmd_count)..v.key_cmd
                     cmd_user_count = cmd_user_count+1
                 end
             else
                 v.lost_cmd = v.lost_cmd+1
                 if v.lost_cmd >= 5 then
-                    skynet_m.send_lua(agent_mgr, "quit", v.user_id, error_code.low_activity)
+                    skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
                 end
             end
         end
@@ -230,7 +263,7 @@ function lockstep:updateScaleTime()
     end
 end
 
-function lockstep:updateStep()
+function lockstep:updateStep(now)
     while self._elapsed_time >= self._next_step_time do
         local step = self._step+1
         if step == self._next_key_step then
@@ -255,6 +288,7 @@ function lockstep:updateStep()
             else
                 self:updateScaleTime()
             end
+            self._status_time = now
         end
         if step == self._next_logic_step then
             self._next_logic_step = step+logic_step

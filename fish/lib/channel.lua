@@ -66,6 +66,7 @@ function channel:processPack(data)
                     self._room = room
                     skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
                     self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
+                    timer.del_routine("check_activity")
                     skynet_m.log(string.format("User %d join room %d successfully.", user_id, room_id))
                 else
                     skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
