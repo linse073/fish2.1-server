@@ -50,7 +50,7 @@ function lockstep:init()
 end
 
 function lockstep:join(user_id, agent)
-    assert(not self._user[user_id], string.format("User %d join fail.", user_id))
+    self:kick(user_id, agent)
     if self._count >= MAX_USER then
         return false
     end
@@ -132,9 +132,9 @@ function lockstep:start()
     self._status_time = self._last_time
 end
 
-function lockstep:kick(user_id)
+function lockstep:kick(user_id, agent)
     local info = self._user[user_id]
-    if info then
+    if info and info.agent == agent then
         self._user[user_id] = nil
         self._pos[info.pos] = nil
         self._count = self._count-1
