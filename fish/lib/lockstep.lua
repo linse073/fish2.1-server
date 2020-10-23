@@ -85,7 +85,7 @@ end
 
 function lockstep:checkActivity()
     local now = skynet_m.now()
-    if now - self._status_time >= 500 then
+    if now - self._status_time >= 6000 then
         for k, _ in pairs(self._user) do
             skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
         end
@@ -96,7 +96,7 @@ function lockstep:checkActivity()
         self:clear()
     else
         for k, v in pairs(self._user) do
-            if now - v.status_time >= 500 then
+            if now - v.status_time >= 6000 then
                 skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
             end
         end
