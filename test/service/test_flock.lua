@@ -19,7 +19,7 @@ local function test()
     local obstacle_file = assert(io.open("./fish/data/Obstacle_01.dat", "rb"))
     local obstacle_data = obstacle_file:read("*a")
     obstacle_file:close()
-    flock = lflock.lflock_create(callback, flock_data, camera_data, obstacle_data)
+    flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, callback)
     timer.add_routine("updat_flock", function()
         flock:lflock_update();
     end, 10)
