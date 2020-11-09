@@ -20,6 +20,9 @@ local function test()
     local obstacle_data = obstacle_file:read("*a")
     obstacle_file:close()
     flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, callback)
+end
+
+local function update()
     timer.add_routine("updat_flock", function()
         flock:lflock_update();
     end, 10)
@@ -27,8 +30,10 @@ end
 
 local CMD = {}
 
+CMD.routine = timer.call_routine
+
 skynet_m.start(function()
     test()
-
     skynet_m.dispatch_lua(CMD)
+    update()
 end)
