@@ -171,7 +171,7 @@ VFactor VInt4::GetAngle() const
 VInt3 VInt4::GetRotationAxis() const
 {
 	// Ensure we never try to sqrt a neg number
-	const int64_t S = IntMath::SqrtLong(Math::Max(int64_t(1000000LL - ((int64_t)W * (int64_t)W)), int64-t(0LL)));
+	const int64_t S = IntMath::SqrtLong(Math::Max(int64_t(1000000LL - ((int64_t)W * (int64_t)W)), int64_t(0LL)));
 
 	if (S > 0)
 	{
