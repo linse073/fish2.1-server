@@ -46,13 +46,13 @@ static int lflock_create(lua_State* L) {
 
     Flock* flock = new Flock(c);
     size_t flockSize = 0;
-	const char* flockData = luaL_checklstring(L, 2, &flockSize);
+	const char* flockData = luaL_checklstring(L, 1, &flockSize);
     flock->loadFlockAssetData(flockData, flockSize);
     size_t cameraSize = 0;
-    const char* cameraData = luaL_checklstring(L, 3, &cameraSize);
+    const char* cameraData = luaL_checklstring(L, 2, &cameraSize);
     flock->loadCameraData(cameraData, cameraSize);
     size_t obstacleSize = 0;
-    const char* obstacleData = luaL_checklstring(L, 4, &obstacleSize);
+    const char* obstacleData = luaL_checklstring(L, 3, &obstacleSize);
     flock->loadObstacleData(obstacleData, obstacleSize);
 
     *(Flock**)lua_newuserdata(L, sizeof(void*)) = flock;
