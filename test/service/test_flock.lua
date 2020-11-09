@@ -25,6 +25,7 @@ end
 local function update()
     timer.add_routine("updat_flock", function()
         flock:lflock_update();
+        timer.done_routine("updat_flock")
     end, 10)
 end
 
