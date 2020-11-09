@@ -43,16 +43,23 @@ namespace MemoryStreamConverter
 namespace KBEngine
 {
 
+static bool IsLittleEndian()
+{
+      int i = 0x1;
+      unsigned char *p = (unsigned char *)&i;
+	  return *p;
+}
+
 template<typename T> inline void EndianConvert(T& val) 
 { 
-	// if(!FGenericPlatformProperties::IsLittleEndian())
-	// 	MemoryStreamConverter::apply<T>(&val); 
+	if(!IsLittleEndian())
+		MemoryStreamConverter::apply<T>(&val); 
 }
 
 template<typename T> inline void EndianConvertReverse(T& val) 
 {
-	// if (FGenericPlatformProperties::IsLittleEndian())
-	// 	MemoryStreamConverter::apply<T>(&val);
+	if (IsLittleEndian())
+		MemoryStreamConverter::apply<T>(&val);
 }
 
 template<typename T> void EndianConvert(T*);         // will generate link error
