@@ -206,6 +206,7 @@ function lockstep:updateSyncCmd()
         local all_cmd, cmd_user_count = "", 0
         for k, v in pairs(self._user) do
             if v.key_cmd_count and v.key_cmd_count > 0 then
+                assert(v.key_cmd_count < 255)
                 all_cmd = all_cmd..string.pack(">I4BB", k, v.pos, v.key_cmd_count)..v.key_cmd
                 cmd_user_count = cmd_user_count+1
             end

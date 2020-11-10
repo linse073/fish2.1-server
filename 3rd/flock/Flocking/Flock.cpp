@@ -163,33 +163,40 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 	}
 	if (!findBullet)
 	{
-		printf("Can't find bullet %d.", bulletid);
+		printf("Can't find bullet %d.\n", bulletid);
 	}
 	auto pAgent = agentMap_.find(fishid);
 	bool findAgent = false;
 	if (pAgent != agentMap_.end())
 	{
 		AFlockAgent* agent = pAgent->second;
-		agent->OnHit_fast(rate < 10);
-		if (agent->IsDead())
+		if (!agent->IsDead())
 		{
-			fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
-			agent->Clear();
-			for (auto it = agent_.begin(); it != agent_.end(); ) 
+			agent->OnHit_fast(rate < 10);
+			if (agent->IsDead())
 			{
-				if ((*it)->GetID() == agent->GetID()) 
+				fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
+				agent->Clear();
+				for (auto it = agent_.begin(); it != agent_.end(); ) 
 				{
-					it = agent_.erase(it);
-					findAgent = true;
-				} 
-				else 
-				{
-					++it;
+					if ((*it)->GetID() == agent->GetID()) 
+					{
+						it = agent_.erase(it);
+						findAgent = true;
+					} 
+					else 
+					{
+						++it;
+					}
 				}
+				// agent_.erase(std::remove(std::begin(agent_), std::end(agent_), agent), std::end(agent_));
+				agentMap_.erase(pAgent);
+				pool_->RecycleAgent(agent);
 			}
-			// agent_.erase(std::remove(std::begin(agent_), std::end(agent_), agent), std::end(agent_));
-			agentMap_.erase(pAgent);
-			pool_->RecycleAgent(agent);
+			else
+			{
+				findAgent = true;
+			}	
 		}
 		else
 		{
@@ -198,9 +205,8 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 	}
 	if (!findAgent)
 	{
-		printf("Can't find agent %d.", fishid);
+		printf("Can't find agent %d.\n", fishid);
 	}
-	
 }
 
 void Flock::update_fast()
