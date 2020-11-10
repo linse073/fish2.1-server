@@ -332,9 +332,14 @@ function lockstep:ready(info, data)
         -- for _, v in ipairs(self._history) do
         --     msg = msg..string.pack(">I4>I4s4", v[1], v[2], v[3])
         -- end
-        msg = msg..string.pack(">I4", 1)
-        local last = self._history[#self._history]
-        msg = msg..string.pack(">I4>I4s4", last[1], last[2], last[3])
+        local num = #self._history
+        if num > 0 then
+            msg = msg..string.pack(">I4", 1)
+            local last = self._history[num]
+            msg = msg..string.pack(">I4>I4s4", last[1], last[2], last[3])
+        else
+            msg = msg..string.pack(">I4", 0)
+        end
         msg = msg..self._flock:lflock_pack()
         skynet_m.send_lua(info.agent, "send", msg)
         -- TODO: send room data to client
