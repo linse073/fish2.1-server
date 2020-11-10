@@ -139,16 +139,26 @@ void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y)
 void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 {
 	int32_t rate = random_->Range(0, 100);
-	std::map<uint32_t, UBulletWidget*>::iterator pBullet = bulletMap_.find(bulletid);
+	auto pBullet = bulletMap_.find(bulletid);
 	if (pBullet != bulletMap_.end())
 	{
 		UBulletWidget* bullet = pBullet->second;
 		bullet->Clear();
-		bullet_.erase(std::remove(std::begin(bullet_), std::end(bullet_), bullet), std::end(bullet_));
+		for (auto it = bullet_.begin(); it != bullet_.end(); ) 
+		{
+			if ((*it)->GetID() == bullet->GetID()) 
+			{
+				it = bullet_.erase(it);
+			} else 
+			{
+				++it;
+			}
+		}
+		// bullet_.erase(std::remove(std::begin(bullet_), std::end(bullet_), bullet), std::end(bullet_));
 		bulletMap_.erase(pBullet);
 		bulletLayer_->RecycleBullet(bullet);
 	}
-	std::map<uint32_t, AFlockAgent*>::iterator pAgent = agentMap_.find(fishid);
+	auto pAgent = agentMap_.find(fishid);
 	if (pAgent != agentMap_.end())
 	{
 		AFlockAgent* agent = pAgent->second;
@@ -157,7 +167,17 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 		{
 			fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
 			agent->Clear();
-			agent_.erase(std::remove(std::begin(agent_), std::end(agent_), agent), std::end(agent_));
+			for (auto it = agent_.begin(); it != agent_.end(); ) 
+			{
+				if ((*it)->GetID() == agent->GetID()) 
+				{
+					it = agent_.erase(it);
+				} else 
+				{
+					++it;
+				}
+			}
+			// agent_.erase(std::remove(std::begin(agent_), std::end(agent_), agent), std::end(agent_));
 			agentMap_.erase(pAgent);
 			pool_->RecycleAgent(agent);
 		}
