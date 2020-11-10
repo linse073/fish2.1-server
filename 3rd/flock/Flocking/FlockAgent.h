@@ -40,6 +40,7 @@ private:
 	uint32_t id_;
 	VInt3 pos_;
 	VInt3 dir_;
+	int32_t scale_;
 	int32_t avoidanceRadius_;
 	bool dead_;
 	EFishType fishType_;

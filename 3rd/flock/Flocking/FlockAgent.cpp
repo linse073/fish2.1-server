@@ -10,6 +10,7 @@ AFlockAgent::AFlockAgent()
 	id_(0),
 	pos_(VInt3::zero),
 	dir_(VInt3::zero),
+	scale_(0),
 	avoidanceRadius_(0),
 	dead_(false),
 	fishType_(EFishType::FishType_Small)
@@ -22,6 +23,7 @@ void AFlockAgent::Clear()
 	id_ = 0;
 	pos_ = VInt3::zero;
 	dir_ = VInt3::zero;
+	scale_ = 0;
 	avoidanceRadius_ = 0;
 	dead_ = false;
 	fishType_ = EFishType::FishType_Small;
@@ -44,6 +46,7 @@ void AFlockAgent::Init_fast(uint32_t id, int32_t scale, const VInt3& pos, const 
 	pos_ = pos;
 	dir_ = dir;
 	fishAsset_ = fishAsset;
+	scale_ = scale;
 	avoidanceRadius_ = fishAsset->AvoidanceRadius * scale / 100;
 	fishType_ = fishType;
 }
@@ -69,6 +72,7 @@ void AFlockAgent::Pack_Data(KBEngine::MemoryStream& stream)
 	stream << id_;
 	stream << pos_.x << pos_.y << pos_.z;
 	stream << dir_.x << dir_.y << dir_.z;
+	stream << scale_;
 	stream << avoidanceRadius_;
 	stream << (uint8_t)fishType_;
 	stream << fishAsset_->ID;
@@ -79,6 +83,7 @@ void AFlockAgent::Read_Data(KBEngine::MemoryStream& stream)
 	stream >> id_;
 	stream >> pos_.x >> pos_.y >> pos_.z;
 	stream >> dir_.x >> dir_.y >> dir_.z;
+	stream >> scale_;
 	stream >> avoidanceRadius_;
 	fishType_ = (EFishType)stream.readUint8();
 	uint32_t ID;
