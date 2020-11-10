@@ -130,7 +130,7 @@ void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y)
 		td.NormalizeTo(flockAsset_->MuzzleLength);
 		VInt2 bulletPos = fortPos + td;
 		dis.NormalizeTo(flockAsset_->BulletSpeed);
-		bullet->Init_fast(id_, dis, bulletPos);
+		bullet->Init_fast(id_, dis, bulletPos, index);
 		bullet_.push_back(bullet);
 		bulletMap_[id_] = bullet;
 	}
