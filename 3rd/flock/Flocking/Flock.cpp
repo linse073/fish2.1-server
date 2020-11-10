@@ -140,6 +140,7 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 {
 	int32_t rate = random_->Range(0, 100);
 	auto pBullet = bulletMap_.find(bulletid);
+	bool findBullet = false;
 	if (pBullet != bulletMap_.end())
 	{
 		UBulletWidget* bullet = pBullet->second;
@@ -149,7 +150,9 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 			if ((*it)->GetID() == bullet->GetID()) 
 			{
 				it = bullet_.erase(it);
-			} else 
+				findBullet = true;
+			} 
+			else 
 			{
 				++it;
 			}
@@ -158,7 +161,12 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 		bulletMap_.erase(pBullet);
 		bulletLayer_->RecycleBullet(bullet);
 	}
+	if (!findBullet)
+	{
+		printf("Can't find bullet %d.", bulletid);
+	}
 	auto pAgent = agentMap_.find(fishid);
+	bool findAgent = false;
 	if (pAgent != agentMap_.end())
 	{
 		AFlockAgent* agent = pAgent->second;
@@ -172,7 +180,9 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 				if ((*it)->GetID() == agent->GetID()) 
 				{
 					it = agent_.erase(it);
-				} else 
+					findAgent = true;
+				} 
+				else 
 				{
 					++it;
 				}
@@ -181,7 +191,16 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 			agentMap_.erase(pAgent);
 			pool_->RecycleAgent(agent);
 		}
+		else
+		{
+			findAgent = true;
+		}
 	}
+	if (!findAgent)
+	{
+		printf("Can't find agent %d.", fishid);
+	}
+	
 }
 
 void Flock::update_fast()
