@@ -6,16 +6,16 @@ CC		= g++
 CFLAGS	= -Wall -O0 -std=c++17 -g -c -fPIC --shared
 BFLAGS	= -Wall -O0 -std=c++17 -g -fPIC --shared
 #wildcard为Makefile模式匹配关键字，获取目标目录符合匹配模式的所有文件名
-SRCS	= $(wildcard ./*.cpp)
-SRCS	+= $(wildcard ./Asset/*.cpp)
-SRCS	+= $(wildcard ./Bullet/*.cpp)
-SRCS	+= $(wildcard ./Engine/*.cpp)
-SRCS	+= $(wildcard ./FixedPoint/*.cpp)
-SRCS	+= $(wildcard ./Flocking/*.cpp)
-SRCS	+= $(wildcard ./Flocking/Behavior/*.cpp)
-SRCS	+= $(wildcard ./Flocking/Shap/*.cpp)
+SRCS	= $(wildcard *.cpp)
+SRCS	+= $(wildcard Asset/*.cpp)
+SRCS	+= $(wildcard Bullet/*.cpp)
+SRCS	+= $(wildcard Engine/*.cpp)
+SRCS	+= $(wildcard FixedPoint/*.cpp)
+SRCS	+= $(wildcard Flocking/*.cpp)
+SRCS	+= $(wildcard Flocking/Behavior/*.cpp)
+SRCS	+= $(wildcard Flocking/Shap/*.cpp)
 #patsubst为Makefile模式替换关键字，查找字符串SRCS中按空格分开的单词，并将符合模式%.cpp的字符串全部替换成%.o
-OBJS	= $(patsubst ./%.cpp, ./%.o, $(SRCS))
+OBJS	= $(patsubst %.cpp, %.o, $(SRCS))
 INCS	= -IAsset
 INCS	+= -IBullet
 INCS	+= -IEngine
@@ -29,8 +29,8 @@ RM		= rm -f
 
 C_CC		= gcc
 C_CFLAGS	= -Wall -O0 -g -c -fPIC --shared
-C_SRCS 		= $(filter-out ./lua/lua.c ./lua/luac.c, $(wildcard ./lua/*.c))
-C_OBJS		= $(patsubst ./%.c, ./%.o, $(C_SRCS))
+C_SRCS 		= $(filter-out lua/lua.c lua/luac.c, $(wildcard lua/*.c))
+C_OBJS		= $(patsubst %.c, %.o, $(C_SRCS))
 C_INCS		= -Ilua
 
 #伪目标，声明clean为伪目标或标签，为了避免该清理任务与文件名相同而被错识别
