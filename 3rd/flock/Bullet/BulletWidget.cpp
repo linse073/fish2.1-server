@@ -2,7 +2,8 @@
 #include "MemoryStream.h"
 
 UBulletWidget::UBulletWidget()
-	:id_(0), 
+	:id_(0),
+	index_(0),
 	dir_(VInt2::zero), 
 	pos_(VInt2::zero)
 {
@@ -11,13 +12,15 @@ UBulletWidget::UBulletWidget()
 void UBulletWidget::Clear()
 {
 	id_ = 0;
+	index_ = 0;
 	dir_ = VInt2::zero;
 	pos_ = VInt2::zero;
 }
 
-void UBulletWidget::Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos)
+void UBulletWidget::Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos, uint8_t index)
 {
 	id_ = id;
+	index_ = index;
 
 	SetPosition_fast(pos);
 	SetDir_fast(dir);
@@ -36,6 +39,7 @@ void UBulletWidget::SetDir_fast(const VInt2& dir)
 void UBulletWidget::Pack_Data(KBEngine::MemoryStream& stream)
 {
 	stream << id_;
+	stream << index_;
 	stream << dir_.x << dir_.y;
 	stream << pos_.x << pos_.y;
 }
@@ -43,6 +47,7 @@ void UBulletWidget::Pack_Data(KBEngine::MemoryStream& stream)
 void UBulletWidget::Read_Data(KBEngine::MemoryStream& stream)
 {
 	stream >> id_;
+	stream >> index_;
 	stream >> dir_.x >> dir_.y;
 	stream >> pos_.x >> pos_.y;
 }

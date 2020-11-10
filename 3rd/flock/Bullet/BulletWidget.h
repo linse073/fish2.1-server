@@ -15,7 +15,7 @@ public:
 
 	void Clear();
 
-	void Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos);
+	void Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos, uint8_t index);
 	void SetPosition_fast(const VInt2& pos);
 	void SetDir_fast(const VInt2& dir);
 	void Pack_Data(KBEngine::MemoryStream& stream);
@@ -27,6 +27,7 @@ public:
 
 private:
 	uint32_t id_;
+	uint8_t index_;
 	VInt2 dir_;
 	VInt2 pos_;
 };
