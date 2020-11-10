@@ -452,6 +452,16 @@ void Flock::readData(KBEngine::MemoryStream& stream)
 	stream >> randSeed;
 	random_->SetSeed(randSeed);
 	stream >> cameraStep_;
+	if (cameraStep_ > 0 && cameraPath_.size() > 0)
+	{
+		uint32_t step = cameraStep_ % cameraPath_.size();
+		const PathData& data = cameraPath_[step];
+		cameraPos_ = data.pos;
+		cameraQuat_ = data.quat;
+		VInt3 cforward = cameraQuat_.GetForwardVector();
+		sphereCenter_ = cameraPos_ + cforward.NormalizeTo(flockAsset_->SphereCenterByCameraForward);
+		((FlockSphere*)obstacle_[0])->SetCenter(cameraPos_);
+	}
 	uint16_t agentSize = 0;
 	stream >> agentSize;
 	for (uint16_t i = 0; i < agentSize; i++)
