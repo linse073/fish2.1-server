@@ -102,7 +102,7 @@ static int lflock_pack(lua_State* L) {
 
 static const struct luaL_Reg lflock_methods [] = {
     { "lflock_update" , lflock_update },
-    { "lflock_onfire" , lflock_oncmd },
+    { "lflock_oncmd" , lflock_oncmd },
     { "lflock_pack" , lflock_pack },
 	{NULL, NULL},
 };
