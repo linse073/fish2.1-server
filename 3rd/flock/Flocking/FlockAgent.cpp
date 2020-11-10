@@ -3,6 +3,7 @@
 #include "FishAsset.h"
 #include "FlockCommon.h"
 #include "Flock.h"
+#include "MemoryStream.h"
 
 AFlockAgent::AFlockAgent()
 	:fishAsset_(nullptr),
@@ -59,8 +60,30 @@ void AFlockAgent::Move_fast(VInt3 move)
 		move.NormalizeTo(fishAsset_->MaxSpeed);
 	}
 	pos_ = pos_ + move * STEP_DELTA;
-	//move.Normalize();
+	// move.Normalize();
 	dir_ = move;
+}
+
+void AFlockAgent::Pack_Data(KBEngine::MemoryStream& stream)
+{
+	stream << id_;
+	stream << pos_.x << pos_.y << pos_.z;
+	stream << dir_.x << dir_.y << dir_.z;
+	stream << avoidanceRadius_;
+	stream << (uint8_t)fishType_;
+	stream << fishAsset_->ID;
+}
+
+void AFlockAgent::Read_Data(KBEngine::MemoryStream& stream)
+{
+	stream >> id_;
+	stream >> pos_.x >> pos_.y >> pos_.z;
+	stream >> dir_.x >> dir_.y >> dir_.z;
+	stream >> avoidanceRadius_;
+	fishType_ = (EFishType)stream.readUint8();
+	uint32_t ID;
+	stream >> ID;
+	// TODO: init fishAsset
 }
 
 //const UFishAsset* AFlockAgent::GetFishAsset() const

@@ -13,12 +13,17 @@ class FlockShap;
 class UBulletWidget;
 class AFlockAgent;
 
+namespace KBEngine
+{
+	class MemoryStream;
+}
+
 static const int32_t FishType_Count = int32_t(FishType_Boss) + 1;
 
 class Flock
 {
 public:
-	Flock(void* callback);
+	Flock(void* callback, uint32_t randSeed);
 	virtual ~Flock();
 
 	void init(const UFlockAsset* flockAsset);
@@ -31,6 +36,9 @@ public:
 	void loadFlockAssetData(const char* Result, uint32_t length);
 	void loadCameraData(const char* Result, uint32_t length);
 	void loadObstacleData(const char* Result, uint32_t length);
+	void doKeyStepCmd_fast(const char* Result, uint32_t length);
+	void packData(KBEngine::MemoryStream& stream);
+	void readData(KBEngine::MemoryStream& stream);
 
 	const VInt3& getSphereCenter() const;
 	int32_t getSphereRadius() const;
@@ -50,6 +58,13 @@ private:
 	{
 		VInt3 pos;
 		VInt4 quat;
+	};
+
+	enum OP
+	{
+		OP_idle = 1,
+		OP_fire = 2,
+		OP_hit = 3,
 	};
 
 	void updateCamera_fast();
@@ -78,6 +93,7 @@ private:
 	std::map<uint32_t, AFlockAgent*> agentMap_;
 	std::map<uint32_t, UBulletWidget*> bulletMap_;
 	void* callback_;
+	class Random* random_;
 };
 
 #endif // __FLOCK_H__

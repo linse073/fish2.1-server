@@ -7,6 +7,7 @@
 class UFishAsset
 {
 public:
+	uint32_t ID;
 	int32_t DriveFactor;
 	int32_t MaxSpeed;
 	int32_t NeighborRadius;
@@ -15,6 +16,7 @@ public:
 
 	void Serialize(KBEngine::MemoryStream& stream)
 	{
+		stream << ID;
 		stream << DriveFactor;
 		stream << MaxSpeed;
 		stream << NeighborRadius;
@@ -24,6 +26,7 @@ public:
 
 	void Unserialize(KBEngine::MemoryStream& stream)
 	{
+		stream >> ID;
 		stream >> DriveFactor;
 		stream >> MaxSpeed;
 		stream >> NeighborRadius;

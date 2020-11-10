@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "Flock.h"
 #include "lua.hpp"
+#include "MemoryStream.h"
 
 #define check_flock(L, idx)\
 	*(Flock**)luaL_checkudata(L, idx, "flock_meta")
@@ -44,7 +45,8 @@ static int lflock_create(lua_State* L) {
     c->handle = handle;
     c->L = L;
 
-    Flock* flock = new Flock(c);
+    uint32_t randSeed = luaL_checkinteger(L, 4);
+    Flock* flock = new Flock(c, randSeed);
     size_t flockSize = 0;
 	const char* flockData = luaL_checklstring(L, 1, &flockSize);
     flock->loadFlockAssetData(flockData, flockSize);
@@ -72,38 +74,36 @@ static int lflock_update(lua_State* L) {
     return 0;
 }
 
-static int lflock_onfire(lua_State* L) {
+static int lflock_oncmd(lua_State* L) {
 	Flock* flock = check_flock(L, 1);
 	if (flock == NULL) {
         lua_pushnil(L);
         lua_pushstring(L, "error: flock not args");
         return 2;
 	}
-    uint8_t index = luaL_checkinteger(L, 2);
-    int32_t x = luaL_checkinteger(L, 3);
-    int32_t y = luaL_checkinteger(L, 4);
-    flock->onFire_fast(index, x, y);
+    size_t cmdSize = 0;
+	const char* cmdData = luaL_checklstring(L, 2, &cmdSize);
+    flock->doKeyStepCmd_fast(cmdData, cmdSize);
     return 0;
 }
 
-static int lflock_onhit(lua_State* L) {
+static int lflock_pack(lua_State* L) {
 	Flock* flock = check_flock(L, 1);
 	if (flock == NULL) {
         lua_pushnil(L);
         lua_pushstring(L, "error: flock not args");
         return 2;
 	}
-    uint8_t index = luaL_checkinteger(L, 2);
-    uint32_t bulletid = luaL_checkinteger(L, 3);
-    uint32_t fishid = luaL_checkinteger(L, 4);
-    flock->onHit_fast(index, bulletid, fishid);
-    return 0;
+    KBEngine::MemoryStream stream;
+    flock->packData(stream);
+    lua_pushlstring(L, (const char *)stream.data(), stream.length());
+    return 1;
 }
 
 static const struct luaL_Reg lflock_methods [] = {
     { "lflock_update" , lflock_update },
-    { "lflock_onfire" , lflock_onfire },
-    { "lflock_onhit" , lflock_onhit },
+    { "lflock_onfire" , lflock_oncmd },
+    { "lflock_pack" , lflock_pack },
 	{NULL, NULL},
 };
 

@@ -1,4 +1,5 @@
 #include "BulletWidget.h"
+#include "MemoryStream.h"
 
 UBulletWidget::UBulletWidget()
 	:id_(0), 
@@ -30,6 +31,20 @@ void UBulletWidget::SetPosition_fast(const VInt2& pos)
 void UBulletWidget::SetDir_fast(const VInt2& dir)
 {
 	dir_ = dir;
+}
+
+void UBulletWidget::Pack_Data(KBEngine::MemoryStream& stream)
+{
+	stream << id_;
+	stream << dir_.x << dir_.y;
+	stream << pos_.x << pos_.y;
+}
+
+void UBulletWidget::Read_Data(KBEngine::MemoryStream& stream)
+{
+	stream >> id_;
+	stream >> dir_.x >> dir_.y;
+	stream >> pos_.x >> pos_.y;
 }
 
 uint32_t UBulletWidget::GetID() const

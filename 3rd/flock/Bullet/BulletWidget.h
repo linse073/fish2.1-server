@@ -3,6 +3,11 @@
 
 #include "VInt2.h"
 
+namespace KBEngine
+{
+	class MemoryStream;
+}
+
 class UBulletWidget
 {
 public:
@@ -13,6 +18,8 @@ public:
 	void Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos);
 	void SetPosition_fast(const VInt2& pos);
 	void SetDir_fast(const VInt2& dir);
+	void Pack_Data(KBEngine::MemoryStream& stream);
+	void Read_Data(KBEngine::MemoryStream& stream);
 
 	uint32_t GetID() const;
 	const VInt2& GetDir() const;

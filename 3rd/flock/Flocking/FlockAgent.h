@@ -6,6 +6,11 @@
 
 class UFishAsset;
 
+namespace KBEngine
+{
+	class MemoryStream;
+}
+
 class AFlockAgent
 {
 public:
@@ -16,6 +21,8 @@ public:
 	void OnHit_fast(bool dead);
 	void Init_fast(uint32_t id, int32_t scale, const VInt3& pos, const VInt3& dir, const UFishAsset* fishAsset, EFishType fishType);
 	void Move_fast(VInt3 move);
+	void Pack_Data(KBEngine::MemoryStream& stream);
+	void Read_Data(KBEngine::MemoryStream& stream);
 
 	//const UFishAsset* GetFishAsset() const;
 	const VInt3& GetPos() const;

@@ -5,12 +5,14 @@ local c_to_s = message.c_to_s
 local s_to_c = message.s_to_c
 local op_cmd = message.op_cmd
 local error_code = message.error_code
+local lflock = require "lflock"
 
 local string = string
 local pairs = pairs
 local ipairs = ipairs
 local table = table
 local floor = math.floor
+local assert = assert
 
 local CMD = {
     [c_to_s.ready] = "ready",
@@ -46,6 +48,8 @@ function lockstep:init()
     self._check_func = function()
         self:checkActivity()
         timer.done_routine("lockstep_check")
+    end
+    self._flock_func = function()
     end
 end
 
@@ -122,6 +126,7 @@ function lockstep:clear()
     self._next_sync_time = self._next_scale_time
     self._rand_seed = 0
     self._status_time = nil
+    self._flock = nil
     timer.del_all()
 end
 
@@ -130,6 +135,17 @@ function lockstep:start()
     self._rand_seed = floor(self._last_time)
     timer.add_routine("lockstep_update", self._update_func, 1)
     self._status_time = self._last_time
+
+    local flock_file = assert(io.open("./fish/data/Flock_01.dat", "rb"))
+    local flock_data = flock_file:read("*a")
+    flock_file:close()
+    local camera_file = assert(io.open("./fish/data/Camera_01.dat", "rb"))
+    local camera_data = camera_file:read("*a")
+    camera_file:close()
+    local obstacle_file = assert(io.open("./fish/data/Obstacle_01.dat", "rb"))
+    local obstacle_data = obstacle_file:read("*a")
+    obstacle_file:close()
+    self._flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, self._rand_seed, self._flock_func)
 end
 
 function lockstep:kick(user_id, agent)
@@ -190,7 +206,7 @@ function lockstep:updateSyncCmd()
         local all_cmd, cmd_user_count = "", 0
         for k, v in pairs(self._user) do
             if v.key_cmd_count and v.key_cmd_count > 0 then
-                all_cmd = all_cmd..string.pack(">I4B", k, v.key_cmd_count)..v.key_cmd
+                all_cmd = all_cmd..string.pack(">I4BB", k, v.pos, v.key_cmd_count)..v.key_cmd
                 cmd_user_count = cmd_user_count+1
             end
         end
@@ -278,6 +294,7 @@ function lockstep:updateStep(now)
             self._next_scale_time = step_time+self._next_scale_interval
             self._next_sync_time = self._next_scale_time
             -- TODO: do cmd
+            self._flock:lflock_oncmd(self._history[#self._history][3])
             if self._cmd_count > 0 then
                 self:updateSyncCmd()
             else
@@ -289,6 +306,7 @@ function lockstep:updateStep(now)
             self._next_logic_step = step+logic_step
             -- TODO: do logic
         end
+        self._flock:lflock_update()
     end
 end
 
@@ -310,10 +328,14 @@ function lockstep:ready(info, data)
                 msg = msg..string.pack(">I4B", v.user_id, v.pos)
             end
         end
-        msg = msg..string.pack(">I4", #self._history)
-        for _, v in ipairs(self._history) do
-            msg = msg..string.pack(">I4>I4s4", v[1], v[2], v[3])
-        end
+        -- msg = msg..string.pack(">I4", #self._history)
+        -- for _, v in ipairs(self._history) do
+        --     msg = msg..string.pack(">I4>I4s4", v[1], v[2], v[3])
+        -- end
+        msg = msg..string.pack(">I4", 1)
+        local last = self._history[#self._history]
+        msg = msg..string.pack(">I4>I4s4", last[1], last[2], last[3])
+        msg = msg..self._flock:lflock_pack()
         skynet_m.send_lua(info.agent, "send", msg)
         -- TODO: send room data to client
     end

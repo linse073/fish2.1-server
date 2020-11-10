@@ -15,7 +15,7 @@
 #include "ContextFilter.h"
 #include "MemoryStream.h"
 
-Flock::Flock(void* callback)
+Flock::Flock(void* callback, uint32_t randSeed)
 	:id_(0),
 	cameraPos_(VInt3::zero),
 	cameraQuat_(VInt4::Identity),
@@ -26,7 +26,8 @@ Flock::Flock(void* callback)
 	cameraStep_(0),
 	screenSize(VInt2::zero),
 	bulletLayer_(new UBulletLayerWidget()),
-	callback_(callback)
+	callback_(callback),
+	random_(new Random(randSeed))
 {
 	memset(fishCount_, 0, sizeof(fishCount_));
 	memset(fortPos_, 0, sizeof(fortPos_));
@@ -38,6 +39,7 @@ Flock::~Flock()
 	KBE_SAFE_RELEASE(behavior_);
 	KBE_SAFE_RELEASE(pool_);
 	KBE_SAFE_RELEASE(bulletLayer_);
+	KBE_SAFE_RELEASE(random_);
 }
 
 void Flock::init(const UFlockAsset* flockAsset)
@@ -136,7 +138,7 @@ void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y)
 
 void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 {
-	int32_t rate = Random::Range(0, 100);
+	int32_t rate = random_->Range(0, 100);
 	std::map<uint32_t, UBulletWidget*>::iterator pBullet = bulletMap_.find(bulletid);
 	if (pBullet != bulletMap_.end())
 	{
@@ -280,7 +282,7 @@ void Flock::newAgent_fast()
 			std::vector<UNewFishAsset*>& newFishAsset = fishType_[i];
 			if (newFishAsset.size() > 0)
 			{
-				newAgent_fast(newFishAsset[Random::Range(0, newFishAsset.size())]);
+				newAgent_fast(newFishAsset[random_->Range(0, newFishAsset.size())]);
 			}
 		}
 	}
@@ -289,28 +291,28 @@ void Flock::newAgent_fast()
 
 void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 {
-	VInt3 initPos = IntMath::SphereNormalPos();
+	VInt3 initPos = IntMath::SphereNormalPos(random_);
 	initPos.NormalizeTo(flockAsset_->SphereRadius);
 	initPos = sphereCenter_ + initPos;
 	if (newFishAsset->RandomPos)
 	{
 		int32_t randomRadius = newFishAsset->RandomRadius;
-		VInt3 dir = IntMath::SphereNormalPos();
+		VInt3 dir = IntMath::SphereNormalPos(random_);
 		int32_t scale = 100;
 		for (int32_t i = 0; i < newFishAsset->InitCount; ++i)
 		{
 			VInt3 pos;
-			pos.x = Random::Range(-randomRadius, randomRadius) * 1000;
-			pos.y = Random::Range(-randomRadius, randomRadius) * 1000;
-			pos.z = Random::Range(-randomRadius, randomRadius) * 1000;
+			pos.x = random_->Range(-randomRadius, randomRadius) * 1000;
+			pos.y = random_->Range(-randomRadius, randomRadius) * 1000;
+			pos.z = random_->Range(-randomRadius, randomRadius) * 1000;
 			pos = initPos + pos;
 			if (newFishAsset->RandomDir)
 			{
-				dir = IntMath::SphereNormalPos();
+				dir = IntMath::SphereNormalPos(random_);
 			}
 			if (newFishAsset->RandomScale)
 			{
-				scale = Random::Range(newFishAsset->MinScale, newFishAsset->MaxScale);
+				scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale);
 			}
 			AFlockAgent* agent = pool_->GetAgent();
 			++id_;
@@ -321,17 +323,17 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 	}
 	else
 	{
-		VInt3 dir = IntMath::SphereNormalPos();
+		VInt3 dir = IntMath::SphereNormalPos(random_);
 		int32_t scale = 100;
 		for (int32_t i = 0; i < newFishAsset->InitCount; ++i)
 		{
 			if (newFishAsset->RandomDir)
 			{
-				dir = IntMath::SphereNormalPos();
+				dir = IntMath::SphereNormalPos(random_);
 			}
 			if (newFishAsset->RandomScale)
 			{
-				scale = Random::Range(newFishAsset->MinScale, newFishAsset->MaxScale);
+				scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale);
 			}
 			AFlockAgent* agent = pool_->GetAgent();
 			++id_;
@@ -383,5 +385,93 @@ void Flock::updateBullet_fast()
 		}
 		item->SetPosition_fast(pos);
 		item->SetDir_fast(dir);
+	}
+}
+
+void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
+{
+	KBEngine::MemoryStream stream;
+	stream.append(Result, length);
+
+	uint8_t cmdUserCount;
+	stream >> cmdUserCount;
+	for (uint8_t i = 0; i < cmdUserCount; ++i)
+	{
+		uint32_t userid;
+		uint8_t userPos;
+		uint8_t cmdCount;
+		stream >> userid >> userPos >> cmdCount;
+		--userPos;
+		for (uint8_t j = 0; j < cmdCount; ++j)
+		{
+			uint8_t cmdType;
+			stream >> cmdType;
+			switch (cmdType)
+			{
+			case uint8_t(OP_fire):
+			{
+				int32_t x, y;
+				stream >> x >> y;
+				onFire_fast(userPos, x, y);
+			}
+			break;
+			case uint8_t(OP_hit):
+			{
+				uint32_t bulletid, fishid;
+				stream >> bulletid >> fishid;
+				onHit_fast(userPos, bulletid, fishid);
+			}
+			break;
+			default:
+			{
+				KBE_ASSERT(false);
+			}
+			break;
+			}
+		}
+	}
+}
+
+void Flock::packData(KBEngine::MemoryStream& stream)
+{
+	stream << id_;
+	stream << random_->GetSeed();
+	stream << cameraStep_;
+	stream << (uint16_t)agent_.size();
+	for (auto& item : agent_)
+		item->Pack_Data(stream);
+	stream << (uint16_t)bullet_.size();
+	for (auto& item : bullet_)
+		item->Pack_Data(stream);
+}
+
+void Flock::readData(KBEngine::MemoryStream& stream)
+{
+	stream >> id_;
+	uint64_t randSeed = 0;
+	stream >> randSeed;
+	random_->SetSeed(randSeed);
+	stream >> cameraStep_;
+	uint16_t agentSize = 0;
+	stream >> agentSize;
+	for (uint16_t i = 0; i < agentSize; i++)
+	{
+		AFlockAgent* agent = pool_->GetAgent();
+		agent->Read_Data(stream);
+		agent_.push_back(agent);
+		agentMap_[agent->GetID()] = agent;
+		fishCount_[int32_t(agent->GetFishType())].curCount++;
+	}
+	uint16_t bulletSize = 0;
+	stream >> bulletSize;
+	for (uint16_t i = 0; i < bulletSize; i++)
+	{
+		UBulletWidget* bullet = bulletLayer_->GetBullet();
+		if (bullet)
+		{
+			bullet->Read_Data(stream);
+			bullet_.push_back(bullet);
+			bulletMap_[bullet->GetID()] = bullet;
+		}
 	}
 }
