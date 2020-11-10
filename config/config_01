@@ -15,6 +15,6 @@ cpath = skynetroot.."cservice/?.so"
 lua_path = fishroot.."lib/?.lua;"..fishroot.."lib/?/init.lua;"..skynetroot.."lualib/?.lua;"..skynetroot.."lualib/?/init.lua"
 lua_cpath = root.."lib/?.so;"..skynetroot.."luaclib/?.so"
 -- daemon = "./skynet.pid"
-debug_port = 8100
+debug_port = 8101
 
 include "fish_01.conf"
