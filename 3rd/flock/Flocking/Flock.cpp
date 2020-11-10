@@ -454,7 +454,7 @@ void Flock::readData(KBEngine::MemoryStream& stream)
 	stream >> cameraStep_;
 	if (cameraStep_ > 0 && cameraPath_.size() > 0)
 	{
-		uint32_t step = cameraStep_ % cameraPath_.size();
+		uint32_t step = (cameraStep_ - 1) % cameraPath_.size();
 		const PathData& data = cameraPath_[step];
 		cameraPos_ = data.pos;
 		cameraQuat_ = data.quat;
