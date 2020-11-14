@@ -113,7 +113,7 @@ function CMD.on_link()
 end
 
 function CMD.on_heart_beat()
-    
+    -- timer.done_routine("heart_beat")
 end
 
 function CMD.stop()
