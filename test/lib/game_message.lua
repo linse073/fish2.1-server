@@ -3,6 +3,7 @@ local skynet_m = require "skynet_m"
 local string = string
 local ipairs = ipairs
 local assert = assert
+local tonumber = tonumber
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
@@ -15,14 +16,29 @@ local pack_message = {}
 local pack_cmd = {}
 
 local game_client
-local room_mgr
-local gate_mgr
 
 skynet_m.init(function()
     game_client = skynet_m.queryservice("game_client")
-    room_mgr = skynet_m.queryservice("room_mgr")
-    gate_mgr = skynet_m.queryservice("gate_mgr")
 end)
+
+local function get_gate_port()
+    local port_list = {}
+    local udp_port = skynet_m.getenv("udp_port")
+    for port_str in udp_port:gmatch("([^,]+)") do
+        local port = tonumber(port_str)
+        if port then
+            port_list[#port_list+1] = port
+        else
+            local port_begin, port_end = port_str:match("(%d+)-(%d+)")
+            if port_begin and port_end then
+                for i = tonumber(port_begin), tonumber(port_end) do
+                    port_list[#port_list+1] = i
+                end
+            end
+        end
+    end
+    return port_list
+end
 
 -- NOTICE: send messag
 
@@ -51,7 +67,7 @@ end
 local function pack_link(msg)
     local pack = string.pack("<I4", server_id)
     pack = pack .. pack_string(udp_address)
-    local port = skynet_m.call_lua(gate_mgr, "get_port");
+    local port = get_gate_port();
     pack = pack .. string.pack("<I4", #port)
     for _, v in ipairs(port) do
         pack = pack .. string.pack("<I4", v)

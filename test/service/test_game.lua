@@ -10,8 +10,6 @@ skynet_m.start(function()
 
     -- service
     skynet_m.uniqueservice("routine")
-    skynet_m.uniqueservice("gate_mgr")
-    -- skynet_m.uniqueservice("room_mgr")
     local game_client = skynet_m.uniqueservice("game_client")
     skynet_m.send_lua(game_client, "start")
 
