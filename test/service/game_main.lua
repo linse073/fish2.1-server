@@ -11,7 +11,7 @@ skynet_m.start(function()
 	skynet_m.newservice("debug_console", 8000)
 	local watchdog = skynet_m.newservice("watchdog")
 	skynet_m.call(watchdog, "lua", "start", {
-		port = 8888,
+		port = 9001,
 		maxclient = max_client,
 		nodelay = true,
 	})
