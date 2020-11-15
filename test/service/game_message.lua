@@ -131,7 +131,7 @@ function CMD.send_enter_game(msg)
     send_cmd(1401, msg)
 end
 
-function CMD.send_enter_game(msg)
+function CMD.send_leave_game(msg)
     send_cmd(1402, msg)
 end
 
@@ -143,11 +143,11 @@ function CMD.send_build_fish(msg)
     send_cmd(1404, msg)
 end
 
-function CMD.send_build_fish(msg)
+function CMD.send_fire(msg)
     send_cmd(1405, msg)
 end
 
-function CMD.send_build_fish(msg)
+function CMD.send_catch_fish(msg)
     send_cmd(1406, msg)
 end
 
