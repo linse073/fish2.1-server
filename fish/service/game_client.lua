@@ -1,7 +1,6 @@
 local skynet_m = require "skynet_m"
 local timer = require "timer"
 local socket = require "client.socket"
-local game_message = require "game_message"
 
 local game_address = skynet_m.getenv("game_address")
 local game_port = skynet_m.getenv_num("game_port")
@@ -10,6 +9,7 @@ local pcall = pcall
 local string = string
 local ipairs = ipairs
 
+local game_message
 local game_fd
 local last = ""
 local msg_queue = {}
@@ -60,7 +60,7 @@ local function dispatch_package()
                 break
             end
             -- TODO: process package
-            game_message.recv_msg(v)
+            skynet_m.send_lua(game_message, "recv_msg", v)
         else
             skynet_m.log(v)
             CMD.stop()
@@ -76,7 +76,7 @@ end
 
 local function heart_beat()
     -- TODO: send heart beat
-    game_message.send_heart_beat()
+    skynet_m.send_lua(game_message, "send_heart_beat")
     timer.done_routine("heart_beat")
 end
 
@@ -86,7 +86,7 @@ local function start()
         timer.del_routine("start_update")
         timer.add_routine("process_update", process, 1)
         -- TODO: send link message
-        game_message.send_link()
+        skynet_m.send_lua(game_message, "send_link")
     else
         timer.done_routine("start_update")
     end
@@ -101,6 +101,8 @@ function CMD.send_package(id, pack)
 end
 
 function CMD.start()
+    game_message = skynet_m.queryservice("game_message")
+
     timer.add_routine("start_update", start, 20)
 end
 
@@ -129,5 +131,5 @@ function CMD.exit()
 end
 
 skynet_m.start(function()
-    skynet_m.dispatch_lua_queue(CMD)
+    skynet_m.dispatch_lua(CMD)
 end)

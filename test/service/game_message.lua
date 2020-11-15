@@ -3,26 +3,39 @@ local skynet_m = require "skynet_m"
 local string = string
 local ipairs = ipairs
 local assert = assert
+local tonumber = tonumber
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
 local udp_address = skynet_m.getenv("udp_address")
 
-local game_message = {}
 local message_handle = {}
 local cmd_handle = {}
 local pack_message = {}
 local pack_cmd = {}
 
 local game_client
-local room_mgr
-local gate_mgr
 
-skynet_m.init(function()
-    game_client = skynet_m.queryservice("game_client")
-    room_mgr = skynet_m.queryservice("room_mgr")
-    gate_mgr = skynet_m.queryservice("gate_mgr")
-end)
+local CMD = {}
+
+local function get_gate_port()
+    local port_list = {}
+    local udp_port = skynet_m.getenv("udp_port")
+    for port_str in udp_port:gmatch("([^,]+)") do
+        local port = tonumber(port_str)
+        if port then
+            port_list[#port_list+1] = port
+        else
+            local port_begin, port_end = port_str:match("(%d+)-(%d+)")
+            if port_begin and port_end then
+                for i = tonumber(port_begin), tonumber(port_end) do
+                    port_list[#port_list+1] = i
+                end
+            end
+        end
+    end
+    return port_list
+end
 
 -- NOTICE: send messag
 
@@ -51,7 +64,7 @@ end
 local function pack_link(msg)
     local pack = string.pack("<I4", server_id)
     pack = pack .. pack_string(udp_address)
-    local port = skynet_m.call_lua(gate_mgr, "get_port");
+    local port = get_gate_port();
     pack = pack .. string.pack("<I4", #port)
     for _, v in ipairs(port) do
         pack = pack .. string.pack("<I4", v)
@@ -106,35 +119,35 @@ pack_cmd[1404] = pack_build_fish
 pack_cmd[1405] = pack_fire
 pack_cmd[1406] = pack_catch_fish
 
-function game_message.send_link()
+function CMD.send_link()
     send_msg(13051)
 end
 
-function game_message.send_heart_beat()
+function CMD.send_heart_beat()
     send_msg(1)
 end
 
-function game_message.send_enter_game(msg)
+function CMD.send_enter_game(msg)
     send_cmd(1401, msg)
 end
 
-function game_message.send_enter_game(msg)
+function CMD.send_enter_game(msg)
     send_cmd(1402, msg)
 end
 
-function game_message.send_use_prob(msg)
+function CMD.send_use_prob(msg)
     send_cmd(1403, msg)
 end
 
-function game_message.send_build_fish(msg)
+function CMD.send_build_fish(msg)
     send_cmd(1404, msg)
 end
 
-function game_message.send_build_fish(msg)
+function CMD.send_build_fish(msg)
     send_cmd(1405, msg)
 end
 
-function game_message.send_build_fish(msg)
+function CMD.send_build_fish(msg)
     send_cmd(1406, msg)
 end
 
@@ -223,9 +236,13 @@ cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 
-function game_message.recv_msg(msg)
+function CMD.recv_msg(msg)
     local len, id, index = string.unpack("<I2<I2", msg)
     assert(message_handle[id], string.format("No message %d handle.", id))(msg:sub(index))
 end
 
-return game_message
+skynet_m.start(function()
+    game_client = skynet_m.queryservice("game_client")
+
+    skynet_m.dispatch_lua(CMD)
+end)
