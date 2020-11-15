@@ -105,7 +105,7 @@ end
 function CMD.start()
     game_message = skynet_m.queryservice("game_message")
 
-    timer.add_routine("start_update", start, 20)
+    timer.add_routine("start_update", start, 50)
 end
 
 function CMD.on_link()
