@@ -28,6 +28,11 @@ function build() {
     make -f ../flock.mk
 
     echo "====================="
+    echo "start build lua-clientsocket..."
+    cd $basepath/3rd/clientsocket
+    make -f ../clientsocket.mk
+
+    echo "====================="
     echo "clean..."
     cd $basepath
     find . -name "*.o"  | xargs rm -f
