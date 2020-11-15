@@ -11,11 +11,11 @@ skynet_m.start(function()
 	skynet_m.newservice("debug_console", 8000)
 	local watchdog = skynet_m.newservice("watchdog")
 	skynet_m.call(watchdog, "lua", "start", {
-		port = 9001,
+		port = 9002,
 		maxclient = max_client,
 		nodelay = true,
 	})
-	skynet_m.error("Watchdog listen on", 9001)
+	skynet_m.error("Watchdog listen on", 9002)
 
 	skynet_m.error("Server start finish")
 	skynet_m.exit()
