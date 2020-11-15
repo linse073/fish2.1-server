@@ -15,12 +15,12 @@ local pack_message = {}
 local pack_cmd = {}
 
 local game_client
-local room_mgr
+-- local room_mgr
 local gate_mgr
 
 skynet_m.init(function()
     game_client = skynet_m.queryservice("game_client")
-    room_mgr = skynet_m.queryservice("room_mgr")
+    -- room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")
 end)
 
