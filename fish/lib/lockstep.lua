@@ -13,6 +13,7 @@ local ipairs = ipairs
 local table = table
 local floor = math.floor
 local assert = assert
+local io = io
 
 local CMD = {
     [c_to_s.ready] = "ready",
