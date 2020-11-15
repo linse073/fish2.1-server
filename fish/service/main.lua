@@ -15,7 +15,7 @@ skynet_m.start(function()
     skynet_m.uniqueservice("agent_mgr")
     skynet_m.uniqueservice("gate_mgr")
     skynet_m.uniqueservice("room_mgr")
-    skynet_m.send_lua(agent_pool, "start")
+    skynet_m.call_lua(agent_pool, "start")
 
     skynet_m.log("Server start finish.")
 

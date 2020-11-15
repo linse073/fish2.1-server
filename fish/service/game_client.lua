@@ -84,6 +84,7 @@ local function start()
     local status
     status, game_fd = pcall(socket.connect, game_address, game_port)
     if status then
+        skynet_m.log(string.format("Connect game server %s:%d successfully.", game_address, game_port))
         timer.del_routine("start_update")
         timer.add_routine("process_update", process, 1)
         -- TODO: send link message

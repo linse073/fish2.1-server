@@ -13,7 +13,7 @@ skynet_m.start(function()
     skynet_m.uniqueservice("routine")
     local game_client = skynet_m.uniqueservice("game_client")
     skynet_m.uniqueservice("game_message")
-    skynet_m.send_lua(game_client, "start")
+    skynet_m.call_lua(game_client, "start")
 
     skynet_m.log("Server start finish.")
 
