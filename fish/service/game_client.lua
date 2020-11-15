@@ -90,7 +90,7 @@ local function start()
         -- TODO: send link message
         skynet_m.send_lua(game_message, "send_link")
     else
-        timer.done_routine("start_update")
+        timer.add_routine("start_update", start, 300)
         -- skynet_m.log(string.format("Connect game server %s:%d fail.", game_address, game_port))
     end
 end
@@ -105,8 +105,7 @@ end
 
 function CMD.start()
     game_message = skynet_m.queryservice("game_message")
-
-    timer.add_routine("start_update", start, 300)
+    start()
 end
 
 function CMD.on_link()
