@@ -90,7 +90,7 @@ local function start()
         skynet_m.send_lua(game_message, "send_link")
     else
         timer.done_routine("start_update")
-        skynet_m.log(string.format("Connect game server %s:%d fail.", game_address, game_port))
+        -- skynet_m.log(string.format("Connect game server %s:%d fail.", game_address, game_port))
     end
 end
 
