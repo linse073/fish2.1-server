@@ -96,6 +96,7 @@ local function send_msg()
         probid = 1000,
         probCount = 100,
     })
+    skynet_m.sleep(1000)
 
     skynet_m.send_lua(game_message, "send_leave_game", {
         userid = 100,
