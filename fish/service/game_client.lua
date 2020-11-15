@@ -81,14 +81,16 @@ local function heart_beat()
 end
 
 local function start()
-    game_fd = socket.connect(game_address, game_port)
-    if game_fd then
+    local status
+    status, game_fd = pcall(socket.connect, game_address, game_port)
+    if status then
         timer.del_routine("start_update")
         timer.add_routine("process_update", process, 1)
         -- TODO: send link message
         skynet_m.send_lua(game_message, "send_link")
     else
         timer.done_routine("start_update")
+        skynet_m.log(string.format("Connect game server %s:%d fail.", game_address, game_port))
     end
 end
 
