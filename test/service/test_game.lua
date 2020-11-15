@@ -7,6 +7,7 @@ skynet_m.start(function()
     if not skynet_m.getenv("daemon") then
         skynet_m.newservice("console")
     end
+    skynet_m.newservice("debug_console", skynet_m.getenv("debug_port"))
 
     -- service
     skynet_m.uniqueservice("routine")
