@@ -1,0 +1,20 @@
+root = "./"
+skynetroot = "./skynet/"
+testroot = "./test/"
+fishroot = "./fish/"
+
+thread = 8
+logger = "userlog"
+logservice = "snlua"
+logpath = "./log"
+harbor = 0
+start = "test_game"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+luaservice = testroot.."service/?.lua;"..fishroot.."service/?.lua;"..skynetroot.."service/?.lua"
+lualoader = skynetroot.."lualib/loader.lua"
+cpath = skynetroot.."cservice/?.so"
+lua_path = testroot.."lib/?.lua;"..testroot.."lib/?/init.lua;"..fishroot.."lib/?.lua;"..fishroot.."lib/?/init.lua;"..skynetroot.."lualib/?.lua;"..skynetroot.."lualib/?/init.lua"
+lua_cpath = root.."lib/?.so;"..skynetroot.."luaclib/?.so"
+-- daemon = "./skynet.pid"
+
+include "fish_test_game.conf"

@@ -331,13 +331,13 @@ function lockstep:ready(info, data)
         end
         -- msg = msg..string.pack(">I4", #self._history)
         -- for _, v in ipairs(self._history) do
-        --     msg = msg..string.pack(">I4>I4s4", v[1], v[2], v[3])
+        --     msg = msg..string.pack(">I4>I4>s4", v[1], v[2], v[3])
         -- end
         local num = #self._history
         if num > 0 then
             msg = msg..string.pack(">I4", 1)
             local last = self._history[num]
-            msg = msg..string.pack(">I4>I4s4", last[1], last[2], last[3])
+            msg = msg..string.pack(">I4>I4>s4", last[1], last[2], last[3])
         else
             msg = msg..string.pack(">I4", 0)
         end
