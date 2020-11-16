@@ -2,7 +2,7 @@
 #define __VINT_H__
 
 #include <stdint.h>
-#include "Math.h"
+#include "StdMath.h"
 
 struct VInt
 {
@@ -17,7 +17,7 @@ struct VInt
 	{
 	}
 
-	VInt(float f) : i((int32_t)Math::Round((double)(f * 1000.f)))
+	VInt(float f) : i((int32_t)StdMath::Round((double)(f * 1000.f)))
 	{
 	}
 
@@ -32,12 +32,12 @@ struct VInt
 
 	static VInt Min(const VInt& a, const VInt& b)
 	{
-		return VInt(Math::Min(a.i, b.i));
+		return VInt(StdMath::Min(a.i, b.i));
 	}
 
 	static VInt Max(const VInt& a, const VInt& b)
 	{
-		return VInt(Math::Max(a.i, b.i));
+		return VInt(StdMath::Max(a.i, b.i));
 	}
 
 	// string ToString()

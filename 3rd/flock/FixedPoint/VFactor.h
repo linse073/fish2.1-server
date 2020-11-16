@@ -2,7 +2,7 @@
 #define __VFACTOR_H__
 
 #include <stdint.h>
-#include "Math.h"
+#include "StdMath.h"
 
 struct VFactor
 {
@@ -61,7 +61,7 @@ struct VFactor
 
 	VFactor Abs() const
 	{
-		return VFactor(Math::Abs(nom), Math::Abs(den));
+		return VFactor(StdMath::Abs(nom), StdMath::Abs(den));
 	}
 
 	bool IsZero() const

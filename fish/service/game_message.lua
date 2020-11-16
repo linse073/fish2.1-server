@@ -73,9 +73,12 @@ end
 local function pack_build_fish(msg)
     local pack = string.pack("<I2", msg.tableid)
     local fish = msg.fish
-    pack = pack .. string.pack("B", #fish)
+    -- pack = pack .. string.pack("B", #fish)
     for _, v in ipairs(fish) do
         pack = pack .. string.pack("<I4<I2", v.id, v.kind)
+    end
+    for i = #fish+1, 100 do
+        pack = pack .. string.pack("<I4<I2", 0, 0)
     end
     return pack
 end
@@ -113,7 +116,7 @@ function CMD.send_enter_game(msg)
     send_cmd(1401, msg)
 end
 
-function CMD.send_enter_game(msg)
+function CMD.send_leave_game(msg)
     send_cmd(1402, msg)
 end
 
@@ -125,11 +128,11 @@ function CMD.send_build_fish(msg)
     send_cmd(1404, msg)
 end
 
-function CMD.send_build_fish(msg)
+function CMD.send_fire(msg)
     send_cmd(1405, msg)
 end
 
-function CMD.send_build_fish(msg)
+function CMD.send_catch_fish(msg)
     send_cmd(1406, msg)
 end
 
@@ -182,15 +185,24 @@ local function recv_use_prop(msg)
 end
 
 local function recv_build_fish(msg)
-    local tableid, num, index = string.unpack("<I2B", msg)
+    -- local tableid, num, index = string.unpack("<I2B", msg)
+    -- local fish = {}
+    -- for i = 1, num do
+    --     local info = {}
+    --     info.id, info.kind, index = string.unpack("<I4<I2", msg, index)
+    --     fish[#fish+1] = info
+    -- end
+    local tableid, index = string.unpack("<I2", msg)
     local fish = {}
-    for i = 1, num do
+    for i = 1, 100 do
         local info = {}
         info.id, info.kind, index = string.unpack("<I4<I2", msg, index)
-        fish[#fish+1] = info
+        if info.id > 0 then
+            fish[#fish+1] = info
+        end
     end
     local code = string.unpack("<I2", msg, index)
-    skynet_m.log(string.format("BuildFishs: %d %d %d.", tableid, num, code))
+    skynet_m.log(string.format("BuildFishs: %d %d.", tableid, code))
 end
 
 local function recv_fire(msg)

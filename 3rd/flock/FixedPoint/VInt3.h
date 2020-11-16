@@ -1,7 +1,7 @@
 #ifndef __VINT3_H__
 #define __VINT3_H__
 
-#include "Math.h"
+#include "StdMath.h"
 #include "VFactor.h"
 #include "VInt2.h"
 
@@ -60,7 +60,7 @@ struct VInt3
         double num = (double)x;
         double num2 = (double)y;
         double num3 = (double)z;
-        return (float)Math::Sqrt(num * num + num2 * num2 + num3 * num3) * 0.001f;
+        return (float)StdMath::Sqrt(num * num + num2 * num2 + num3 * num3) * 0.001f;
     }
 
     double sqrMagnitude() const
@@ -93,7 +93,7 @@ struct VInt3
 
     VInt3 abs() const
     {
-        return VInt3(Math::Abs(x), Math::Abs(y), Math::Abs(z));
+        return VInt3(StdMath::Abs(x), StdMath::Abs(y), StdMath::Abs(z));
     }
 
     // [Obsolete("Same implementation as .magnitude")]
@@ -102,7 +102,7 @@ struct VInt3
         double num = (double)x;
         double num2 = (double)y;
         double num3 = (double)z;
-        return (float)Math::Sqrt(num * num + num2 * num2 + num3 * num3);
+        return (float)StdMath::Sqrt(num * num + num2 * num2 + num3 * num3);
     }
 
     // [Obsolete(".sqrMagnitude is now per default safe (.unsafeSqrMagnitude can be used for unsafe operations)")]
@@ -135,7 +135,7 @@ struct VInt3
         // double num = (double)Dot(lhs, rhs) / ((double)lhs.magnitude() * (double)rhs.magnitude());
 		double num = (double)DotLong(lhs, rhs) / ((double)lhs.magnitude() * (double)rhs.magnitude());
         num = ((num >= -1.0) ? ((num <= 1.0) ? num : 1.0) : -1.0);
-        return (float)Math::Acos(num);
+        return (float)StdMath::Acos(num);
     }
 
     static VFactor AngleInt(const VInt3& lhs, const VInt3& rhs);
@@ -200,7 +200,7 @@ struct VInt3
 
     static VInt3 Lerp(const VInt3& a, const VInt3& b, float f)
     {
-        return VInt3(Math::RoundToInt((float)a.x * (1.f - f)) + Math::RoundToInt((float)b.x * f), Math::RoundToInt((float)a.y * (1.f - f)) + Math::RoundToInt((float)b.y * f), Math::RoundToInt((float)a.z * (1.f - f)) + Math::RoundToInt((float)b.z * f));
+        return VInt3(StdMath::RoundToInt((float)a.x * (1.f - f)) + StdMath::RoundToInt((float)b.x * f), StdMath::RoundToInt((float)a.y * (1.f - f)) + StdMath::RoundToInt((float)b.y * f), StdMath::RoundToInt((float)a.z * (1.f - f)) + StdMath::RoundToInt((float)b.z * f));
     }
 
     static VInt3 Lerp(const VInt3& a, const VInt3& b, const VFactor& f);
@@ -251,17 +251,17 @@ struct VInt3
 
     VInt3 operator *(float rhs) const
     {
-        int32_t _x = (int32_t)Math::Round((double)((float)x * rhs));
-        int32_t _y = (int32_t)Math::Round((double)((float)y * rhs));
-        int32_t _z = (int32_t)Math::Round((double)((float)z * rhs));
+        int32_t _x = (int32_t)StdMath::Round((double)((float)x * rhs));
+        int32_t _y = (int32_t)StdMath::Round((double)((float)y * rhs));
+        int32_t _z = (int32_t)StdMath::Round((double)((float)z * rhs));
         return VInt3(_x, _y, _z);
     }
 
     VInt3 operator *(double rhs) const
     {
-        int32_t _x = (int32_t)Math::Round((double)x * rhs);
-        int32_t _y = (int32_t)Math::Round((double)y * rhs);
-        int32_t _z = (int32_t)Math::Round((double)z * rhs);
+        int32_t _x = (int32_t)StdMath::Round((double)x * rhs);
+        int32_t _y = (int32_t)StdMath::Round((double)y * rhs);
+        int32_t _z = (int32_t)StdMath::Round((double)z * rhs);
         return VInt3(_x, _y, _z);
     }
 
@@ -269,9 +269,9 @@ struct VInt3
 
     VInt3 operator /(float rhs) const
     {
-        int32_t _x = (int32_t)Math::Round((double)((float)x / rhs));
-        int32_t _y = (int32_t)Math::Round((double)((float)y / rhs));
-        int32_t _z = (int32_t)Math::Round((double)((float)z / rhs));
+        int32_t _x = (int32_t)StdMath::Round((double)((float)x / rhs));
+        int32_t _y = (int32_t)StdMath::Round((double)((float)y / rhs));
+        int32_t _z = (int32_t)StdMath::Round((double)((float)z / rhs));
         return VInt3(_x, _y, _z);
     }
 

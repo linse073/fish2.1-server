@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <stdint.h>
 
-struct Math
+struct StdMath
 {
   static double Round(double d)
   {

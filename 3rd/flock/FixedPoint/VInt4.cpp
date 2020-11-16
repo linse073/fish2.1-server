@@ -171,7 +171,7 @@ VFactor VInt4::GetAngle() const
 VInt3 VInt4::GetRotationAxis() const
 {
 	// Ensure we never try to sqrt a neg number
-	const int64_t S = IntMath::SqrtLong(Math::Max(int64_t(1000000LL - ((int64_t)W * (int64_t)W)), int64_t(0LL)));
+	const int64_t S = IntMath::SqrtLong(StdMath::Max(int64_t(1000000LL - ((int64_t)W * (int64_t)W)), int64_t(0LL)));
 
 	if (S > 0)
 	{
@@ -210,7 +210,7 @@ VInt4 VInt4::FindBetween_Helper(const VInt3& A, const VInt3& B, int64_t NormAB)
 	{
 		// A and B point in opposite directions
 		W = 0;
-		Result = Math::Abs(A.x) > Math::Abs(A.y)
+		Result = StdMath::Abs(A.x) > StdMath::Abs(A.y)
 			? VInt4(-A.z, 0, A.x, int32_t(W))
 			: VInt4(0, -A.z, A.y, W);
 	}

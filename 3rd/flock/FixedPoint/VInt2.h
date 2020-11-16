@@ -1,7 +1,7 @@
 #ifndef __VINT2_H__
 #define __VINT2_H__
 
-#include "Math.h"
+#include "StdMath.h"
 #include "VFactor.h"
 
 struct VInt2
@@ -71,12 +71,12 @@ struct VInt2
 
     static VInt2 Min(const VInt2& a, const VInt2& b)
     {
-        return VInt2(Math::Min(a.x, b.x), Math::Min(a.y, b.y));
+        return VInt2(StdMath::Min(a.x, b.x), StdMath::Min(a.y, b.y));
     }
 
     static VInt2 Max(const VInt2& a, const VInt2& b)
     {
-        return VInt2(Math::Max(a.x, b.x), Math::Max(a.y, b.y));
+        return VInt2(StdMath::Max(a.x, b.x), StdMath::Max(a.y, b.y));
     }
 
     // string ToString()
@@ -93,14 +93,14 @@ struct VInt2
 
     void Min(const VInt2& r)
     {
-        x = Math::Min(x, r.x);
-        y = Math::Min(y, r.y);
+        x = StdMath::Min(x, r.x);
+        y = StdMath::Min(y, r.y);
     }
 
     void Max(const VInt2& r)
     {
-        x = Math::Max(x, r.x);
-        y = Math::Max(y, r.y);
+        x = StdMath::Max(x, r.x);
+        y = StdMath::Max(y, r.y);
     }
 
     void Normalize();

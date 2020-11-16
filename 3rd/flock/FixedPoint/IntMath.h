@@ -54,7 +54,7 @@ struct IntMath
 	static VFactor acos(int64_t nom, int64_t den)
 	{
 		int32_t num = (int32_t)Divide(nom * (int64_t)AcosLookupTable::HALF_COUNT, den) + AcosLookupTable::HALF_COUNT;
-		num = Math::Clamp(num, 0, AcosLookupTable::COUNT);
+		num = StdMath::Clamp(num, 0, AcosLookupTable::COUNT);
 		return VFactor((int64_t)AcosLookupTable::table[num], 10000LL);
 	}
 
