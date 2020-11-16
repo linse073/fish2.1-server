@@ -1,5 +1,5 @@
-#ifndef __MATH_H__
-#define __MATH_H__
+#ifndef __STD_MATH_H__
+#define __STD_MATH_H__
 
 #include <cmath>
 #include <algorithm>
@@ -58,4 +58,4 @@ struct StdMath
   }
 };
 
-#endif // __MATH_H__
+#endif // __STD_MATH_H__
