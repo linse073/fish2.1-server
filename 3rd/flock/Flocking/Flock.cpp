@@ -294,6 +294,7 @@ uint32_t Flock::getBulletMulti(uint32_t bulletid) const
 	else
 	{
 		printf("Can't find bullet %d.\n", bulletid);
+		return 1;
 	}
 }
 
