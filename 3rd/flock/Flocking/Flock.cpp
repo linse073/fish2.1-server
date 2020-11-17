@@ -119,7 +119,7 @@ const VInt3& Flock::getSphereCenter() const
 	return sphereCenter_;
 }
 
-void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y, uint32_t multi)
+void Flock::onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, int32_t y, uint32_t multi, uint32_t costGold)
 {
 	VInt2 pos(x, y);
 	const VInt2& fortPos = fortPos_[index];
@@ -127,14 +127,13 @@ void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y, uint32_t multi)
 	UBulletWidget* bullet = bulletLayer_->GetBullet();
 	if (bullet)
 	{
-		++id_;
 		VInt2 td = dis;
 		td.NormalizeTo(flockAsset_->MuzzleLength);
 		VInt2 bulletPos = fortPos + td;
 		dis.NormalizeTo(flockAsset_->BulletSpeed);
-		bullet->Init_fast(id_, dis, bulletPos, index, multi);
+		bullet->Init_fast(id, kind, dis, bulletPos, index, multi, costGold);
 		bullet_.push_back(bullet);
-		bulletMap_[id_] = bullet;
+		bulletMap_[id] = bullet;
 	}
 }
 
@@ -470,9 +469,9 @@ void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 			case uint8_t(OP_fire):
 			{
 				int32_t x, y;
-				uint32_t multi;
-				stream >> x >> y >> multi;
-				onFire_fast(userPos, x, y, multi);
+				uint32_t multi, id, kind, costGold;
+				stream >> id >> kind >> x >> y >> multi >> costGold;
+				onFire_fast(id, kind, userPos, x, y, multi, costGold);
 			}
 			break;
 			case uint8_t(OP_hit):

@@ -24,6 +24,10 @@ function CMD.process(user_id, data)
     lockstep_i:process(user_id, data)
 end
 
+function CMD.fire(info)
+    lockstep_i:fire(info)
+end
+
 skynet_m.start(function()
     lockstep_i = setmetatable({}, lockstep)
     lockstep_i:init(room_id)

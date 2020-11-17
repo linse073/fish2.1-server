@@ -29,7 +29,7 @@ public:
 	void init(const UFlockAsset* flockAsset);
 	void clear();
 
-	void onFire_fast(uint8_t index, int32_t x, int32_t y, uint32_t multi);
+	void onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, int32_t y, uint32_t multi, uint32_t costGold);
 	void onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid);
 	void update_fast();
 

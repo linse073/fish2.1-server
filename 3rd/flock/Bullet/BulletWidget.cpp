@@ -6,7 +6,9 @@ UBulletWidget::UBulletWidget()
 	index_(0),
 	dir_(VInt2::zero), 
 	pos_(VInt2::zero),
-	multi_(1)
+	multi_(1),
+	kind_(0),
+	costGold_(0)
 {
 }
 
@@ -17,13 +19,17 @@ void UBulletWidget::Clear()
 	dir_ = VInt2::zero;
 	pos_ = VInt2::zero;
 	multi_ = 1;
+	kind_ = 0;
+	costGold_ = 0;
 }
 
-void UBulletWidget::Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos, uint8_t index, uint32_t multi)
+void UBulletWidget::Init_fast(uint32_t id, uint32_t kind, const VInt2& dir, const VInt2& pos, uint8_t index, uint32_t multi, uint32_t costGold)
 {
 	id_ = id;
 	index_ = index;
 	multi_ = multi;
+	kind_ = kind;
+	costGold_ = costGold;
 
 	SetPosition_fast(pos);
 	SetDir_fast(dir);
@@ -46,6 +52,8 @@ void UBulletWidget::Pack_Data(KBEngine::MemoryStream& stream)
 	stream << dir_.x << dir_.y;
 	stream << pos_.x << pos_.y;
 	stream << multi_;
+	stream << kind_;
+	stream << costGold_;
 }
 
 void UBulletWidget::Read_Data(KBEngine::MemoryStream& stream)
@@ -55,6 +63,8 @@ void UBulletWidget::Read_Data(KBEngine::MemoryStream& stream)
 	stream >> dir_.x >> dir_.y;
 	stream >> pos_.x >> pos_.y;
 	stream >> multi_;
+	stream >> kind_;
+	stream >> costGold_;
 }
 
 uint32_t UBulletWidget::GetID() const
@@ -75,4 +85,9 @@ const VInt2& UBulletWidget::GetPosition() const
 uint32_t UBulletWidget::GetMulti() const
 {
 	return multi_;
+}
+
+uint32_t UBulletWidget::GetKind() const
+{
+	return kind_;
 }

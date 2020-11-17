@@ -1,4 +1,6 @@
 local skynet_m = require "skynet_m"
+local message = require "message"
+local error_code = message.error_code
 
 local string = string
 local ipairs = ipairs
@@ -16,6 +18,7 @@ local pack_cmd = {}
 local game_client
 local room_mgr
 local gate_mgr
+local agent_mgr
 
 local CMD = {}
 
@@ -182,6 +185,7 @@ local function recv_leave_game(msg)
     info.tableid, info.seatid, info.userid = string.unpack("<I2<I2<I4", msg)
     skynet_m.log(string.format("UserLeaveGame: %d %d %d.", info.tableid, info.seatid, info.userid))
     skynet_m.send_lua(room_mgr, "leave_game", info)
+    skynet_m.send_lua(agent_mgr, "quit", info.userid, error_code.ok)
 end
 
 local function recv_use_prop(msg)
@@ -211,11 +215,16 @@ local function recv_build_fish(msg)
 end
 
 local function recv_fire(msg)
-    local tableid, seatid, userid, index = string.unpack("<I2<I2<I4", msg)
+    local info = {}
+    local index
+    info.tableid, info.seatid, info.userid, index = string.unpack("<I2<I2<I4", msg)
     local bullet = {}
     bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime, index = string.unpack("<I4<I4<I4<I4<I8", msg, index)
-    local code, costGold = string.unpack("<I2<I4", msg, index)
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", tableid, seatid, userid, bullet.id, code, costGold))
+    info.bullet = bullet
+    info.code, info.costGold = string.unpack("<I2<I4", msg, index)
+    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "fire", info)
 end
 
 local function recv_catch_fish(msg)
@@ -244,6 +253,7 @@ skynet_m.start(function()
     game_client = skynet_m.queryservice("game_client")
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")
+    agent_mgr = skynet_m.queryservice("agent_mgr")
 
-    skynet_m.dispatch_lua(CMD)
+    skynet_m.dispatch_lua_queue(CMD)
 end)

@@ -98,7 +98,8 @@ function lockstep:join(user_id, free_pos, agent)
     self._count = self._count+1
     if not self._status_time then
         self._status_time = now
-        timer.add_routine("lockstep_check", self._check_func, 100)
+        -- NOTICE: game server notify user leave
+        -- timer.add_routine("lockstep_check", self._check_func, 100)
     end
     return true
 end
@@ -143,6 +144,8 @@ function lockstep:clear()
     self._rand_seed = 0
     self._status_time = nil
     self._flock = nil
+    self._bullet = {}
+    self._bullet_id = 0
     timer.del_all()
 end
 
@@ -383,10 +386,56 @@ function lockstep:op(info, data)
         if key_count ~= 1 then
             skynet_m.log("Idle command count error.")
         end
+    elseif first_cmd == op_cmd.fire then
+        if key_count ~= 1 then
+            skynet_m.log("Fire command count error.")
+        else
+            local x, y, multi = string.unpack(">i4>i4>I4", data, index)
+            self._bullet_id = self._bullet_id + 1
+            skynet_m.send_lua(game_message, "send_fire", {
+                tableid = self._room_id,
+                seatid = info.pos,
+                userid = info.user_id,
+                bullet = {
+                    id = self._bullet_id,
+                    kind = 1,
+                    multi = multi,
+                    power = 1,
+                    expTime = 0,
+                },
+            })
+            self._bullet[self._bullet_id] = {
+                id = self._bullet_id,
+                kind = 1,
+                x = x,
+                y = y,
+                multi = multi,
+            }
+        end
     else
         info.key_cmd_count = info.key_cmd_count+key_count
         info.key_cmd = info.key_cmd..string.sub(data, index-1)
     end
+end
+
+function lockstep:fire(info)
+    local binfo = info.bullet
+    if info.code ~= 0 then
+        skynet_m.log(string.format("User %d fire bullet %d fail.", info.userid, binfo.id))
+        return
+    end
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Fire can't find user %d.", info.userid))
+        return
+    end
+    local bullet = self._bullet[binfo.id]
+    if binfo.kind ~= bullet.kind or binfo.multi ~= bullet.multi then
+        skynet_m.log(string.format("Fire info is different."))
+    end
+    local pack = string.pack("B>I4>I4>i4>i4>I4>I4", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y, bullet.multi, info.costGold)
+    user_info.key_cmd_count = user_info.key_cmd_count + 1
+    user_info.key_cmd = user_info.key_cmd .. pack
 end
 
 return {__index=lockstep}
