@@ -4,6 +4,8 @@ local timer = require "timer"
 
 local setmetatable = setmetatable
 
+local room_id = tonumber(...)
+
 local lockstep_i
 
 local CMD = {}
@@ -24,7 +26,7 @@ end
 
 skynet_m.start(function()
     lockstep_i = setmetatable({}, lockstep)
-    lockstep_i:init()
+    lockstep_i:init(room_id)
 
     skynet_m.dispatch_lua_queue(CMD)
 end)

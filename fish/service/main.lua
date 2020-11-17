@@ -11,13 +11,13 @@ skynet_m.start(function()
 
     -- service
     skynet_m.uniqueservice("routine")
+    local game_client = skynet_m.uniqueservice("game_client")
+    skynet_m.uniqueservice("game_message")
     local agent_pool = skynet_m.uniqueservice("agent_pool")
     skynet_m.uniqueservice("agent_mgr")
     skynet_m.uniqueservice("gate_mgr")
     skynet_m.uniqueservice("room_mgr")
     skynet_m.call_lua(agent_pool, "start")
-    local game_client = skynet_m.uniqueservice("game_client")
-    skynet_m.uniqueservice("game_message")
     skynet_m.call_lua(game_client, "start")
 
     skynet_m.log("Server start finish.")

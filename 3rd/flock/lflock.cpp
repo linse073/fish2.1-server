@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "Flock.h"
 #include "lua.hpp"
-#include "MemoryStream.h"
+#include "MemoryStreamLittle.h"
 
 #define check_flock(L, idx)\
 	*(Flock**)luaL_checkudata(L, idx, "flock_meta")
@@ -13,17 +13,17 @@ struct Callback {
     lua_State* L;
 };
 
-// static int flock_callback(const char *buf, int len, ikcpcb *kcp, void *arg) {
-//     struct Callback* c = (struct Callback*)arg;
-//     lua_State* L = c -> L;
-//     uint64_t handle = c -> handle;
+void flock_callback(void* arg, uint8_t cbtype, KBEngine::MemoryStreamLittle& stream)
+{
+    struct Callback* c = (struct Callback*)arg;
+    lua_State* L = c->L;
+    uint64_t handle = c->handle;
 
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, handle);
-//     lua_pushlstring(L, buf, len);
-//     lua_call(L, 1, 0);
-
-//     return 0;
-// }
+    lua_rawgeti(L, LUA_REGISTRYINDEX, handle);
+    lua_pushinteger(L, cbtype);
+    lua_pushlstring(L, (const char *)stream.data(), stream.length());
+    lua_call(L, 2, 0);
+}
 
 static int flock_gc(lua_State* L) {
 	Flock* flock = check_flock(L, 1);

@@ -72,14 +72,15 @@ end
 
 local function pack_build_fish(msg)
     local pack = string.pack("<I2", msg.tableid)
-    local fish = msg.fish
-    -- pack = pack .. string.pack("B", #fish)
-    for _, v in ipairs(fish) do
-        pack = pack .. string.pack("<I4<I2", v.id, v.kind)
-    end
-    for i = #fish+1, 100 do
-        pack = pack .. string.pack("<I4<I2", 0, 0)
-    end
+    pack = pack .. msg.fish
+    -- local fish = msg.fish
+    -- -- pack = pack .. string.pack("B", #fish)
+    -- for _, v in ipairs(fish) do
+    --     pack = pack .. string.pack("<I4<I2", v.id, v.kind)
+    -- end
+    -- for i = #fish+1, 100 do
+    --     pack = pack .. string.pack("<I4<I2", 0, 0)
+    -- end
     return pack
 end
 

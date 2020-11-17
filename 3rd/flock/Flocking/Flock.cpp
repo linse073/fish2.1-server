@@ -13,7 +13,9 @@
 #include "FlockCommon.h"
 #include "IntMath.h"
 #include "ContextFilter.h"
-#include "MemoryStream.h"
+#include "MemoryStreamLittle.h"
+
+extern void flock_callback(void* arg, uint8_t cbtype, KBEngine::MemoryStreamLittle& stream);
 
 Flock::Flock(void* callback, uint32_t randSeed)
 	:id_(0),
@@ -339,6 +341,8 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 	VInt3 initPos = IntMath::SphereNormalPos(random_);
 	initPos.NormalizeTo(flockAsset_->SphereRadius);
 	initPos = sphereCenter_ + initPos;
+	KBEngine::MemoryStreamLittle stream;
+	uint8_t count = 0;
 	if (newFishAsset->RandomPos)
 	{
 		int32_t randomRadius = newFishAsset->RandomRadius;
@@ -364,6 +368,8 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 			agent->Init_fast(id_, scale, pos, dir, newFishAsset->FishAsset, newFishAsset->FishType);
 			agent_.push_back(agent);
 			agentMap_[id_] = agent;
+			++count;
+			stream << id_ << (uint16_t)newFishAsset->FishAsset->ID;
 		}
 	}
 	else
@@ -385,9 +391,17 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 			agent->Init_fast(id_, scale, initPos, dir, newFishAsset->FishAsset, newFishAsset->FishType);
 			agent_.push_back(agent);
 			agentMap_[id_] = agent;
+			++count;
+			stream << id_ << (uint16_t)newFishAsset->FishAsset->ID;
 		}
 	}
 	fishCount_[int32_t(newFishAsset->FishType)].curCount += newFishAsset->InitCount;
+	KBE_ASSERT(count <= 100);
+	for (uint8_t i = count; i < 100; i++)
+	{
+		stream << (uint32_t)0 << (uint16_t)0;
+	}
+	flock_callback(callback_, 1, stream);
 }
 
 void Flock::updateAgent_fast()

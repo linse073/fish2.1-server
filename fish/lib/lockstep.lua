@@ -29,14 +29,17 @@ local half_step_interval = step_interval*0.5
 local MAX_USER = 4
 
 local agent_mgr
+local game_message
 
 skynet_m.init(function()
     agent_mgr = skynet_m.queryservice("agent_mgr")
+    game_message = skynet_m.queryservice("game_message")
 end)
 
 local lockstep = {}
 
-function lockstep:init()
+function lockstep:init(room_id)
+    self._room_id = room_id
     self._user = {}
     self._pos = {}
     self._count = 0
@@ -50,7 +53,13 @@ function lockstep:init()
         self:checkActivity()
         timer.done_routine("lockstep_check")
     end
-    self._flock_func = function()
+    self._flock_func = function(cbtype, data)
+        if cbtype == 1 then
+            skynet_m.send_lua(game_message, "send_build_fish", {
+                tableid = self._room_id,
+                fish = data,
+            })
+        end
     end
 end
 
