@@ -173,11 +173,14 @@ local function recv_enter_game(msg)
     local info = {}
     info.tableid, info.seatid, info.userid, info.sessionid = string.unpack("<I2<I2<I4c32", msg)
     skynet_m.log(string.format("UserEnterGame: %d %d %d %s.", info.tableid, info.seatid, info.userid, info.sessionid))
+    skynet_m.send_lua(room_mgr, "enter_game", info)
 end
 
 local function recv_leave_game(msg)
-    local tableid, seatid, userid = string.unpack("<I2<I2<I4", msg)
-    skynet_m.log(string.format("UserLeaveGame: %d %d %d.", tableid, seatid, userid))
+    local info = {}
+    info.tableid, info.seatid, info.userid = string.unpack("<I2<I2<I4", msg)
+    skynet_m.log(string.format("UserLeaveGame: %d %d %d.", info.tableid, info.seatid, info.userid))
+    skynet_m.send_lua(room_mgr, "leave_game", info)
 end
 
 local function recv_use_prop(msg)

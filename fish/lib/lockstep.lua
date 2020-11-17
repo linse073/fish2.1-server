@@ -54,19 +54,25 @@ function lockstep:init()
     end
 end
 
-function lockstep:join(user_id, agent)
+function lockstep:join(user_id, free_pos, agent)
     self:kick(user_id)
     if self._count >= MAX_USER then
+        skynet_m.log("Max user.")
         return false
     end
-    local free_pos = 0
-    for i = 1, MAX_USER do
-        if not self._pos[i] then
-            free_pos = i
-            break
-        end
+    -- local free_pos = 0
+    -- for i = 1, MAX_USER do
+    --     if not self._pos[i] then
+    --         free_pos = i
+    --         break
+    --     end
+    -- end
+    -- assert(free_pos~=0, "No free pos.")
+    free_pos = free_pos + 1
+    if free_pos<=0 or free_pos>MAX_USER then
+        skynet_m.log(string.format("Illegal pos %d.", free_pos))
+        return false
     end
-    assert(free_pos~=0, "No free pos.")
     local now = skynet_m.now()
     local info = {
         user_id = user_id,

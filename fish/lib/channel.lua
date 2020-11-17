@@ -57,24 +57,29 @@ function channel:processPack(data)
     if self._room then
         skynet_m.send_lua(self._room, "process", self._user_id, data)
     else
-        local msg_id, user_id, room_id = string.unpack(">I2>I4>I2", data)
+        local msg_id, user_id = string.unpack(">I2>I4", data)
         if msg_id == c_to_s.join then
-            local room = skynet_m.call_lua(room_mgr, "get", room_id)
-            if room then
-                if skynet_m.call_lua(room, "join", user_id, skynet_m.self()) then
-                    self._user_id = user_id
-                    self._room = room
-                    skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
-                    self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
-                    timer.del_routine("check_activity")
-                    skynet_m.log(string.format("User %d join room %d successfully.", user_id, room_id))
+            local info = skynet_m.call_lua(room_mgr, "get_user", user_id)
+            if info then
+                if info.room then
+                    if skynet_m.call_lua(info.room, "join", user_id, info.seatid, skynet_m.self()) then
+                        self._user_id = user_id
+                        self._room = info.room
+                        skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
+                        self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
+                        timer.del_routine("check_activity")
+                        skynet_m.log(string.format("User %d join room %d successfully.", user_id, info.tableid))
+                    else
+                        skynet_m.log(string.format("User %d join room %d fail.", user_id, info.tableid))
+                        self:joinFail(error_code.room_full)
+                    end
                 else
-                    skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
-                    self:joinFail(error_code.room_full)
+                    skynet_m.log(string.format("Illegal room %d from %s.", info.tableid, util.udp_address(self._from)))
+                    self:joinFail(error_code.room_not_exist)
                 end
             else
-                skynet_m.log(string.format("Illegal room %d from %s.", room_id, util.udp_address(self._from)))
-                self:joinFail(error_code.room_not_exist)
+                skynet_m.log(string.format("Not receive enter game message from %s.", util.udp_address(self._from)))
+                self:joinFail(error_code.unknown_error)
             end
         else
             skynet_m.log(string.format("Illegale message from %s.", util.udp_address(self._from)))

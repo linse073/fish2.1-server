@@ -20,6 +20,11 @@ function CMD.enter_game(info)
     if user_list[info.userid] then
         skynet_m.log(string.format("User %d already enter game.", info.userid))
     end
+    local room = room_list[info.tableid]
+    if not room then
+        skynet_m.log(string.format("No room %d.", info.talbeid))
+    end
+    info.room = room
     user_list[info.userid] = info
 end
 
