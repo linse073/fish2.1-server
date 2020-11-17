@@ -119,7 +119,7 @@ const VInt3& Flock::getSphereCenter() const
 	return sphereCenter_;
 }
 
-void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y)
+void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y, uint32_t multi)
 {
 	VInt2 pos(x, y);
 	const VInt2& fortPos = fortPos_[index];
@@ -132,7 +132,7 @@ void Flock::onFire_fast(uint8_t index, int32_t x, int32_t y)
 		td.NormalizeTo(flockAsset_->MuzzleLength);
 		VInt2 bulletPos = fortPos + td;
 		dis.NormalizeTo(flockAsset_->BulletSpeed);
-		bullet->Init_fast(id_, dis, bulletPos, index);
+		bullet->Init_fast(id_, dis, bulletPos, index, multi);
 		bullet_.push_back(bullet);
 		bulletMap_[id_] = bullet;
 	}
@@ -470,8 +470,9 @@ void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 			case uint8_t(OP_fire):
 			{
 				int32_t x, y;
-				stream >> x >> y;
-				onFire_fast(userPos, x, y);
+				uint32_t multi;
+				stream >> x >> y >> multi;
+				onFire_fast(userPos, x, y, multi);
 			}
 			break;
 			case uint8_t(OP_hit):

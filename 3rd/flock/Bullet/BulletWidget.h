@@ -15,7 +15,7 @@ public:
 
 	void Clear();
 
-	void Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos, uint8_t index);
+	void Init_fast(uint32_t id, const VInt2& dir, const VInt2& pos, uint8_t index, uint32_t multi);
 	void SetPosition_fast(const VInt2& pos);
 	void SetDir_fast(const VInt2& dir);
 	void Pack_Data(KBEngine::MemoryStream& stream);
@@ -24,12 +24,14 @@ public:
 	uint32_t GetID() const;
 	const VInt2& GetDir() const;
 	const VInt2& GetPosition() const;
+	uint32_t GetMulti() const;
 
 private:
 	uint32_t id_;
 	uint8_t index_;
 	VInt2 dir_;
 	VInt2 pos_;
+	uint32_t multi_;
 };
 
 #endif // __BULLET_WIDGET_H__
