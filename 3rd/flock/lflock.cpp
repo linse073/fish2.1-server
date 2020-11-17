@@ -100,10 +100,24 @@ static int lflock_pack(lua_State* L) {
     return 1;
 }
 
+static int lflock_bullet_multi(lua_State* L) {
+	Flock* flock = check_flock(L, 1);
+	if (flock == NULL) {
+        lua_pushnil(L);
+        lua_pushstring(L, "error: flock not args");
+        return 2;
+	}
+    uint32_t bulletid = luaL_checkinteger(L, 2);
+    uint32_t multi = flock->getBulletMulti(bulletid);
+    lua_pushinteger(L, multi);
+    return 1;
+}
+
 static const struct luaL_Reg lflock_methods [] = {
     { "lflock_update" , lflock_update },
     { "lflock_oncmd" , lflock_oncmd },
     { "lflock_pack" , lflock_pack },
+    { "lflock_bullet_multi" , lflock_bullet_multi },
 	{NULL, NULL},
 };
 

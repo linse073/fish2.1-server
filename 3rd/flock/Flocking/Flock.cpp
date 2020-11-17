@@ -139,7 +139,6 @@ void Flock::onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, in
 
 void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 {
-	int32_t rate = random_->Range(0, 100);
 	auto pBullet = bulletMap_.find(bulletid);
 	bool findBullet = false;
 	if (pBullet != bulletMap_.end())
@@ -173,7 +172,53 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 		AFlockAgent* agent = pAgent->second;
 		if (!agent->IsDead())
 		{
-			agent->OnHit_fast(rate < 10);
+			agent->OnHit_fast(false);
+			// if (agent->IsDead())
+			// {
+			// 	fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
+			// 	agent->Clear();
+			// 	for (auto it = agent_.begin(); it != agent_.end(); ) 
+			// 	{
+			// 		if ((*it)->GetID() == agent->GetID()) 
+			// 		{
+			// 			it = agent_.erase(it);
+			// 			findAgent = true;
+			// 		} 
+			// 		else 
+			// 		{
+			// 			++it;
+			// 		}
+			// 	}
+			// 	// agent_.erase(std::remove(std::begin(agent_), std::end(agent_), agent), std::end(agent_));
+			// 	agentMap_.erase(pAgent);
+			// 	pool_->RecycleAgent(agent);
+			// }
+			// else
+			// {
+			// 	findAgent = true;
+			// }	
+		}
+		else
+		{
+			findAgent = true;
+		}
+	}
+	if (!findAgent)
+	{
+		printf("Can't find agent %d.\n", fishid);
+	}
+}
+
+void Flock::onDead_fast(uint8_t index, uint32_t bulletid, uint32_t fishid, uint16_t multi, uint16_t bulletMulti, uint32_t winGold)
+{
+	auto pAgent = agentMap_.find(fishid);
+	bool findAgent = false;
+	if (pAgent != agentMap_.end())
+	{
+		AFlockAgent* agent = pAgent->second;
+		if (!agent->IsDead())
+		{
+			agent->OnHit_fast(true);
 			if (agent->IsDead())
 			{
 				fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
@@ -236,6 +281,20 @@ int32_t Flock::getFlockRotationDegreesPerStep() const
 void* Flock::getCallback() const
 {
 	return callback_;
+}
+
+uint32_t Flock::getBulletMulti(uint32_t bulletid) const
+{
+	auto pBullet = bulletMap_.find(bulletid);
+	if (pBullet != bulletMap_.end())
+	{
+		UBulletWidget* bullet = pBullet->second;
+		return bullet->GetMulti();
+	}
+	else
+	{
+		printf("Can't find bullet %d.\n", bulletid);
+	}
 }
 
 void Flock::loadFlockAssetData(const char* Result, uint32_t length)
@@ -479,6 +538,14 @@ void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 				uint32_t bulletid, fishid;
 				stream >> bulletid >> fishid;
 				onHit_fast(userPos, bulletid, fishid);
+			}
+			break;
+			case uint8_t(OP_dead):
+			{
+				uint32_t bulletid, fishid, winGold;
+				uint16_t multi, bulletMulti;
+				stream >> bulletid >> fishid >> multi >> bulletMulti >> winGold;
+				onDead_fast(userPos, bulletid, fishid, multi, bulletMulti, winGold);
 			}
 			break;
 			default:

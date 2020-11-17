@@ -412,6 +412,23 @@ function lockstep:op(info, data)
                 multi = multi,
             }
         end
+    elseif first_cmd == op_cmd.hit then
+        if key_count ~= 1 then
+            skynet_m.log("Hit command count error.")
+        else
+            local bulletid, fishid = string.unpack(">I4>I4", data, index)
+            local multi = lflock:lflock_bullet_multi(bulletid)
+            skynet_m.send_lua(game_message, "send_catch_fish", {
+                tableid = self._room_id,
+                seatid = info.pos,
+                userid = info.user_id,
+                bulletid = bulletid,
+                fishid = fishid,
+                bulletMulti = multi,
+            })
+            info.key_cmd_count = info.key_cmd_count+key_count
+            info.key_cmd = info.key_cmd..string.sub(data, index-1)
+        end
     else
         info.key_cmd_count = info.key_cmd_count+key_count
         info.key_cmd = info.key_cmd..string.sub(data, index-1)
@@ -433,7 +450,19 @@ function lockstep:fire(info)
     if binfo.kind ~= bullet.kind or binfo.multi ~= bullet.multi then
         skynet_m.log(string.format("Fire info is different."))
     end
+    self._bullet[binfo.id] = nil
     local pack = string.pack("B>I4>I4>i4>i4>I4>I4", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y, bullet.multi, info.costGold)
+    user_info.key_cmd_count = user_info.key_cmd_count + 1
+    user_info.key_cmd = user_info.key_cmd .. pack
+end
+
+function lockstep:dead(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Dead can't find user %d.", info.userid))
+        return
+    end
+    local pack = string.pack("B>I4>I4>I2>I2>I4", op_cmd.dead, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack
 end

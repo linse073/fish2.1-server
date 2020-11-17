@@ -31,6 +31,7 @@ public:
 
 	void onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, int32_t y, uint32_t multi, uint32_t costGold);
 	void onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid);
+	void onDead_fast(uint8_t index, uint32_t bulletid, uint32_t fishid, uint16_t multi, uint16_t bulletMulti, uint32_t winGold);
 	void update_fast();
 
 	void loadFlockAssetData(const char* Result, uint32_t length);
@@ -45,6 +46,7 @@ public:
 	int32_t getRotationDegreesPerStep() const;
 	int32_t getFlockRotationDegreesPerStep() const;
 	void* getCallback() const;
+	uint32_t getBulletMulti(uint32_t bulletid) const;
 
 private:
 	struct FishCount
@@ -65,6 +67,7 @@ private:
 		OP_idle = 1,
 		OP_fire = 2,
 		OP_hit = 3,
+		OP_dead = 4,
 	};
 
 	void updateCamera_fast();

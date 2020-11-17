@@ -228,9 +228,12 @@ local function recv_fire(msg)
 end
 
 local function recv_catch_fish(msg)
-    local tableid, seatid, userid, bulletid, fishid, fishKind, multi, bulltMulti, winGold, code =
+    local info = {}
+    info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulltMulti, info.winGold, info.code =
         string.unpack("<I2<I2<I4<I4<I4<I2<I2<I2<I4<I2", msg)
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", tableid, seatid, userid, bulletid, fishid, winGold, code))
+    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "dead", info)
 end
 
 message_handle[13502] = recv_link

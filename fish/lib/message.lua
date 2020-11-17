@@ -20,7 +20,8 @@ message.s_to_c = {
 message.op_cmd = {
     idle = 1,
     fire = 2,
-    hit = 8,
+    hit = 3,
+    dead = 4,
 }
 
 message.error_code = {
