@@ -62,6 +62,7 @@ local function send_cmd(id, msg)
 end
 
 local function pack_link(msg)
+    skynet_m.log(string.format("pack_link %d %s.", server_id, udp_address))
     local pack = string.pack("<I4", server_id)
     pack = pack .. pack_string(udp_address)
     local port = get_gate_port();
