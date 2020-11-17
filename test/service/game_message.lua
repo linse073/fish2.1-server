@@ -112,7 +112,7 @@ local function pack_catch_fish(msg)
     return string.pack("<I2<I2<I4<I4<I4<I2", msg.tableid, msg.seatid, msg.userid, msg.bulletid, msg.fishid, msg.bulletMulti)
 end
 
-pack_message[13051] = pack_link
+pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
 pack_cmd[1401] = pack_enter_game
@@ -123,7 +123,7 @@ pack_cmd[1405] = pack_fire
 pack_cmd[1406] = pack_catch_fish
 
 function CMD.send_link()
-    send_msg(13051)
+    send_msg(13501)
 end
 
 function CMD.send_heart_beat()
@@ -237,7 +237,7 @@ local function recv_catch_fish(msg)
     skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", tableid, seatid, userid, bulletid, fishid, winGold, code))
 end
 
-message_handle[13052] = recv_link
+message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
 

@@ -16,6 +16,9 @@ skynet_m.start(function()
     skynet_m.uniqueservice("gate_mgr")
     skynet_m.uniqueservice("room_mgr")
     skynet_m.call_lua(agent_pool, "start")
+    local game_client = skynet_m.uniqueservice("game_client")
+    skynet_m.uniqueservice("game_message")
+    skynet_m.call_lua(game_client, "start")
 
     skynet_m.log("Server start finish.")
 
