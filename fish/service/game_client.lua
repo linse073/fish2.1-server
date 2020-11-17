@@ -13,6 +13,7 @@ local game_message
 local game_fd
 local last = ""
 local msg_queue = {}
+local start
 
 local CMD = {}
 
@@ -62,9 +63,11 @@ local function dispatch_package()
             -- TODO: process package
             skynet_m.send_lua(game_message, "recv_msg", v)
         else
+            last = ""
             skynet_m.log(v)
             CMD.stop()
-            CMD.start()
+            start()
+            break
         end
 	end
 end
@@ -80,7 +83,7 @@ local function heart_beat()
     timer.done_routine("heart_beat")
 end
 
-local function start()
+start = function()
     local status
     status, game_fd = pcall(socket.connect, game_address, game_port)
     if status then
