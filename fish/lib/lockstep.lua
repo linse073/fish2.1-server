@@ -24,6 +24,8 @@ local CMD = {
 local step_per_second = skynet_m.getenv_num("step_per_second")
 local init_key_step = skynet_m.getenv_num("init_key_step")
 local logic_step = skynet_m.getenv_num("logic_step")
+local game_mode = skynet_m.getenv("game_mode")
+
 local step_interval = 100/step_per_second
 local half_step_interval = step_interval*0.5
 local MAX_USER = 4
@@ -33,7 +35,11 @@ local game_message
 
 skynet_m.init(function()
     agent_mgr = skynet_m.queryservice("agent_mgr")
-    game_message = skynet_m.queryservice("game_message")
+    if game_mode == "fake_game" then
+        game_message = skynet_m.queryservice("fake_message")
+    else
+        game_message = skynet_m.queryservice("game_message")
+    end
 end)
 
 local lockstep = {}
