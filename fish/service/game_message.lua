@@ -175,9 +175,12 @@ end
 local function recv_enter_game(tableid, msg)
     local info = {}
     info.tableid = tableid
-    info.seatid, info.userid, info.sessionid = string.unpack("<I2<I4c32", msg)
-    skynet_m.log(string.format("UserEnterGame: %d %d %d %s.", info.tableid, info.seatid, info.userid, info.sessionid))
+    local index
+    info.seatid, info.userid, index = string.unpack("<I2<I4", msg)
+    info.sessionid = msg:sub(index)
+    skynet_m.log(string.format("UserEnterGame: %d %d %d %s %d.", info.tableid, info.seatid, info.userid, info.sessionid, #info.sessionid))
     skynet_m.send_lua(room_mgr, "enter_game", info)
+    CMD.send_enter_game(info)
 end
 
 local function recv_leave_game(tableid, msg)
@@ -187,6 +190,7 @@ local function recv_leave_game(tableid, msg)
     skynet_m.log(string.format("UserLeaveGame: %d %d %d.", info.tableid, info.seatid, info.userid))
     skynet_m.send_lua(room_mgr, "leave_game", info)
     skynet_m.send_lua(agent_mgr, "quit", info.userid, error_code.ok)
+    CMD.send_leave_game(info)
 end
 
 local function recv_use_prop(tableid, msg)
