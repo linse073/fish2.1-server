@@ -241,6 +241,13 @@ local function recv_catch_fish(tableid, msg)
     skynet_m.send_lua(room, "dead", info)
 end
 
+local function recv_set_cannon(tableid, msg)
+    local info = {}
+    info.seatid, info.userid, info.cannon = string.unpack("<I2<I4<I2", msg)
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "set_cannon", info)
+end
+
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -251,6 +258,7 @@ cmd_handle[1303] = recv_use_prop
 cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
+cmd_handle[1307] = recv_set_cannon
 
 function CMD.recv_msg(msg)
     local len, id, index = string.unpack("<I2<I2", msg)

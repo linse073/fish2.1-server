@@ -22,6 +22,7 @@ message.op_cmd = {
     fire = 2,
     hit = 3,
     dead = 4,
+    set_cannon = 5,
 }
 
 message.error_code = {

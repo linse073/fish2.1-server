@@ -255,6 +255,11 @@ void Flock::onDead_fast(uint8_t index, uint32_t bulletid, uint32_t fishid, uint1
 	}
 }
 
+void Flock::onSetCannon_fast(uint8_t index, uint16_t cannon)
+{
+	// TODO: set cannon
+}
+
 void Flock::update_fast()
 {
 	updateCamera_fast();
@@ -547,6 +552,13 @@ void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 				uint16_t multi, bulletMulti;
 				stream >> bulletid >> fishid >> multi >> bulletMulti >> winGold;
 				onDead_fast(userPos, bulletid, fishid, multi, bulletMulti, winGold);
+			}
+			break;
+			case uint8_t(OP_set_cannon):
+			{
+				uint16_t cannon;
+				stream >> cannon;
+				onSetCannon_fast(userPos, cannon);
 			}
 			break;
 			default:

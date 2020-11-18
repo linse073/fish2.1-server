@@ -32,6 +32,10 @@ function CMD.dead(info)
     lockstep_i:dead(info)
 end
 
+function CMD.set_cannon(info)
+    lockstep_i:set_cannon(info)
+end
+
 skynet_m.start(function()
     lockstep_i = setmetatable({}, lockstep)
     lockstep_i:init(room_id)

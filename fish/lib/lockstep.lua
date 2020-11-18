@@ -473,4 +473,15 @@ function lockstep:dead(info)
     user_info.key_cmd = user_info.key_cmd .. pack
 end
 
+function lockstep:set_cannon(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Set cannon can't find user %d.", info.userid))
+        return
+    end
+    local pack = string.pack("B>I2", op_cmd.set_cannon, info.cannon)
+    user_info.key_cmd_count = user_info.key_cmd_count + 1
+    user_info.key_cmd = user_info.key_cmd .. pack
+end
+
 return {__index=lockstep}

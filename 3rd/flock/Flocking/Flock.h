@@ -32,6 +32,7 @@ public:
 	void onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, int32_t y, uint32_t multi, uint32_t costGold);
 	void onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid);
 	void onDead_fast(uint8_t index, uint32_t bulletid, uint32_t fishid, uint16_t multi, uint16_t bulletMulti, uint32_t winGold);
+	void onSetCannon_fast(uint8_t index, uint16_t cannon);
 	void update_fast();
 
 	void loadFlockAssetData(const char* Result, uint32_t length);
@@ -68,6 +69,7 @@ private:
 		OP_fire = 2,
 		OP_hit = 3,
 		OP_dead = 4,
+		OP_set_cannon = 5,
 	};
 
 	void updateCamera_fast();
