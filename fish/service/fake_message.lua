@@ -149,7 +149,7 @@ function CMD.recv_msg(id, msg)
 end
 
 function CMD.start()
-    game_client = skynet_m.queryservice("fake_client")
+    game_client = skynet_m.queryservice("fake_game")
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")
     agent_mgr = skynet_m.queryservice("agent_mgr")
