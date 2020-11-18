@@ -173,6 +173,7 @@ local function recv_heart_beat(msg)
 end
 
 local function recv_enter_game(tableid, msg)
+    skynet_m.log(string.format("recv_enter_game tableid:%d, msg:%d.", tableid, #msg))
     local info = {}
     info.tableid = tableid
     local index
