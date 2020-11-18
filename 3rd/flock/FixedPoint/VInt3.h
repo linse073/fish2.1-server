@@ -292,7 +292,7 @@ struct VInt3
     //     return ob.ToString();
     // }
 
-    // NOTICE: ͷ�ļ��������⣬�������ط�ʵ�֣�ԭ����VInt2��
+    // NOTICE: 头文件包含问题，在其他地方实现，原来在VInt2中
     static VInt2 FromInt3XZ(const VInt3& o)
     {
         return VInt2(o.x, o.z);
