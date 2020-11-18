@@ -75,14 +75,6 @@ function lockstep:join(user_id, free_pos, agent)
         skynet_m.log("Max user.")
         return false
     end
-    -- local free_pos = 0
-    -- for i = 1, MAX_USER do
-    --     if not self._pos[i] then
-    --         free_pos = i
-    --         break
-    --     end
-    -- end
-    -- assert(free_pos~=0, "No free pos.")
     free_pos = free_pos + 1
     if free_pos<=0 or free_pos>MAX_USER then
         skynet_m.log(string.format("Illegal pos %d.", free_pos))
@@ -106,6 +98,44 @@ function lockstep:join(user_id, free_pos, agent)
         self._status_time = now
         -- NOTICE: game server notify user leave
         -- timer.add_routine("lockstep_check", self._check_func, 100)
+    end
+    return true
+end
+
+function lockstep:join_01(user_id, agent)
+    self:kick(user_id)
+    if self._count >= MAX_USER then
+        skynet_m.log("Max user.")
+        return false
+    end
+    local free_pos = 0
+    for i = 1, MAX_USER do
+        if not self._pos[i] then
+            free_pos = i
+            break
+        end
+    end
+    if free_pos == 0 then
+        skynet_m.log("No free pos.")
+        return false
+    end
+    local now = skynet_m.now()
+    local info = {
+        user_id = user_id,
+        agent = agent,
+        ready = false,
+        pos = free_pos,
+        cmd_count = 0,
+        key_cmd_count = nil,
+        key_cmd = "",
+        status_time = now,
+    }
+    self._user[user_id] = info
+    self._pos[free_pos] = info
+    self._count = self._count+1
+    if not self._status_time then
+        self._status_time = now
+         timer.add_routine("lockstep_check", self._check_func, 100)
     end
     return true
 end
