@@ -14,7 +14,6 @@ skynet_m.start(function()
     local agent_pool = skynet_m.uniqueservice("agent_pool")
     skynet_m.uniqueservice("agent_mgr")
     skynet_m.uniqueservice("gate_mgr")
-    skynet_m.uniqueservice("room_mgr")
     local game_client, game_message
     if skynet_m.getenv("game_mode") == "fake_game" then
         game_client = skynet_m.uniqueservice("fake_game")
@@ -23,6 +22,7 @@ skynet_m.start(function()
         game_client = skynet_m.uniqueservice("game_client")
         game_message = skynet_m.uniqueservice("game_message")
     end
+    skynet_m.uniqueservice("room_mgr")
     skynet_m.call_lua(agent_pool, "start")
     skynet_m.call_lua(game_message, "start")
     skynet_m.call_lua(game_client, "start")
