@@ -148,11 +148,17 @@ function CMD.recv_msg(id, msg)
     assert(message_handle[id], string.format("No message %d handle.", id))(msg)
 end
 
-skynet_m.start(function()
+function CMD.start()
     game_client = skynet_m.queryservice("fake_client")
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")
     agent_mgr = skynet_m.queryservice("agent_mgr")
+end
 
+function CMD.exit()
+    skynet_m.exit()
+end
+
+skynet_m.start(function()
     skynet_m.dispatch_lua_queue(CMD)
 end)
