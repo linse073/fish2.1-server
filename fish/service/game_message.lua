@@ -155,7 +155,7 @@ local function unpack_string(pack, index)
 end
 
 local function recv_cmd(msg)
-    local id, tableid, pack = string.pack("<I2<I2<s2", msg)
+    local id, tableid, pack = string.unpack("<I2<I2<s2", msg)
     assert(cmd_handle[id], string.format("No cmd %d handle.", id))(tableid, pack)
 end
 
