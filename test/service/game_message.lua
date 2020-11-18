@@ -57,7 +57,7 @@ end
 
 local function send_cmd(id, msg)
     local pack = assert(pack_cmd[id], string.format("No pack cmd %d.", id))(msg)
-    pack = string.pack("<I2<s2", id, pack)
+    pack = string.pack("<I2<I2<s2", id, msg.tableid, pack)
     skynet_m.send_lua(game_client, "send_package", 13503, pack)
 end
 
@@ -78,39 +78,38 @@ local function pack_heart_beat(msg)
 end
 
 local function pack_enter_game(msg)
-    return string.pack("<I4<I2<I2", msg.userid, msg.tableid, msg.seatid)
+    return string.pack("<I2<I4", msg.seatid, msg.userid)
 end
 
 local function pack_leave_game(msg)
-    return string.pack("<I4<I2<I2", msg.userid, msg.tableid, msg.seatid)
+    return string.pack("<I2<I4", msg.seatid, msg.userid)
 end
 
 local function pack_use_prop(msg)
-    return string.pack("<I2<I2<I4<I4<I4", msg.tableid, msg.seatid, msg.userid, msg.probid, msg.probCount)
+    return string.pack("<I2<I4<I4<I4", msg.seatid, msg.userid, msg.probid, msg.probCount)
 end
 
 local function pack_build_fish(msg)
-    local pack = string.pack("<I2", msg.tableid)
-    local fish = msg.fish
-    -- pack = pack .. string.pack("B", #fish)
-    for _, v in ipairs(fish) do
-        pack = pack .. string.pack("<I4<I2", v.id, v.kind)
-    end
-    for i = #fish+1, 100 do
-        pack = pack .. string.pack("<I4<I2", 0, 0)
-    end
-    return pack
+    -- local fish = msg.fish
+    -- -- pack = pack .. string.pack("B", #fish)
+    -- for _, v in ipairs(fish) do
+    --     pack = pack .. string.pack("<I4<I2", v.id, v.kind)
+    -- end
+    -- for i = #fish+1, 100 do
+    --     pack = pack .. string.pack("<I4<I2", 0, 0)
+    -- end
+    return msg.fish
 end
 
 local function pack_fire(msg)
-    local pack = string.pack("<I2<I2<I4", msg.tableid, msg.seatid, msg.userid)
+    local pack = string.pack("<I2<I4", msg.seatid, msg.userid)
     local bullet = msg.bullet
     pack = pack .. string.pack("<I4<I4<I4<I4<I8", bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime)
     return pack
 end
 
 local function pack_catch_fish(msg)
-    return string.pack("<I2<I2<I4<I4<I4<I2", msg.tableid, msg.seatid, msg.userid, msg.bulletid, msg.fishid, msg.bulletMulti)
+    return string.pack("<I2<I4<I4<I4<I2", msg.seatid, msg.userid, msg.bulletid, msg.fishid, msg.bulletMulti)
 end
 
 pack_message[13501] = pack_link
@@ -171,8 +170,8 @@ local function unpack_string(pack, index)
 end
 
 local function recv_cmd(msg)
-    local id, pack = string.pack("<I2<s2", msg)
-    assert(cmd_handle[id], string.format("No cmd %d handle.", id))(pack)
+    local id, tableid, pack = string.pack("<I2<I2<s2", msg)
+    assert(cmd_handle[id], string.format("No cmd %d handle.", id))(tableid, pack)
 end
 
 local function recv_link(msg)
@@ -188,22 +187,31 @@ local function recv_heart_beat(msg)
     skynet_m.send_lua(game_client, "on_heart_beat")
 end
 
-local function recv_enter_game(msg)
-    local tableid, seatid, userid, sessionid = string.unpack("<I2<I2<I4c32", msg)
-    skynet_m.log(string.format("UserEnterGame: %d %d %d %s.", tableid, seatid, userid, sessionid))
+local function recv_enter_game(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    info.seatid, info.userid, info.sessionid = string.unpack("<I2<I4c32", msg)
+    skynet_m.log(string.format("UserEnterGame: %d %d %d %s.", info.tableid, info.seatid, info.userid, info.sessionid))
+
 end
 
-local function recv_leave_game(msg)
-    local tableid, seatid, userid = string.unpack("<I2<I2<I4", msg)
-    skynet_m.log(string.format("UserLeaveGame: %d %d %d.", tableid, seatid, userid))
+local function recv_leave_game(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    info.seatid, info.userid = string.unpack("<I2<I4", msg)
+    skynet_m.log(string.format("UserLeaveGame: %d %d %d.", info.tableid, info.seatid, info.userid))
+
 end
 
-local function recv_use_prop(msg)
-    local tableid, seatid, userid, probid, probCount = string.unpack("<I2<I2<I4<I4<I4", msg)
-    skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", tableid, seatid, userid, probid, probCount))
+local function recv_use_prop(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    info.seatid, info.userid, info.probid, info.probCount = string.unpack("<I2<I4<I4<I4", msg)
+    skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+
 end
 
-local function recv_build_fish(msg)
+local function recv_build_fish(tableid, msg)
     -- local tableid, num, index = string.unpack("<I2B", msg)
     -- local fish = {}
     -- for i = 1, num do
@@ -211,7 +219,7 @@ local function recv_build_fish(msg)
     --     info.id, info.kind, index = string.unpack("<I4<I2", msg, index)
     --     fish[#fish+1] = info
     -- end
-    local tableid, index = string.unpack("<I2", msg)
+    local index = 1
     local fish = {}
     for i = 1, 100 do
         local info = {}
@@ -224,18 +232,26 @@ local function recv_build_fish(msg)
     skynet_m.log(string.format("BuildFishs: %d %d.", tableid, code))
 end
 
-local function recv_fire(msg)
-    local tableid, seatid, userid, index = string.unpack("<I2<I2<I4", msg)
+local function recv_fire(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    local index
+    info.seatid, info.userid, index = string.unpack("<I2<I4", msg)
     local bullet = {}
     bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime, index = string.unpack("<I4<I4<I4<I4<I8", msg, index)
-    local code, costGold = string.unpack("<I2<I4", msg, index)
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", tableid, seatid, userid, bullet.id, code, costGold))
+    info.bullet = bullet
+    info.code, info.costGold = string.unpack("<I2<I4", msg, index)
+    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold))
+
 end
 
-local function recv_catch_fish(msg)
-    local tableid, seatid, userid, bulletid, fishid, fishKind, multi, bulltMulti, winGold, code =
-        string.unpack("<I2<I2<I4<I4<I4<I2<I2<I2<I4<I2", msg)
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", tableid, seatid, userid, bulletid, fishid, winGold, code))
+local function recv_catch_fish(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulltMulti, info.winGold, info.code =
+        string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I2", msg)
+    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
+
 end
 
 message_handle[13502] = recv_link
