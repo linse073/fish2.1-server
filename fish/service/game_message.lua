@@ -173,12 +173,9 @@ local function recv_heart_beat(msg)
 end
 
 local function recv_enter_game(tableid, msg)
-    skynet_m.log(string.format("recv_enter_game tableid:%d, msg:%d.", tableid, #msg))
     local info = {}
     info.tableid = tableid
-    local index
-    info.seatid, info.userid, index = string.unpack("<I2<I4", msg)
-    info.sessionid = msg:sub(index)
+    info.seatid, info.userid, info.sessionid = string.unpack("<I2<I4c32", msg)
     skynet_m.log(string.format("UserEnterGame: %d %d %d %s %d.", info.tableid, info.seatid, info.userid, info.sessionid, #info.sessionid))
     skynet_m.send_lua(room_mgr, "enter_game", info)
     CMD.send_enter_game(info)
