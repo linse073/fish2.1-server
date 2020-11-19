@@ -12,8 +12,8 @@ local CMD = {}
 
 CMD.routine = timer.call_routine
 
-function CMD.join(user_id, agent)
-    return lockstep_i:join(user_id, agent)
+function CMD.join(user_id, pos, agent)
+    return lockstep_i:join(user_id, pos, agent)
 end
 
 function CMD.join_01(user_id, agent)
