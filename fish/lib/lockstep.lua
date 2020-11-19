@@ -453,7 +453,7 @@ function lockstep:op(info, data)
             skynet_m.log("Hit command count error.")
         else
             local bulletid, fishid = string.unpack(">I4>I4", data, index)
-            local multi = lflock:lflock_bullet_multi(bulletid)
+            local multi = self._flock:lflock_bullet_multi(bulletid)
             skynet_m.send_lua(game_message, "send_catch_fish", {
                 tableid = self._room_id,
                 seatid = info.pos,
