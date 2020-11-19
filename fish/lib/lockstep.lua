@@ -406,7 +406,7 @@ function lockstep:quit(info, data)
     skynet_m.send_lua(agent_mgr, "quit", info.user_id, error_code.ok)
 end
 
-function lockstep:op(info, data)
+function lockstep:update_cmd_count(info)
     if not info.key_cmd_count then
         info.key_cmd_count = 0
         self._cmd_count = self._cmd_count+1
@@ -414,6 +414,10 @@ function lockstep:op(info, data)
             self._all_cmd_time = self._elapsed_time
         end
     end
+end
+
+function lockstep:op(info, data)
+    self:update_cmd_count(info)
     local cmd_count, key_count, first_cmd, index = string.unpack(">I4BB", data, 3)
     if cmd_count > info.cmd_count then
         info.cmd_count = cmd_count
@@ -453,7 +457,7 @@ function lockstep:op(info, data)
             skynet_m.log("Hit command count error.")
         else
             local bulletid, fishid = string.unpack(">I4>I4", data, index)
-            local multi = lflock:lflock_bullet_multi(bulletid)
+            local multi = self._flock:lflock_bullet_multi(bulletid)
             skynet_m.send_lua(game_message, "send_catch_fish", {
                 tableid = self._room_id,
                 seatid = info.pos,
@@ -488,6 +492,7 @@ function lockstep:fire(info)
     end
     self._bullet[binfo.id] = nil
     local pack = string.pack("B>I4>I4>i4>i4>I4>I4", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y, bullet.multi, info.costGold)
+    self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack
 end
@@ -499,6 +504,7 @@ function lockstep:dead(info)
         return
     end
     local pack = string.pack("B>I4>I4>I2>I2>I4", op_cmd.dead, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold)
+    self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack
 end
@@ -510,6 +516,7 @@ function lockstep:set_cannon(info)
         return
     end
     local pack = string.pack("B>I2", op_cmd.set_cannon, info.cannon)
+    self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack
 end

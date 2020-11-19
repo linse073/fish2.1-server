@@ -16,6 +16,10 @@ function CMD.join(user_id, agent)
     return lockstep_i:join(user_id, agent)
 end
 
+function CMD.join_01(user_id, agent)
+    return lockstep_i:join_01(user_id, agent)
+end
+
 function CMD.kick(user_id, agent)
     lockstep_i:kick(user_id, agent)
 end

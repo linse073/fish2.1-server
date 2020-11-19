@@ -5,6 +5,7 @@ local error_code = message.error_code
 local string = string
 local ipairs = ipairs
 local assert = assert
+local math = math
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
@@ -72,8 +73,21 @@ end
 
 -- NOTICE: recv message
 
+local message_map = {
+    [13501] = 13502,
+    [13503] = 13504,
+    [1] = 1,
+    [1401] = 1301,
+    [1402] = 1302,
+    [1403] = 1303,
+    [1404] = 1304,
+    [1405] = 1305,
+    [1406] = 1306,
+    [1307] = 1307,
+}
+
 local function recv_cmd(msg)
-    assert(cmd_handle[msg.id], string.format("No cmd %d handle.", msg.id))(msg.tableid, msg)
+    assert(cmd_handle[message_map[msg.id]], string.format("No cmd %d handle.", msg.id))(msg.tableid, msg)
 end
 
 local function recv_link(msg)
@@ -127,10 +141,12 @@ local function recv_fire(tableid, info)
 end
 
 local function recv_catch_fish(tableid, info)
-    info.fishKind, info.multi, info.winGold, info.code = 1, 1, 1000, 0
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
-    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-    skynet_m.send_lua(room, "dead", info)
+    if math.random(1000) <= 100 then
+        info.fishKind, info.multi, info.winGold, info.code = 1, 1, 1000, 0
+        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
+        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+        skynet_m.send_lua(room, "dead", info)
+    end
 end
 
 local function recv_set_cannon(tableid, info)
@@ -151,7 +167,7 @@ cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
 
 function CMD.recv_msg(id, msg)
-    assert(message_handle[id], string.format("No message %d handle.", id))(msg)
+    assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)
 end
 
 function CMD.start()
@@ -159,6 +175,7 @@ function CMD.start()
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")
     agent_mgr = skynet_m.queryservice("agent_mgr")
+    math.randomseed(skynet_m.now())
 end
 
 function CMD.exit()
