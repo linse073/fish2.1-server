@@ -5,6 +5,7 @@ local error_code = message.error_code
 local string = string
 local ipairs = ipairs
 local assert = assert
+local math = math
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
@@ -140,10 +141,12 @@ local function recv_fire(tableid, info)
 end
 
 local function recv_catch_fish(tableid, info)
-    info.fishKind, info.multi, info.winGold, info.code = 1, 1, 1000, 0
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
-    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-    skynet_m.send_lua(room, "dead", info)
+    if math.random(1000) <= 100 then
+        info.fishKind, info.multi, info.winGold, info.code = 1, 1, 1000, 0
+        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
+        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+        skynet_m.send_lua(room, "dead", info)
+    end
 end
 
 local function recv_set_cannon(tableid, info)
@@ -172,6 +175,7 @@ function CMD.start()
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")
     agent_mgr = skynet_m.queryservice("agent_mgr")
+    math.randomseed(skynet_m.now())
 end
 
 function CMD.exit()
