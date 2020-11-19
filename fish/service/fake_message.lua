@@ -141,7 +141,7 @@ end
 
 local function recv_catch_fish(tableid, info)
     info.fishKind, info.multi, info.winGold, info.code = 1, 1, 1000, 0
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
+    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "dead", info)
 end
