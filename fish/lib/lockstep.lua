@@ -434,7 +434,7 @@ function lockstep:op(info, data)
             self._bullet_id = self._bullet_id + 1
             skynet_m.send_lua(game_message, "send_fire", {
                 tableid = self._room_id,
-                seatid = info.pos,
+                seatid = info.pos - 1,
                 userid = info.user_id,
                 bullet = {
                     id = self._bullet_id,
@@ -460,7 +460,7 @@ function lockstep:op(info, data)
             local multi = self._flock:lflock_bullet_multi(bulletid)
             skynet_m.send_lua(game_message, "send_catch_fish", {
                 tableid = self._room_id,
-                seatid = info.pos,
+                seatid = info.pos - 1,
                 userid = info.user_id,
                 bulletid = bulletid,
                 fishid = fishid,
