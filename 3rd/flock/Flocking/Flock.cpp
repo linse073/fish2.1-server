@@ -209,7 +209,7 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 	}
 }
 
-void Flock::onDead_fast(uint8_t index, uint32_t bulletid, uint32_t fishid, uint16_t multi, uint16_t bulletMulti, uint32_t winGold)
+void Flock::onDead_fast(uint8_t index, uint32_t bulletid, uint32_t fishid, uint16_t multi, uint16_t bulletMulti, uint32_t winGold, uint64_t fishScore)
 {
 	auto pAgent = agentMap_.find(fishid);
 	bool findAgent = false;
@@ -550,8 +550,9 @@ void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 			{
 				uint32_t bulletid, fishid, winGold;
 				uint16_t multi, bulletMulti;
-				stream >> bulletid >> fishid >> multi >> bulletMulti >> winGold;
-				onDead_fast(userPos, bulletid, fishid, multi, bulletMulti, winGold);
+				uint64_t fishScore;
+				stream >> bulletid >> fishid >> multi >> bulletMulti >> winGold >> fishScore;
+				onDead_fast(userPos, bulletid, fishid, multi, bulletMulti, winGold, fishScore);
 			}
 			break;
 			case uint8_t(OP_set_cannon):

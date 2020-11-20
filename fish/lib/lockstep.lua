@@ -503,7 +503,7 @@ function lockstep:dead(info)
         skynet_m.log(string.format("Dead can't find user %d.", info.userid))
         return
     end
-    local pack = string.pack("B>I4>I4>I2>I2>I4", op_cmd.dead, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold)
+    local pack = string.pack("B>I4>I4>I2>I2>I4>I8", op_cmd.dead, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold, info.fishScore)
     self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack
