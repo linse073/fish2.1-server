@@ -173,6 +173,7 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 		if (!agent->IsDead())
 		{
 			agent->OnHit_fast(false);
+			findAgent = true;
 			// if (agent->IsDead())
 			// {
 			// 	fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
