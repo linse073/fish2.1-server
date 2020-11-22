@@ -377,7 +377,7 @@ function lockstep:ready(info, data)
             self:start()
         end
         local msg = string.pack(">I2BB", s_to_c.room_data, info.pos, logic_step)
-        msg = msg..string.pack(">I4>I4>I4", self._last_key_step, self._next_key_step, self._next_logic_step)
+        msg = msg..string.pack(">I4>I4>I4>I4", self._step, self._last_key_step, self._next_key_step, self._next_logic_step)
         msg = msg..string.pack("B", self._ready_count-1)
         for _, v in pairs(self._user) do
             if v.ready and v.user_id~=info.user_id then
