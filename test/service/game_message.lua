@@ -241,7 +241,6 @@ local function recv_fire(tableid, msg)
     info.bullet = bullet
     info.code, info.costGold = string.unpack("<I2<I4", msg, index)
     skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold))
-
 end
 
 local function recv_catch_fish(tableid, msg)
