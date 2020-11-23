@@ -134,8 +134,8 @@ end
 
 local function recv_fire(tableid, info)
     local bullet = info.bullet
-    info.code, info.costGold = 0, 1000
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold))
+    info.code, info.costGold, info.fishScore = 0, 1000, 10000
+    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "fire", info)
 end

@@ -491,7 +491,7 @@ function lockstep:fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
-    local pack = string.pack("B>I4>I4>i4>i4>I4>I4", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y, bullet.multi, info.costGold)
+    local pack = string.pack("B>I4>I4>i4>i4>I4>I4>I8", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y, bullet.multi, info.costGold, info.fishScore)
     self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack

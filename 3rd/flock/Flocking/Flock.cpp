@@ -119,7 +119,7 @@ const VInt3& Flock::getSphereCenter() const
 	return sphereCenter_;
 }
 
-void Flock::onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, int32_t y, uint32_t multi, uint32_t costGold)
+void Flock::onFire_fast(uint32_t id, uint32_t kind, uint8_t index, int32_t x, int32_t y, uint32_t multi, uint32_t costGold, uint64_t fishScore)
 {
 	VInt2 pos(x, y);
 	const VInt2& fortPos = fortPos_[index];
@@ -536,8 +536,9 @@ void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 			{
 				int32_t x, y;
 				uint32_t multi, id, kind, costGold;
-				stream >> id >> kind >> x >> y >> multi >> costGold;
-				onFire_fast(id, kind, userPos, x, y, multi, costGold);
+				uint64_t fishScore;
+				stream >> id >> kind >> x >> y >> multi >> costGold >> fishScore;
+				onFire_fast(id, kind, userPos, x, y, multi, costGold, fishScore);
 			}
 			break;
 			case uint8_t(OP_hit):

@@ -227,8 +227,8 @@ local function recv_fire(tableid, msg)
     local bullet = {}
     bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime, index = string.unpack("<I4<I4<I4<I4<I8", msg, index)
     info.bullet = bullet
-    info.code, info.costGold = string.unpack("<I2<I4", msg, index)
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold))
+    info.code, info.costGold, info.fishScore = string.unpack("<I2<I4<I8", msg, index)
+    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "fire", info)
 end
