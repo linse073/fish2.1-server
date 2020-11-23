@@ -170,7 +170,7 @@ local function unpack_string(pack, index)
 end
 
 local function recv_cmd(msg)
-    local id, tableid, pack = string.pack("<I2<I2<s2", msg)
+    local id, tableid, pack = string.unpack("<I2<I2<s2", msg)
     assert(cmd_handle[id], string.format("No cmd %d handle.", id))(tableid, pack)
 end
 
@@ -208,7 +208,6 @@ local function recv_use_prop(tableid, msg)
     info.tableid = tableid
     info.seatid, info.userid, info.probid, info.probCount = string.unpack("<I2<I4<I4<I4", msg)
     skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
-
 end
 
 local function recv_build_fish(tableid, msg)
@@ -251,7 +250,6 @@ local function recv_catch_fish(tableid, msg)
     info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulltMulti, info.winGold, info.code =
         string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I2", msg)
     skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.code))
-
 end
 
 message_handle[13502] = recv_link
