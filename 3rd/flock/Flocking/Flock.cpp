@@ -174,30 +174,6 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 		{
 			agent->OnHit_fast(false);
 			findAgent = true;
-			// if (agent->IsDead())
-			// {
-			// 	fishCount_[int32_t(agent->GetFishType())].curCount -= 1;
-			// 	agent->Clear();
-			// 	for (auto it = agent_.begin(); it != agent_.end(); ) 
-			// 	{
-			// 		if ((*it)->GetID() == agent->GetID()) 
-			// 		{
-			// 			it = agent_.erase(it);
-			// 			findAgent = true;
-			// 		} 
-			// 		else 
-			// 		{
-			// 			++it;
-			// 		}
-			// 	}
-			// 	// agent_.erase(std::remove(std::begin(agent_), std::end(agent_), agent), std::end(agent_));
-			// 	agentMap_.erase(pAgent);
-			// 	pool_->RecycleAgent(agent);
-			// }
-			// else
-			// {
-			// 	findAgent = true;
-			// }	
 		}
 		else
 		{
@@ -336,7 +312,6 @@ void Flock::loadObstacleData(const char* Result, uint32_t length)
 	obstacle_.push_back(new FlockSphere(VInt3::zero, flockAsset_->CameraObstacleSphereRadius));
 	while (stream.length() > 0)
 	{
-		PathData data;
 		uint8_t type;
 		stream >> type;
 		switch (type)
