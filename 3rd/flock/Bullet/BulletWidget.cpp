@@ -56,17 +56,6 @@ void UBulletWidget::Pack_Data(KBEngine::MemoryStream& stream)
 	stream << costGold_;
 }
 
-void UBulletWidget::Read_Data(KBEngine::MemoryStream& stream)
-{
-	stream >> id_;
-	stream >> index_;
-	stream >> dir_.x >> dir_.y;
-	stream >> pos_.x >> pos_.y;
-	stream >> multi_;
-	stream >> kind_;
-	stream >> costGold_;
-}
-
 uint32_t UBulletWidget::GetID() const
 {
 	return id_;

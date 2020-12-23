@@ -1,6 +1,7 @@
 #include "FlockCuboid.h"
 #include "FlockAgent.h"
 #include "FishAsset.h"
+#include "MemoryStream.h"
 
 FlockCuboid::FlockCuboid(const VInt3& center, int32_t l, int32_t w, int32_t h)
 	:center_(center),
@@ -11,9 +12,9 @@ FlockCuboid::FlockCuboid(const VInt3& center, int32_t l, int32_t w, int32_t h)
 VInt3 FlockCuboid::CalcMove(const AFlockAgent& agent)
 {
 	VInt3 dis = agent.GetPos() - center_;
-	if (StdMath::Abs(dis.x) <= agent.GetAvoidanceRadius() + l_
-		&& StdMath::Abs(dis.y) <= agent.GetAvoidanceRadius() + w_
-		&& StdMath::Abs(dis.z) <= agent.GetAvoidanceRadius() + h_)
+	if (StdMath::Abs(dis.x) <= agent.GetVisionRadius() + l_
+		&& StdMath::Abs(dis.y) <= agent.GetVisionRadius() + w_
+		&& StdMath::Abs(dis.z) <= agent.GetVisionRadius() + h_)
 	{
 		return dis;
 	}

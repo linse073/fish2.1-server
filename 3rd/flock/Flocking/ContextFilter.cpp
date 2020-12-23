@@ -26,7 +26,7 @@ ContextFilter::ContextFilter(const Flock* flock, const AFlockAgent& agent, const
 	int32_t sphereRadius = flock_->getSphereRadius();
 	for (auto& item : obstacle)
 	{
-		if (item->InSphere(sphereCenter, sphereRadius))
+		//if (item->InSphere(sphereCenter, sphereRadius))
 		{
 			obstacle_.push_back(item);
 		}
@@ -66,4 +66,9 @@ int32_t ContextFilter::getRotationDegreesPerStep() const
 int32_t ContextFilter::getFlockRotationDegreesPerStep() const
 {
 	return flock_->getFlockRotationDegreesPerStep();
+}
+
+const Flock* ContextFilter::getFlock() const
+{
+	return flock_;
 }

@@ -20,6 +20,7 @@ public:
 	int32_t getSphereRadius() const;
 	int32_t getRotationDegreesPerStep() const;
 	int32_t getFlockRotationDegreesPerStep() const;
+	const Flock* getFlock() const;
 
 private:
 	std::vector<AFlockAgent*> neighbor_;

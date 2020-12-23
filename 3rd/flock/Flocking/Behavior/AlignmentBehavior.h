@@ -6,7 +6,7 @@
 class AlignmentBehavior : public FlockBehavior
 {
 public:
-	virtual VInt3 CalcMove(const AFlockAgent& agent, const ContextFilter& filter);
+	virtual VInt3 CalcMove(AFlockAgent& agent, const ContextFilter& filter);
 };
 
 #endif // __ALIGNMENt_BEHAVIOR_H__

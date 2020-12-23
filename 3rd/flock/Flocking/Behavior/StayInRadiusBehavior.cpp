@@ -3,7 +3,7 @@
 #include "ContextFilter.h"
 #include "IntMath.h"
 
-VInt3 StayInRadiusBehavior::CalcMove(const AFlockAgent& agent, const ContextFilter& filter)
+VInt3 StayInRadiusBehavior::CalcMove(AFlockAgent& agent, const ContextFilter& filter)
 {
 	VInt3 centerOffset = filter.getSphereCenter() - agent.GetPos();
 	int32_t t = IntMath::Divide(centerOffset.magnitude(), filter.getSphereRadius() / 1000);

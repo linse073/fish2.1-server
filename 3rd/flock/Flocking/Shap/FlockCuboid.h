@@ -3,8 +3,6 @@
 
 #include "FlockShap.h"
 
-class AFlockAgent;
-
 class FlockCuboid : public FlockShap
 {
 public:

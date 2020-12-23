@@ -19,7 +19,6 @@ public:
 	void SetPosition_fast(const VInt2& pos);
 	void SetDir_fast(const VInt2& dir);
 	void Pack_Data(KBEngine::MemoryStream& stream);
-	void Read_Data(KBEngine::MemoryStream& stream);
 
 	uint32_t GetID() const;
 	const VInt2& GetDir() const;

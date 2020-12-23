@@ -12,7 +12,7 @@ public:
 	FlockCompositeBehavior();
 	virtual ~FlockCompositeBehavior();
 
-	virtual VInt3 CalcMove(const AFlockAgent& agent, const ContextFilter& filter);
+	virtual VInt3 CalcMove(AFlockAgent& agent, const ContextFilter& filter);
 
 	void Init(const UFlockAsset* flockAsset);
 

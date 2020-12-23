@@ -14,13 +14,17 @@
 #include "IntMath.h"
 #include "ContextFilter.h"
 #include "MemoryStreamLittle.h"
+#include "FlockLeader.h"
+#include "BossAgent.h"
+#include "BossAsset.h"
 
 extern void flock_callback(void* arg, uint8_t cbtype, KBEngine::MemoryStreamLittle& stream);
 
 Flock::Flock(void* callback, uint32_t randSeed)
-	:id_(0),
+	:id_(1000),
 	cameraPos_(VInt3::zero),
 	cameraQuat_(VInt4::Identity),
+	cameraRotator_(VInt3::zero),
 	sphereCenter_(VInt3::zero),
 	pool_(new FlockPool()),
 	behavior_(new CompositeBehavior()),
@@ -52,6 +56,21 @@ void Flock::init(const UFlockAsset* flockAsset)
 	{
 		fishType_[int32_t(item->FishType)].push_back(item);
 	}
+	for (auto& item : flockAsset_->BossAsset)
+	{
+		BossInfo bossInfo;
+		bossInfo.status = BossStatus_None;
+		bossInfo.step = 0;
+		bossInfo.totalStep = 0;
+		bossInfo.asset = item;
+		boss_.push_back(bossInfo);
+		int32 index = 0;
+		for (auto& skillItem : item->SkillAsset)
+		{
+			skillItem->index = index;
+			++index;
+		}
+	}
 	FishCount& smallCount = fishCount_[int32_t(FishType_Small)];
 	smallCount.maxCount = flockAsset_->SmallFishRatio;
 	smallCount.minCount = flockAsset_->SmallFishRatio;
@@ -72,15 +91,16 @@ void Flock::init(const UFlockAsset* flockAsset)
 	fortPos_[1] = VInt2(screenSize.x - flockAsset_->FortPositionX, screenSize.y);
 	fortPos_[2] = VInt2(flockAsset_->FortPositionX, 0);
 	fortPos_[3] = VInt2(screenSize.x - flockAsset_->FortPositionX, 0);
-	id_ = 0;
+	id_ = 1000;
 	cameraStep_ = 0;
 }
 
 void Flock::clear()
 {
-	id_ = 0;
+	id_ = 1000;
 	cameraPos_ = VInt3::zero;
 	cameraQuat_ = VInt4::Identity;
+	cameraRotator_ = VInt3::zero;
 	sphereCenter_ = VInt3::zero;
 	for (auto& item : agent_)
 	{
@@ -112,6 +132,12 @@ void Flock::clear()
 	agentMap_.clear();
 	bulletMap_.clear();
 	callback_ = nullptr;
+	for (auto& item : pilot_)
+	{
+		KBE_SAFE_RELEASE(item);
+	}
+	pilot_.clear();
+	boss_.clear();
 }
 
 const VInt3& Flock::getSphereCenter() const
@@ -165,24 +191,27 @@ void Flock::onHit_fast(uint8_t index, uint32_t bulletid, uint32_t fishid)
 	{
 		printf("Can't find bullet %d.\n", bulletid);
 	}
-	auto pAgent = agentMap_.find(fishid);
-	bool findAgent = false;
-	if (pAgent != agentMap_.end())
+	if (fishid > 1000)
 	{
-		AFlockAgent* agent = pAgent->second;
-		if (!agent->IsDead())
+		auto pAgent = agentMap_.find(fishid);
+		bool findAgent = false;
+		if (pAgent != agentMap_.end())
 		{
-			agent->OnHit_fast(false);
-			findAgent = true;
+			AFlockAgent* agent = pAgent->second;
+			if (!agent->IsDead())
+			{
+				agent->OnHit_fast(false);
+				findAgent = true;
+			}
+			else
+			{
+				findAgent = true;
+			}
 		}
-		else
+		if (!findAgent)
 		{
-			findAgent = true;
+			printf("Can't find agent %d.\n", fishid);
 		}
-	}
-	if (!findAgent)
-	{
-		printf("Can't find agent %d.\n", fishid);
 	}
 }
 
@@ -240,7 +269,9 @@ void Flock::onSetCannon_fast(uint8_t index, uint16_t cannon)
 void Flock::update_fast()
 {
 	updateCamera_fast();
+	updatePilot();
 	newAgent_fast();
+	updateBoss_fast();
 	updateAgent_fast();
 	updateBullet_fast();
 }
@@ -259,6 +290,19 @@ int32_t Flock::getFlockRotationDegreesPerStep() const
 {
 	return flockAsset_->FlockRotationDegreesPerStep;
 }
+
+uint32_t Flock::getCameraStep() const
+{
+	if (cameraPath_.size() > 0)
+	{
+		return cameraStep_ % cameraPath_.Num();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 
 void* Flock::getCallback() const
 {
@@ -344,8 +388,50 @@ void Flock::loadObstacleData(const char* Result, uint32_t length)
 	}
 }
 
+void Flock::loadPilotData(const char* Result, uint32_t length)
+{
+	KBEngine::MemoryStream stream;
+	stream.append(Result, length);
+
+	while (stream.length() > 0)
+	{
+		uint8_t type;
+		stream >> type;
+		switch (type)
+		{
+		case 1:
+		{
+			FlockPilot* pilot = new FlockLeader();
+			pilot->Unserialize(stream);
+			pilot_.Add(pilot);
+		}
+		break;
+		default:
+		{
+			//ERROR_MSG("Unknown pilot type.");
+			//SCREEN_ERROR_MSG("Unknown pilot type.");
+		}
+		break;
+		}
+	}
+}
+
 void Flock::updateCamera_fast()
 {
+	for (auto& item : boss_)
+	{
+		if (item.status == BossStatus_None)
+		{
+			if (item.totalStep > 0)
+			{
+				item.totalStep = 0;
+			}
+		}
+		else
+		{
+			return;
+		}
+	}
 	if (cameraPath_.size() > 0)
 	{
 		uint32_t step = cameraStep_ % cameraPath_.size();
@@ -391,9 +477,9 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 		for (int32_t i = 0; i < newFishAsset->InitCount; ++i)
 		{
 			VInt3 pos;
-			pos.x = random_->Range(-randomRadius, randomRadius) * 1000;
-			pos.y = random_->Range(-randomRadius, randomRadius) * 1000;
-			pos.z = random_->Range(-randomRadius, randomRadius) * 1000;
+			pos.x = random_->Range(-randomRadius, randomRadius + 1) * 1000;
+			pos.y = random_->Range(-randomRadius, randomRadius + 1) * 1000;
+			pos.z = random_->Range(-randomRadius, randomRadius + 1) * 1000;
 			pos = initPos + pos;
 			if (newFishAsset->RandomDir)
 			{
@@ -401,7 +487,7 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 			}
 			if (newFishAsset->RandomScale)
 			{
-				scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale);
+				scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale + 1);
 			}
 			AFlockAgent* agent = pool_->GetAgent();
 			++id_;
@@ -424,7 +510,7 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 			}
 			if (newFishAsset->RandomScale)
 			{
-				scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale);
+				scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale + 1);
 			}
 			AFlockAgent* agent = pool_->GetAgent();
 			++id_;
@@ -434,6 +520,39 @@ void Flock::newAgent_fast(const UNewFishAsset* newFishAsset)
 			++count;
 			stream << id_ << (uint16_t)newFishAsset->FishAsset->ID;
 		}
+	}
+	fishCount_[int32_t(newFishAsset->FishType)].curCount += newFishAsset->InitCount;
+	KBE_ASSERT(count <= 100);
+	for (uint8_t i = count; i < 100; i++)
+	{
+		stream << (uint32_t)0 << (uint16_t)0;
+	}
+	flock_callback(callback_, 1, stream);
+}
+
+void Flock::newAgent_fast(const VInt3& pos, const UNewFishAsset* newFishAsset)
+{
+	VInt3 dir = IntMath::SphereNormalPos(random_);
+	int32_t scale = 100;
+	KBEngine::MemoryStreamLittle stream;
+	uint8_t count = 0;
+	for (int32_t i = 0; i < newFishAsset->InitCount; ++i)
+	{
+		if (newFishAsset->RandomDir)
+		{
+			dir = IntMath::SphereNormalPos(random_);
+		}
+		if (newFishAsset->RandomScale)
+		{
+			scale = random_->Range(newFishAsset->MinScale, newFishAsset->MaxScale + 1);
+		}
+		AFlockAgent* agent = pool_->GetAgent();
+		++id_;
+		agent->Init_fast(id_, scale, pos, dir, newFishAsset->FishAsset, newFishAsset->FishType);
+		agent_.push_back(agent);
+		agentMap_[id_] = agent;
+		++count;
+		stream << id_ << (uint16_t)newFishAsset->FishAsset->ID;
 	}
 	fishCount_[int32_t(newFishAsset->FishType)].curCount += newFishAsset->InitCount;
 	KBE_ASSERT(count <= 100);
@@ -484,6 +603,189 @@ void Flock::updateBullet_fast()
 		}
 		item->SetPosition_fast(pos);
 		item->SetDir_fast(dir);
+	}
+}
+
+void Flock::updateBoss_fast()
+{
+	uint32_t step = getCameraStep();
+	for (auto& item : boss_)
+	{
+		UBossAsset* asset = item.asset;
+		switch (item.status)
+		{
+		case BossStatus_None:
+		{
+			if (step == asset->BornStep)
+			{
+				changeBossStatus_fast(item);
+			}
+		}
+		break;
+		case BossStatus_Born:
+		{
+			++item.totalStep;
+			if (item.totalStep >= asset->BornCD)
+			{
+				changeBossStatus_fast(item);
+			}
+			else
+			{
+				++item.step;
+			}
+		}
+		break;
+		case BossStatus_Swim:
+		{
+			++item.totalStep;
+			if (item.totalStep >= asset->BornCD + asset->SwimCD)
+			{
+				changeBossStatus_fast(item);
+			}
+			else
+			{
+				++item.step;
+			}
+		}
+		break;
+		case BossStatus_Idle:
+		{
+			++item.totalStep;
+			if (item.totalStep >= asset->BornCD + asset->SwimCD + asset->LiveStep)
+			{
+				changeBossStatus_fast(item);
+			}
+			else
+			{
+				uint32_t randNum = Random::Range(0u, asset->IdleCD);
+				if (item.step >= randNum)
+				{
+					changeBossStatus_fast(item);
+				}
+				else
+				{
+					++item.step;
+				}
+			}
+		}
+		break;
+		case BossStatus_Skill_0:
+		case BossStatus_Skill_1:
+		case BossStatus_Skill_2:
+		{
+			++item.totalStep;
+			USkillAsset* skillAsset = asset->SkillAsset[item.status - BossStatus_Skill_0];
+			if (item.step >= skillAsset->CD)
+			{
+				changeBossStatus_fast(item);
+			}
+			else
+			{
+				++item.step;
+				// TODO: new fish
+				for (auto& skillFish : skillAsset->SkillFishAsset)
+				{
+					if (skillFish->Step == item.step)
+					{
+						VInt3 pos(skillFish->PosX, skillFish->PosY, skillFish->PosZ);
+						newAgent_fast(pos, skillFish->NewFishAsset);
+					}
+				}
+			}
+		}
+		break;
+		case BossStatus_Die:
+		{
+			++item.totalStep;
+			if (item.totalStep >= asset->BornCD + asset->SwimCD + asset->LiveStep + asset->DieCD)
+			{
+				changeBossStatus_fast(item);
+			}
+			else
+			{
+				++item.step;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
+}
+
+void Flock::changeBossStatus_fast(BossInfo& info)
+{
+	UBossAsset* asset = info.asset;
+	if (info.totalStep < asset->BornCD)
+	{
+		info.status = BossStatus_Born;
+		info.step = info.totalStep;
+	}
+	else if (info.totalStep < asset->BornCD + asset->SwimCD)
+	{
+		info.status = BossStatus_Swim;
+		info.step = info.totalStep - asset->BornCD;
+	}
+	else if (info.totalStep < asset->BornCD + asset->SwimCD + asset->LiveStep)
+	{
+		uint32_t diffStep = info.totalStep - asset->BornCD - asset->SwimCD;
+		if (info.status == BossStatus_Idle)
+		{
+			std::vector<USkillAsset*> randSkill;
+			uint32_t totalRate = 0;
+			for (auto& item : asset->SkillAsset)
+			{
+				if (item->CD < diffStep)
+				{
+					randSkill.push_back(item);
+					totalRate += item->Rate;
+				}
+			}
+			if (totalRate > 0)
+			{
+				uint32_t randRate = Random::Range(0u, totalRate);
+				uint32_t rate = 0;
+				for (auto& item : randSkill)
+				{
+					if (randRate < rate + item->Rate)
+					{
+						info.status = BossStatus(BossStatus_Skill_0 + item->index);
+						info.step = 0;
+						// TODO: new fish
+						for (auto& skillFish : item->SkillFishAsset)
+						{
+							if (skillFish->Step == info.step)
+							{
+								VInt3 pos(skillFish->PosX, skillFish->PosY, skillFish->PosZ);
+								newAgent_fast(pos, skillFish->NewFishAsset);
+							}
+						}
+						break;
+					}
+					rate += item->Rate;
+				}
+			}
+			else
+			{
+				info.status = BossStatus_Idle;
+				info.step = 0;
+			}
+		}
+		else
+		{
+			info.status = BossStatus_Idle;
+			info.step = 0;
+		}
+	}
+	else if (info.totalStep < asset->BornCD + asset->SwimCD + asset->LiveStep + asset->DieCD)
+	{
+		info.status = BossStatus_Die;
+		info.step = info.totalStep - asset->BornCD - asset->SwimCD - asset->LiveStep;
+	}
+	else
+	{
+		info.status = BossStatus_None;
+		info.step = 0;
 	}
 }
 
@@ -560,45 +862,4 @@ void Flock::packData(KBEngine::MemoryStream& stream)
 	stream << (uint16_t)bullet_.size();
 	for (auto& item : bullet_)
 		item->Pack_Data(stream);
-}
-
-void Flock::readData(KBEngine::MemoryStream& stream)
-{
-	stream >> id_;
-	uint64_t randSeed = 0;
-	stream >> randSeed;
-	random_->SetSeed(randSeed);
-	stream >> cameraStep_;
-	if (cameraStep_ > 0 && cameraPath_.size() > 0)
-	{
-		uint32_t step = (cameraStep_ - 1) % cameraPath_.size();
-		const PathData& data = cameraPath_[step];
-		cameraPos_ = data.pos;
-		cameraQuat_ = data.quat;
-		VInt3 cforward = cameraQuat_.GetForwardVector();
-		sphereCenter_ = cameraPos_ + cforward.NormalizeTo(flockAsset_->SphereCenterByCameraForward);
-		((FlockSphere*)obstacle_[0])->SetCenter(cameraPos_);
-	}
-	uint16_t agentSize = 0;
-	stream >> agentSize;
-	for (uint16_t i = 0; i < agentSize; i++)
-	{
-		AFlockAgent* agent = pool_->GetAgent();
-		agent->Read_Data(stream);
-		agent_.push_back(agent);
-		agentMap_[agent->GetID()] = agent;
-		fishCount_[int32_t(agent->GetFishType())].curCount++;
-	}
-	uint16_t bulletSize = 0;
-	stream >> bulletSize;
-	for (uint16_t i = 0; i < bulletSize; i++)
-	{
-		UBulletWidget* bullet = bulletLayer_->GetBullet();
-		if (bullet)
-		{
-			bullet->Read_Data(stream);
-			bullet_.push_back(bullet);
-			bulletMap_[bullet->GetID()] = bullet;
-		}
-	}
 }

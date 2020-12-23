@@ -3,8 +3,6 @@
 
 #include "FlockShap.h"
 
-class AFlockAgent;
-
 class FlockSphere : public FlockShap
 {
 public:

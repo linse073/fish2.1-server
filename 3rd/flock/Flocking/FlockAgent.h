@@ -5,6 +5,7 @@
 #include "FishType.h"
 
 class UFishAsset;
+class FlockPilot;
 
 namespace KBEngine
 {
@@ -17,12 +18,14 @@ public:
 	AFlockAgent();
 
 	void Clear();
+void Pack_Data(KBEngine::MemoryStream& stream);
 
 	void OnHit_fast(bool dead);
 	void Init_fast(uint32_t id, int32_t scale, const VInt3& pos, const VInt3& dir, const UFishAsset* fishAsset, EFishType fishType);
 	void Move_fast(VInt3 move);
-	void Pack_Data(KBEngine::MemoryStream& stream);
-	void Read_Data(KBEngine::MemoryStream& stream);
+	void SetPilot(FlockPilot* pilot, bool init);
+	void ClearPilot();
+	void UpdatePilotStep(uint32_t step);
 
 	//const UFishAsset* GetFishAsset() const;
 	const VInt3& GetPos() const;
@@ -30,10 +33,13 @@ public:
 	uint32_t GetID() const;
 	int32_t GetNeighborRadius() const;
 	int32_t GetAvoidanceRadius() const;
+	int32_t GetVisionRadius() const;
 	int32_t GetMaxMove() const;
 	uint8_t GetCamp() const;
 	bool IsDead() const;
 	EFishType GetFishType() const;
+	FlockPilot* GetPilot() const;
+	uint32_t GetPilotStep() const;
 
 private:
 	const UFishAsset* fishAsset_;
@@ -44,6 +50,8 @@ private:
 	int32_t avoidanceRadius_;
 	bool dead_;
 	EFishType fishType_;
+	FlockPilot* pilot_;
+	uint32_t pilotStep_;
 };
 
 #endif // __FLOCK_AGENT_H__

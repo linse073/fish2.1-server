@@ -45,7 +45,7 @@ static int lflock_create(lua_State* L) {
     c->handle = handle;
     c->L = L;
 
-    uint32_t randSeed = luaL_checkinteger(L, 4);
+    uint32_t randSeed = luaL_checkinteger(L, 5);
     Flock* flock = new Flock(c, randSeed);
     size_t flockSize = 0;
 	const char* flockData = luaL_checklstring(L, 1, &flockSize);
@@ -56,6 +56,9 @@ static int lflock_create(lua_State* L) {
     size_t obstacleSize = 0;
     const char* obstacleData = luaL_checklstring(L, 3, &obstacleSize);
     flock->loadObstacleData(obstacleData, obstacleSize);
+    size_t pilotSize = 0;
+    const char* pilotData = luaL_checklstring(L, 4, &pilotSize);
+    flock->loadPilotData(pilotData, pilotSize);
 
     *(Flock**)lua_newuserdata(L, sizeof(void*)) = flock;
     luaL_getmetatable(L, "flock_meta");

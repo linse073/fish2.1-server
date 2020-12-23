@@ -6,7 +6,7 @@
 class StayInRadiusBehavior : public FlockBehavior
 {
 public:
-	virtual VInt3 CalcMove(const AFlockAgent& agent, const ContextFilter& filter);
+	virtual VInt3 CalcMove(AFlockAgent& agent, const ContextFilter& filter);
 };
 
 #endif // __STAY_INRADIUS_BEHAVIOR_H__

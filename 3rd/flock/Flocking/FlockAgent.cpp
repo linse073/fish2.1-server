@@ -4,6 +4,7 @@
 #include "FlockCommon.h"
 #include "Flock.h"
 #include "MemoryStream.h"
+#include "FlockPilot.h"
 
 AFlockAgent::AFlockAgent()
 	:fishAsset_(nullptr),
@@ -13,7 +14,9 @@ AFlockAgent::AFlockAgent()
 	scale_(0),
 	avoidanceRadius_(0),
 	dead_(false),
-	fishType_(EFishType::FishType_Small)
+	fishType_(EFishType::FishType_Small),
+	pilot_(nullptr),
+	pilotStep_(0)
 {
 }
 
@@ -27,6 +30,27 @@ void AFlockAgent::Clear()
 	avoidanceRadius_ = 0;
 	dead_ = false;
 	fishType_ = EFishType::FishType_Small;
+	pilot_ = nullptr;
+	pilotStep_ = 0;
+}
+void AFlockAgent::Pack_Data(KBEngine::MemoryStream& stream)
+{
+	stream << id_;
+	stream << pos_.x << pos_.y << pos_.z;
+	stream << dir_.x << dir_.y << dir_.z;
+	stream << scale_;
+	stream << avoidanceRadius_;
+	stream << (uint8_t)fishType_;
+	stream << fishAsset_->ID;
+	if (pilot_)
+	{
+		stream << pilot_->GetID();
+	}
+	else
+	{
+		stream << (uint32_t)0;
+	}
+	stream << pilotStep_;
 }
 
 void AFlockAgent::OnHit_fast(bool dead)
@@ -67,29 +91,29 @@ void AFlockAgent::Move_fast(VInt3 move)
 	dir_ = move;
 }
 
-void AFlockAgent::Pack_Data(KBEngine::MemoryStream& stream)
+void AFlockAgent::SetPilot(FlockPilot* pilot, bool init)
 {
-	stream << id_;
-	stream << pos_.x << pos_.y << pos_.z;
-	stream << dir_.x << dir_.y << dir_.z;
-	stream << scale_;
-	stream << avoidanceRadius_;
-	stream << (uint8_t)fishType_;
-	stream << fishAsset_->ID;
+	if (pilot_ == nullptr)
+	{
+		pilot_ = pilot;
+		if (init)
+		{
+			pilotStep_ = 0;
+		}
+	}
 }
 
-void AFlockAgent::Read_Data(KBEngine::MemoryStream& stream)
+void AFlockAgent::ClearPilot()
 {
-	stream >> id_;
-	stream >> pos_.x >> pos_.y >> pos_.z;
-	stream >> dir_.x >> dir_.y >> dir_.z;
-	stream >> scale_;
-	stream >> avoidanceRadius_;
-	fishType_ = (EFishType)stream.readUint8();
-	uint32_t ID;
-	stream >> ID;
-	// TODO: init fishAsset
+	pilot_ = nullptr;
+	pilotStep_ = 0;
 }
+
+void AFlockAgent::UpdatePilotStep(uint32_t step)
+{
+	pilotStep_ = step;
+}
+
 
 //const UFishAsset* AFlockAgent::GetFishAsset() const
 //{
@@ -121,6 +145,10 @@ int32_t AFlockAgent::GetAvoidanceRadius() const
 	return avoidanceRadius_;
 }
 
+int32_t AFlockAgent::GetVisionRadius() const
+{
+	return fishAsset_->VisionRadius;
+}
 int32_t AFlockAgent::GetMaxMove() const
 {
 	return fishAsset_->MaxSpeed / fishAsset_->DriveFactor;
@@ -139,4 +167,13 @@ bool AFlockAgent::IsDead() const
 EFishType AFlockAgent::GetFishType() const
 {
 	return fishType_;
+}
+FlockPilot* AFlockAgent::GetPilot() const
+{
+	return pilot_;
+}
+
+uint32 AFlockAgent::GetPilotStep() const
+{
+	return pilotStep_;
 }

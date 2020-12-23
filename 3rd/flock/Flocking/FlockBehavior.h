@@ -11,7 +11,7 @@ class FlockBehavior
 public:
 	virtual ~FlockBehavior() {}
 
-	virtual VInt3 CalcMove(const AFlockAgent& agent, const ContextFilter& filter) = 0;
+	virtual VInt3 CalcMove(AFlockAgent& agent, const ContextFilter& filter) = 0;
 };
 
 #endif // __FLOCK_BEHAVIOR_H__

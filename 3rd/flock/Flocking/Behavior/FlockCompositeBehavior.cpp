@@ -25,7 +25,7 @@ FlockCompositeBehavior::~FlockCompositeBehavior()
 	}
 }
 
-VInt3 FlockCompositeBehavior::CalcMove(const AFlockAgent& agent, const ContextFilter& filter)
+VInt3 FlockCompositeBehavior::CalcMove(AFlockAgent& agent, const ContextFilter& filter)
 {
 	VInt3 move;
 	for (auto& item : behavior_)
@@ -33,8 +33,8 @@ VInt3 FlockCompositeBehavior::CalcMove(const AFlockAgent& agent, const ContextFi
 		VInt3 partialMove = item.behavior->CalcMove(agent, filter) * item.weight;
 		if (partialMove != VInt3::zero)
 		{
-			int32_t maxLen = item.weight * 1000LL;
-			if (partialMove.magnitude() > maxLen)
+			int64_t maxLen = int64_t(item.weight) * 1000LL;
+			if (partialMove.sqrMagnitudeLong() > maxLen * maxLen)
 			{
 				partialMove.NormalizeTo(maxLen);
 			}

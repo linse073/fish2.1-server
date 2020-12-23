@@ -2,7 +2,7 @@
 #include "FlockAgent.h"
 #include "ContextFilter.h"
 
-VInt3 CohesionBehavior::CalcMove(const AFlockAgent& agent, const ContextFilter& filter)
+VInt3 CohesionBehavior::CalcMove(AFlockAgent& agent, const ContextFilter& filter)
 {
 	const std::vector<AFlockAgent*>& context = filter.getNeighbor();
 	if (context.empty())

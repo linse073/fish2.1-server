@@ -14,6 +14,7 @@ SRCS	+= $(wildcard FixedPoint/*.cpp)
 SRCS	+= $(wildcard Flocking/*.cpp)
 SRCS	+= $(wildcard Flocking/Behavior/*.cpp)
 SRCS	+= $(wildcard Flocking/Shap/*.cpp)
+SRCS	+= $(wildcard Flocking/Pilot/*.cpp)
 #patsubst为Makefile模式替换关键字，查找字符串SRCS中按空格分开的单词，并将符合模式%.cpp的字符串全部替换成%.o
 OBJS	= $(patsubst %.cpp, %.o, $(SRCS))
 INCS	= -IAsset
@@ -23,6 +24,7 @@ INCS	+= -IFixedPoint
 INCS	+= -IFlocking
 INCS	+= -IFlocking/Behavior
 INCS	+= -IFlocking/Shap
+INCS	+= -IFlocking/Pilot
 INCS	+= -Ilua
 SOS		= lflock.so
 RM		= rm -f

@@ -6,7 +6,7 @@
 class SteeredCohesionBehavior : public FlockBehavior
 {
 public:
-	virtual VInt3 CalcMove(const AFlockAgent& agent, const ContextFilter& filter);
+	virtual VInt3 CalcMove(AFlockAgent& agent, const ContextFilter& filter);
 };
 
 #endif // __STEERED_COHESION_BEHAVIOR_H__

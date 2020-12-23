@@ -191,16 +191,20 @@ function lockstep:start()
     timer.add_routine("lockstep_update", self._update_func, 1)
     self._status_time = self._last_time
 
-    local flock_file = assert(io.open("./fish/data/Flock_01.dat", "rb"))
+    local path = "./fish/data/01/"
+    local flock_file = assert(io.open(path + "Flock.dat", "rb"))
     local flock_data = flock_file:read("*a")
     flock_file:close()
-    local camera_file = assert(io.open("./fish/data/Camera_01.dat", "rb"))
+    local camera_file = assert(io.open(path + "Camera.dat", "rb"))
     local camera_data = camera_file:read("*a")
     camera_file:close()
-    local obstacle_file = assert(io.open("./fish/data/Obstacle_01.dat", "rb"))
+    local obstacle_file = assert(io.open(path + "Obstacle.dat", "rb"))
     local obstacle_data = obstacle_file:read("*a")
     obstacle_file:close()
-    self._flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, self._rand_seed, self._flock_func)
+    local pilot_file = assert(io.open(path + "Pilot.dat", "rb"))
+    local pilot_data = pilot_file:read("*a")
+    pilot_file:close()
+    self._flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, pilot_data, self._rand_seed, self._flock_func)
 end
 
 function lockstep:kick(user_id, agent)

@@ -3,8 +3,13 @@
 
 #include <vector>
 #include "FishType.h"
-#include "FishAsset.h"
-#include "MemoryStream.h"
+
+namespace KBEngine
+{
+	class MemoryStream;
+}
+class UFishAsset;
+class UBossAsset;
 
 class UNewFishAsset
 {
@@ -19,39 +24,10 @@ public:
 	bool RandomDir;
 	UFishAsset* FishAsset;
 
-	~UNewFishAsset()
-	{
-		KBE_SAFE_RELEASE(FishAsset);
-	}
+	~UNewFishAsset();
 
-	void Serialize(KBEngine::MemoryStream& stream)
-	{
-		stream.writeUint8(FishType);
-		stream << RandomScale;
-		stream << MinScale;
-		stream << MaxScale;
-		stream << RandomPos;
-		stream << RandomRadius;
-		stream << InitCount;
-		stream << RandomDir;
-		KBE_ASSERT(FishAsset);
-		FishAsset->Serialize(stream);
-	}
-
-	void Unserialize(KBEngine::MemoryStream& stream)
-	{
-		FishType = (EFishType)stream.readUint8();
-		stream >> RandomScale;
-		stream >> MinScale;
-		stream >> MaxScale;
-		stream >> RandomPos;
-		stream >> RandomRadius;
-		stream >> InitCount;
-		stream >> RandomDir;
-		KBE_ASSERT(FishAsset == nullptr);
-		FishAsset = new UFishAsset();
-		FishAsset->Unserialize(stream);
-	}
+	void Serialize(KBEngine::MemoryStream& stream);
+	void Unserialize(KBEngine::MemoryStream& stream);
 };
 
 class UFlockAsset
@@ -67,6 +43,7 @@ public:
 	int32_t FlockCompositeBehaviorWeight;
 	int32_t StayInRadiusBehaviorWeight;
 	int32_t AvoidObstacleBehaviorWeight;
+	int32_t PilotBehaviorWeight;
 	int32_t FlockRotationDegreesPerStep;
 	int32_t RotationDegreesPerStep;
 	int32_t CameraObstacleSphereRadius;
@@ -78,73 +55,13 @@ public:
 	int32_t MuzzleLength;
 	int32_t BulletSpeed;
 	std::vector<UNewFishAsset*> NewFishAsset;
+	std::vector<UBossAsset*> BossAsset;
 
-	~UFlockAsset()
-	{
-		for (auto& item : NewFishAsset)
-			KBE_SAFE_RELEASE(item);
-		NewFishAsset.clear();	
-	}
+	~UFlockAsset();
 
-	void Serialize(KBEngine::MemoryStream& stream)
-	{
-		stream << TotalFishCount;
-		stream << SmallFishRatio;
-		stream << BigFishRatio;
-		stream << HugeFishRatio;
-		stream << AlignmentBehaviorWeight;
-		stream << AvoidanceBehaviorWeight;
-		stream << SteeredCohesionBehaviorWeight;
-		stream << FlockCompositeBehaviorWeight;
-		stream << StayInRadiusBehaviorWeight;
-		stream << AvoidObstacleBehaviorWeight;
-		stream << FlockRotationDegreesPerStep;
-		stream << RotationDegreesPerStep;
-		stream << CameraObstacleSphereRadius;
-		stream << SphereCenterByCameraForward;
-		stream << SphereRadius;
-		stream << ScreenWidth;
-		stream << ScreenHight;
-		stream << FortPositionX;
-		stream << MuzzleLength;
-		stream << BulletSpeed;
-		KBE_ASSERT(!NewFishAsset.empty());
-		stream << (uint8_t)NewFishAsset.size();
-		for (auto& item : NewFishAsset)
-			item->Serialize(stream);
-	}
+	void Serialize(KBEngine::MemoryStream& stream);
 
-	void Unserialize(KBEngine::MemoryStream& stream)
-	{
-		stream >> TotalFishCount;
-		stream >> SmallFishRatio;
-		stream >> BigFishRatio;
-		stream >> HugeFishRatio;
-		stream >> AlignmentBehaviorWeight;
-		stream >> AvoidanceBehaviorWeight;
-		stream >> SteeredCohesionBehaviorWeight;
-		stream >> FlockCompositeBehaviorWeight;
-		stream >> StayInRadiusBehaviorWeight;
-		stream >> AvoidObstacleBehaviorWeight;
-		stream >> FlockRotationDegreesPerStep;
-		stream >> RotationDegreesPerStep;
-		stream >> CameraObstacleSphereRadius;
-		stream >> SphereCenterByCameraForward;
-		stream >> SphereRadius;
-		stream >> ScreenWidth;
-		stream >> ScreenHight;
-		stream >> FortPositionX;
-		stream >> MuzzleLength;
-		stream >> BulletSpeed;
-		KBE_ASSERT(NewFishAsset.empty());
-		uint8_t size = stream.readUint8();
-		for (uint8_t i = 0; i < size; ++i)
-		{
-			UNewFishAsset* item = new UNewFishAsset();
-			item->Unserialize(stream);
-			NewFishAsset.push_back(item);
-		}
-	}
+	void Unserialize(KBEngine::MemoryStream& stream);
 };
 
 #endif // __FLOCK_ASSET_H__

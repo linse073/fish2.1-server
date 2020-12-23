@@ -2,7 +2,11 @@
 #define __FISH_ASSET_H__
 
 #include <stdint.h>
-#include "MemoryStream.h"
+
+namespace KBEngine
+{
+	class MemoryStream;
+}
 
 class UFishAsset
 {
@@ -12,27 +16,11 @@ public:
 	int32_t MaxSpeed;
 	int32_t NeighborRadius;
 	int32_t AvoidanceRadius;
+	int32_t VisionRadius;
 	uint8_t FlockCamp;
 
-	void Serialize(KBEngine::MemoryStream& stream)
-	{
-		stream << ID;
-		stream << DriveFactor;
-		stream << MaxSpeed;
-		stream << NeighborRadius;
-		stream << AvoidanceRadius;
-		stream << FlockCamp;
-	}
-
-	void Unserialize(KBEngine::MemoryStream& stream)
-	{
-		stream >> ID;
-		stream >> DriveFactor;
-		stream >> MaxSpeed;
-		stream >> NeighborRadius;
-		stream >> AvoidanceRadius;
-		stream >> FlockCamp;
-	}
+	void Serialize(KBEngine::MemoryStream& stream);
+	void Unserialize(KBEngine::MemoryStream& stream);
 };
 
 #endif // __FISH_ASSET_H__

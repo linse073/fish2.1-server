@@ -397,9 +397,9 @@ struct IntMath
 	static VInt3 SphereNormalPos(Random* random)
 	{
 		VInt3 pos;
-		pos.x = random->Range(-1000, 1000);
-		pos.y = random->Range(-1000, 1000);
-		pos.z = random->Range(-1000, 1000);
+		pos.x = random->Range(-1000, 1001);
+		pos.y = random->Range(-1000, 1001);
+		pos.z = random->Range(-1000, 1001);
 		int32_t r = pos.magnitude();
 		pos.x = IntMath::Divide(pos.x * 1000, r);
 		pos.y = IntMath::Divide(pos.y * 1000, r);

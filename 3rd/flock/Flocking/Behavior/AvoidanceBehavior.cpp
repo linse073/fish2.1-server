@@ -2,7 +2,7 @@
 #include "FlockAgent.h"
 #include "ContextFilter.h"
 
-VInt3 AvoidanceBehavior::CalcMove(const AFlockAgent& agent, const ContextFilter& filter)
+VInt3 AvoidanceBehavior::CalcMove(AFlockAgent& agent, const ContextFilter& filter)
 {
 	const std::vector<AFlockAgent*>& context = filter.getAvoidance();
 	if (context.empty())

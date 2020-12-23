@@ -3,7 +3,7 @@
 #include "ContextFilter.h"
 #include "FlockShap.h"
 
-VInt3 AvoidObstacleBehavior::CalcMove(const AFlockAgent& agent, const ContextFilter& filter)
+VInt3 AvoidObstacleBehavior::CalcMove(AFlockAgent& agent, const ContextFilter& filter)
 {
 	const std::vector<FlockShap*>& obstacle = filter.getObstacle();
 	if (obstacle.empty())

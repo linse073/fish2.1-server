@@ -5,20 +5,21 @@
 #include <map>
 #include "VInt4.h"
 #include "KBECommon.h"
-#include "FishType.h"
+#include "FlockCommon.h"
 
 class UFlockAsset;
 class UNewFishAsset;
 class FlockShap;
 class UBulletWidget;
 class AFlockAgent;
+class FlockPilot;
+class ABossAgent;
+class UBossAsset;
 
 namespace KBEngine
 {
 	class MemoryStream;
 }
-
-static const int32_t FishType_Count = int32_t(FishType_Boss) + 1;
 
 class Flock
 {
@@ -38,9 +39,9 @@ public:
 	void loadFlockAssetData(const char* Result, uint32_t length);
 	void loadCameraData(const char* Result, uint32_t length);
 	void loadObstacleData(const char* Result, uint32_t length);
+	void loadPilotData(const char* Result, uint32_t length);
 	void doKeyStepCmd_fast(const char* Result, uint32_t length);
 	void packData(KBEngine::MemoryStream& stream);
-	void readData(KBEngine::MemoryStream& stream);
 
 	const VInt3& getSphereCenter() const;
 	int32_t getSphereRadius() const;
@@ -48,6 +49,7 @@ public:
 	int32_t getFlockRotationDegreesPerStep() const;
 	void* getCallback() const;
 	uint32_t getBulletMulti(uint32_t bulletid) const;
+	uint32_t getCameraStep() const;
 
 private:
 	struct FishCount
@@ -61,6 +63,7 @@ private:
 	{
 		VInt3 pos;
 		VInt4 quat;
+		VInt3 rotator;
 	};
 
 	enum OP
@@ -72,15 +75,40 @@ private:
 		OP_set_cannon = 5,
 	};
 
+	enum BossStatus
+	{
+		BossStatus_None,
+		BossStatus_Born,
+		BossStatus_Swim,
+		BossStatus_Idle,
+		BossStatus_Skill_0,
+		BossStatus_Skill_1,
+		BossStatus_Skill_2,
+		BossStatus_Die,
+	};
+
+	struct BossInfo
+	{
+		BossStatus status;
+		uint32_t step;
+		uint32_t totalStep;
+		UBossAsset* asset;
+	};
+	
 	void updateCamera_fast();
 	void newAgent_fast();
 	void newAgent_fast(const UNewFishAsset* newFishAsset);
+	void newAgent_fast(const VInt3& pos, const UNewFishAsset* newFishAsset);
 	void updateAgent_fast();
 	void updateBullet_fast();
+	void updateBoss_fast();
+	void changeBossStatus_fast(BossInfo& info);
+	void updatePilot();
 
 	uint32_t id_;
 	VInt3 cameraPos_;
 	VInt4 cameraQuat_;
+	VInt3 cameraRotator_;
 	VInt3 sphereCenter_;
 	std::vector<AFlockAgent*> agent_;
 	class FlockPool* pool_;
@@ -97,6 +125,8 @@ private:
 	std::vector<UBulletWidget*> bullet_;
 	std::map<uint32_t, AFlockAgent*> agentMap_;
 	std::map<uint32_t, UBulletWidget*> bulletMap_;
+	std::vector<FlockPilot*> pilot_;
+	std::vector<BossInfo> boss_;
 	void* callback_;
 	class Random* random_;
 };
