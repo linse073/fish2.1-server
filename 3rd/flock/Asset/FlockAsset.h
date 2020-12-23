@@ -2,6 +2,7 @@
 #define __FLOCK_ASSET_H__
 
 #include <vector>
+#include <stdint.h>
 #include "FishType.h"
 
 namespace KBEngine
