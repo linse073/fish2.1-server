@@ -173,7 +173,7 @@ FlockPilot* AFlockAgent::GetPilot() const
 	return pilot_;
 }
 
-uint32 AFlockAgent::GetPilotStep() const
+uint32_t AFlockAgent::GetPilotStep() const
 {
 	return pilotStep_;
 }
