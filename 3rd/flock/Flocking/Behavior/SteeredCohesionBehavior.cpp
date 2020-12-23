@@ -3,7 +3,7 @@
 #include "ContextFilter.h"
 #include "IntMath.h"
 
-VInt3 SteeredCohesionBehavior::CalcMove(const AFlockAgent& agent, const ContextFilter& filter)
+VInt3 SteeredCohesionBehavior::CalcMove(AFlockAgent& agent, const ContextFilter& filter)
 {
 	const std::vector<AFlockAgent*>& context = filter.getNeighbor();
 	if (context.empty())
