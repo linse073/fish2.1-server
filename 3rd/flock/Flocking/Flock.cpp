@@ -14,7 +14,6 @@
 #include "IntMath.h"
 #include "ContextFilter.h"
 #include "MemoryStreamLittle.h"
-#include "FlockLeader.h"
 #include "BossAsset.h"
 
 extern void flock_callback(void* arg, uint8_t cbtype, KBEngine::MemoryStreamLittle& stream);
