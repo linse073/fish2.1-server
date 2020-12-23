@@ -104,16 +104,16 @@ void UFlockAsset::Unserialize(KBEngine::MemoryStream& stream)
 	stream >> MuzzleLength;
 	stream >> BulletSpeed;
 	KBE_ASSERT(NewFishAsset.empty());
-	uint8_t size = stream.readUint8();
-	for (uint8_t i = 0; i < size; ++i)
+	uint8_t newFishSize = stream.readUint8();
+	for (uint8_t i = 0; i < newFishSize; ++i)
 	{
 		UNewFishAsset* item = new UNewFishAsset();
 		item->Unserialize(stream);
 		NewFishAsset.push_back(item);
 	}
 	KBE_ASSERT(BossAsset.empty());
-	uint8_t size = stream.readUint8();
-	for (uint8_t i = 0; i < size; ++i)
+	uint8_t bossSize = stream.readUint8();
+	for (uint8_t i = 0; i < bossSize; ++i)
 	{
 		UBossAsset* item = new UBossAsset();
 		item->Unserialize(stream);
