@@ -344,6 +344,7 @@ void Flock::loadCameraData(const char* Result, uint32_t length)
 		PathData data;
 		stream >> data.pos.x >> data.pos.y >> data.pos.z;
 		stream >> data.quat.X >> data.quat.Y >> data.quat.Z >> data.quat.W;
+		stream >> data.rotator.x >> data.rotator.y >> data.rotator.z;
 		cameraPath_.push_back(data);
 	}
 }
@@ -438,6 +439,7 @@ void Flock::updateCamera_fast()
 		const PathData& data = cameraPath_[step];
 		cameraPos_ = data.pos;
 		cameraQuat_ = data.quat;
+		cameraRotator_ = data.rotator;
 		VInt3 cforward = cameraQuat_.GetForwardVector();
 		sphereCenter_ = cameraPos_ + cforward.NormalizeTo(flockAsset_->SphereCenterByCameraForward);
 		((FlockSphere*)obstacle_[0])->SetCenter(cameraPos_);
