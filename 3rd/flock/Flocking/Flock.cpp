@@ -15,6 +15,9 @@
 #include "ContextFilter.h"
 #include "MemoryStreamLittle.h"
 #include "BossAsset.h"
+#include "FlockLeader.h"
+#include "SkillAsset.h"
+#include "FishAsset.h"
 
 extern void flock_callback(void* arg, uint8_t cbtype, KBEngine::MemoryStreamLittle& stream);
 
