@@ -789,6 +789,14 @@ void Flock::changeBossStatus_fast(BossInfo& info)
 	}
 }
 
+void Flock::updatePilot()
+{
+	for (auto& item : pilot_)
+	{
+		item->Update(this, agent_);
+	}
+}
+
 void Flock::doKeyStepCmd_fast(const char* Result, uint32_t length)
 {
 	KBEngine::MemoryStream stream;
