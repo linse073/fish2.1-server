@@ -33,6 +33,7 @@ void AFlockAgent::Clear()
 	pilot_ = nullptr;
 	pilotStep_ = 0;
 }
+
 void AFlockAgent::Pack_Data(KBEngine::MemoryStream& stream)
 {
 	stream << id_;
@@ -114,7 +115,6 @@ void AFlockAgent::UpdatePilotStep(uint32_t step)
 	pilotStep_ = step;
 }
 
-
 //const UFishAsset* AFlockAgent::GetFishAsset() const
 //{
 //	return fishAsset_;
@@ -149,6 +149,7 @@ int32_t AFlockAgent::GetVisionRadius() const
 {
 	return fishAsset_->VisionRadius;
 }
+
 int32_t AFlockAgent::GetMaxMove() const
 {
 	return fishAsset_->MaxSpeed / fishAsset_->DriveFactor;
@@ -168,6 +169,7 @@ EFishType AFlockAgent::GetFishType() const
 {
 	return fishType_;
 }
+
 FlockPilot* AFlockAgent::GetPilot() const
 {
 	return pilot_;

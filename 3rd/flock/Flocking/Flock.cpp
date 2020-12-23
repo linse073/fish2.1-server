@@ -15,7 +15,6 @@
 #include "ContextFilter.h"
 #include "MemoryStreamLittle.h"
 #include "FlockLeader.h"
-#include "BossAgent.h"
 #include "BossAsset.h"
 
 extern void flock_callback(void* arg, uint8_t cbtype, KBEngine::MemoryStreamLittle& stream);
@@ -64,7 +63,7 @@ void Flock::init(const UFlockAsset* flockAsset)
 		bossInfo.totalStep = 0;
 		bossInfo.asset = item;
 		boss_.push_back(bossInfo);
-		int32 index = 0;
+		int32_t index = 0;
 		for (auto& skillItem : item->SkillAsset)
 		{
 			skillItem->index = index;
@@ -295,14 +294,13 @@ uint32_t Flock::getCameraStep() const
 {
 	if (cameraPath_.size() > 0)
 	{
-		return cameraStep_ % cameraPath_.Num();
+		return cameraStep_ % cameraPath_.size();
 	}
 	else
 	{
 		return 0;
 	}
 }
-
 
 void* Flock::getCallback() const
 {
@@ -403,7 +401,7 @@ void Flock::loadPilotData(const char* Result, uint32_t length)
 		{
 			FlockPilot* pilot = new FlockLeader();
 			pilot->Unserialize(stream);
-			pilot_.Add(pilot);
+			pilot_.push_back(pilot);
 		}
 		break;
 		default:
@@ -657,7 +655,7 @@ void Flock::updateBoss_fast()
 			}
 			else
 			{
-				uint32_t randNum = Random::Range(0u, asset->IdleCD);
+				uint32_t randNum = random_->Range(0u, asset->IdleCD);
 				if (item.step >= randNum)
 				{
 					changeBossStatus_fast(item);
@@ -743,7 +741,7 @@ void Flock::changeBossStatus_fast(BossInfo& info)
 			}
 			if (totalRate > 0)
 			{
-				uint32_t randRate = Random::Range(0u, totalRate);
+				uint32_t randRate = random_->Range(0u, totalRate);
 				uint32_t rate = 0;
 				for (auto& item : randSkill)
 				{
