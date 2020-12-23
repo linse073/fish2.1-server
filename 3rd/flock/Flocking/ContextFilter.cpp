@@ -22,11 +22,11 @@ ContextFilter::ContextFilter(const Flock* flock, const AFlockAgent& agent, const
 			}
 		}
 	}
-	const VInt3& sphereCenter = flock_->getSphereCenter();
-	int32_t sphereRadius = flock_->getSphereRadius();
+	// const VInt3& sphereCenter = flock_->getSphereCenter();
+	// int32_t sphereRadius = flock_->getSphereRadius();
 	for (auto& item : obstacle)
 	{
-		//if (item->InSphere(sphereCenter, sphereRadius))
+		// if (item->InSphere(sphereCenter, sphereRadius))
 		{
 			obstacle_.push_back(item);
 		}
