@@ -8,7 +8,7 @@ local assert = assert
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
-local udp_address = skynet_m.getenv("udp_address")
+local udp_send_address = skynet_m.getenv("udp_send_address")
 
 local message_handle = {}
 local cmd_handle = {}
@@ -47,9 +47,9 @@ local function send_cmd(id, msg)
 end
 
 local function pack_link(msg)
-    skynet_m.log(string.format("pack_link %d %s.", server_id, udp_address))
+    skynet_m.log(string.format("pack_link %d %s.", server_id, udp_send_address))
     local pack = string.pack("<I4", server_id)
-    pack = pack .. pack_string(udp_address)
+    pack = pack .. pack_string(udp_send_address)
     local port = skynet_m.call_lua(gate_mgr, "get_port");
     pack = pack .. string.pack("<I4", #port)
     for _, v in ipairs(port) do
