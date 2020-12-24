@@ -34,6 +34,7 @@ end
 local CMD = {}
 
 function CMD.start(addr, port)
+    skynet_m.log(string.format("start udp %s: %d", addr, port))
     udp = socket.udp(on_recv, addr, port)
 end
 
