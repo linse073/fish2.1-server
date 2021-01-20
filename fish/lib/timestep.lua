@@ -152,8 +152,6 @@ function timestep:clear()
     self._fish_id = 0
     self._group_id = 0
     self._fish = {}
-    self._small_count = 0
-    self._big_count = 0
     self._spline = {}
     self._spline_cd = {}
     self._fish_pool = {
@@ -179,15 +177,17 @@ function timestep:clear()
             pool = {},
         },
     }
-    self._event_index = 1
-    self._event_time = 0
-    self._event_info = nil
+    self._event = {
+        index = 1,
+        time = 0,
+        info = nil,
+    }
     self._use_follow_spline = true
     timer.del_all()
 end
 
 function timestep:loop()
-    self._event_index = 1
+    self._event.index = 1
     local small_pool = self._fish_pool[event_type.small_fish]
     small_pool.pool = {}
     small_pool.max_count = 50
@@ -287,8 +287,8 @@ local event_function = {
         end
     end,
     [define.fight_boss] = function(self, info)
-        self._event_info = info
-        self._event_time = self._game_time - info.time
+        self._event.info = info
+        self._event.time = self._game_time - info.time
     end,
     [define.max_small_fish] = function(self, info)
         self._fish_pool[fish_type.small_fish].max_count = info.num
@@ -306,7 +306,7 @@ function timestep:update_fish(etime, pool_info, new_fish)
             local info = pool[math.random(#pool)]
             local num = math.random(pool_info.rand_min, pool_info.rand_max)
             self:new_fish(info[1], info[2], num, new_fish)
-            self._small_count = self._small_count + num
+            pool_info.count = pool_info.count + num
         end
         if pool_info.time >= pool_info.interval then
             pool_info.time = pool_info.time - pool_info.interval
@@ -337,6 +337,17 @@ function timestep:update_boss(pool_info, new_fish)
     end
 end
 
+function timestep:delete_fish(info)
+    self._fish[info.fish_id] = nil
+    local pool_info = self._fish_pool[info.data.type]
+    pool_info.count = pool_info.count - 1
+    local event_info = self._event.info
+    if event_info and event_info.type == event_type.fight_boss and event_info.fish_id == info.fish_id then
+        self._event.info = nil
+        self._event.time = 0
+    end
+end
+
 function timestep:update()
     local now = skynet_m.now()
     local etime = now - self._last_time
@@ -347,37 +358,11 @@ function timestep:update()
             self._spline_cd[k] = nil
         end
     end
-    if self._event_info then
-        self._event_time = self._event_time + etime
-        if self._event_info.type == event_type.fight_boss then
-            if self._event_time >= self._event_info.life_time then
-                self._game_time = self._game_time + (self._event_time - self._event_info.life_time)
-                self._event_info = nil
-                self._event_time = 0
-            end
-        end
-    else
-        self._game_time = self._game_time + etime
-    end
-    if self._game_time >= loop_time then
-        self._game_time = self._game_time - loop_time
-        self:loop()
-    end
-    while self._event_index <= #event_data do
-        local info = event_data[self._event_info]
-        if self._game_time < info.time then
-            break
-        end
-        event_function[info.type](self, info)
-        self._event_index = self._event_index + 1
-    end
     local del_count, del_msg = 0, ""
     for k, v in pairs(self._fish) do
         v.time = v.time + etime
         if v.time >= v.life_time then
-            self._fish[k] = nil
-            local pool_info = self._fish_pool[v.data.type]
-            pool_info.count = pool_info.count - 1
+            self:delete_fish(v)
             del_count = del_count + 1
             del_msg = del_msg .. string.pack(">I4", k)
         end
@@ -386,6 +371,24 @@ function timestep:update()
         -- TODO: send delete fish message to game server
         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
         self:broadcast(del_msg)
+    end
+    if self._event.info then
+        self._event.time = self._event.time + etime
+    else
+        self._game_time = self._game_time + etime
+    end
+    if self._game_time >= loop_time then
+        self._game_time = self._game_time - loop_time
+        self:loop()
+    end
+    local event = self._event
+    while event.index <= #event_data do
+        local info = event_data[event.index]
+        if self._game_time < info.time then
+            break
+        end
+        event_function[info.type](self, info)
+        event.index = event.index + 1
     end
     local new_fish = {}
     for k, v in ipairs({fish_type.small_fish, fish_type.big_fish}) do
@@ -556,16 +559,7 @@ function timestep:on_dead(info)
         return
     end
     local fish_info = self._fish[info.fishid]
-    self._fish[info.fishid] = nil
-    if fish_info.data.type == fish_type.small_fish then
-        self._small_count = self._small_count - 1
-    elseif fish_info.data.type == fish_type.big_fish then
-        self._big_count = self._big_count -1
-    end
-    if self._event_info and self._event_info.type == event_type.fight_boss and self._event_info.fish_id == fish_info.fish_id then
-        self._event_info = nil
-        self._event_time = 0
-    end
+    self:delete_fish(fish_info)
     -- NOTICE: no bullet self_id info
     local msg = string.pack(">I2B>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold, info.fishScore)
     self:broadcast(msg)
