@@ -230,7 +230,7 @@ local function recv_fire(tableid, msg)
     info.code, info.costGold, info.fishScore = string.unpack("<I2<I4<I8", msg, index)
     skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-    skynet_m.send_lua(room, "fire", info)
+    skynet_m.send_lua(room, "on_fire", info)
 end
 
 local function recv_catch_fish(tableid, msg)
@@ -240,14 +240,14 @@ local function recv_catch_fish(tableid, msg)
         string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I8<I2", msg)
     skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-    skynet_m.send_lua(room, "dead", info)
+    skynet_m.send_lua(room, "on_dead", info)
 end
 
 local function recv_set_cannon(tableid, msg)
     local info = {}
     info.seatid, info.userid, info.cannon = string.unpack("<I2<I4<I2", msg)
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-    skynet_m.send_lua(room, "set_cannon", info)
+    skynet_m.send_lua(room, "on_set_cannon", info)
 end
 
 message_handle[13502] = recv_link

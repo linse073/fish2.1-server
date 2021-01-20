@@ -1,12 +1,21 @@
 
 local message = {}
 
+local pairs = pairs
+
 message.c_to_s = {
     join = 1001,
     ready = 1002,
     quit = 1003,
-    op = 1004,
+    fire = 1004,
+    hit = 1005,
+    heart_beat = 1006,
 }
+
+message.c_to_s_i = {}
+for k, v in pairs(message.c_to_s) do
+    message.c_to_s_i[v] = k
+end
 
 message.s_to_c = {
     join_resp = 2001,
@@ -14,7 +23,12 @@ message.s_to_c = {
     leave_room = 2003,
     join_room = 2004,
     room_data = 2005,
-    sync_data = 2006,
+    fire = 2006,
+    dead = 2007,
+    set_cannon = 2008,
+    heart_beat = 2009,
+    new_fish = 2010,
+    delete_fish = 2011,
 }
 
 message.op_cmd = {

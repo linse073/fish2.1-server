@@ -135,7 +135,7 @@ function lockstep:join_01(user_id, agent)
     self._count = self._count+1
     if not self._status_time then
         self._status_time = now
-         timer.add_routine("lockstep_check", self._check_func, 100)
+        timer.add_routine("lockstep_check", self._check_func, 100)
     end
     return true
 end
