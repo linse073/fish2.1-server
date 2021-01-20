@@ -455,6 +455,11 @@ function timestep:ready(info, data)
         for k, v in pairs(self._fish) do
             msg = msg .. string.pack(">I4>I4>I4>I4ff", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
         end
+        if self._event.info then
+            msg = msg .. string.pack(">I4", self._event.info.id)
+        else
+            msg = msg .. string.pack(">I4", 0)
+        end
         skynet_m.send_lua(info.agent, "send", msg)
     end
 end
