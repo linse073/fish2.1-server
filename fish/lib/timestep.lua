@@ -267,8 +267,12 @@ local event_function = {
         end
     end,
     [define.fight_boss] = function(self, info)
-        self._event.info = info
-        self._event.time = self._game_time - info.time
+        local event = self._event
+        event.info = info
+        event.time = self._game_time - info.time
+        event.data = fish_data[info.fish_id]
+        local msg = string.pack(">I2>I4f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
+        self:broadcast(msg)
     end,
     [define.max_small_fish] = function(self, info)
         self._fish_pool[fish_type.small_fish].max_count = info.num
@@ -321,10 +325,11 @@ function timestep:delete_fish(info)
     self._fish[info.fish_id] = nil
     local pool_info = self._fish_pool[info.data.type]
     pool_info.count = pool_info.count - 1
-    local event_info = self._event.info
-    if event_info and event_info.type == event_type.fight_boss and event_info.fish_id == info.fish_id then
-        self._event.info = nil
-        self._event.time = 0
+    local event = self._event
+    if event.info and event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
+        event.info = nil
+        event.time = 0
+        event.data = nil
     end
 end
 
@@ -352,8 +357,9 @@ function timestep:update()
         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
         self:broadcast(del_msg)
     end
-    if self._event.info then
-        self._event.time = self._event.time + etime
+    local event = self._event
+    if event.info then
+        event.time = event.time + etime
     else
         self._game_time = self._game_time + etime
     end
@@ -361,7 +367,6 @@ function timestep:update()
         self._game_time = self._game_time - loop_time
         self:loop()
     end
-    local event = self._event
     while event.index <= #event_data do
         local info = event_data[event.index]
         if self._game_time < info.time then
@@ -455,8 +460,14 @@ function timestep:ready(info, data)
         for k, v in pairs(self._fish) do
             msg = msg .. string.pack(">I4>I4>I4>I4ff", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
         end
-        if self._event.info then
-            msg = msg .. string.pack(">I4f", self._event.info.id, self._event.time)
+        local event = self._event
+        if event.info then
+            if event.info.type == event_type.fight_boss then
+                msg = msg .. string.pack(">I4f", event.info.id, event.data.life_time - event.time)
+            else
+                skynet_m.log(string.format("Can't get trigger event %d left time.", event.info.id))
+                msg = msg .. string.pack(">I4f", event.info.id, 10)
+            end
         else
             msg = msg .. string.pack(">I4f", 0, 0)
         end

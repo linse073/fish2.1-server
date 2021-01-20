@@ -29,6 +29,7 @@ message.s_to_c = {
     heart_beat = 2009,
     new_fish = 2010,
     delete_fish = 2011,
+    trigger_event = 2012,
 }
 
 message.op_cmd = {
