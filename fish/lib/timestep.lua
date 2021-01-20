@@ -126,7 +126,6 @@ function timestep:checkActivity()
 end
 
 function timestep:clear()
-    -- TODO: update last_time
     self._last_time = 0
     self._bullet_id = 0
     self._bullet = {}
