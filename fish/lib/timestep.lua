@@ -78,11 +78,8 @@ function timestep:join(user_id, free_pos, agent)
     self._user[user_id] = info
     self._pos[free_pos] = info
     self._count = self._count+1
-    if not self._status_time then
-        self._status_time = now
-        -- NOTICE: game server notify user leave
-        -- timer.add_routine("timestep_check", self._check_func, 100)
-    end
+    -- NOTICE: game server notify user leave
+    -- timer.add_routine("timestep_check", self._check_func, 100)
     return true
 end
 
@@ -115,29 +112,15 @@ function timestep:join_01(user_id, agent)
     self._user[user_id] = info
     self._pos[free_pos] = info
     self._count = self._count+1
-    if not self._status_time then
-        self._status_time = now
-        timer.add_routine("timestep_check", self._check_func, 100)
-    end
+    timer.add_routine("timestep_check", self._check_func, 100)
     return true
 end
 
 function timestep:checkActivity()
     local now = skynet_m.now()
-    if now - self._status_time >= 6000 then
-        for k, _ in pairs(self._user) do
+    for k, v in pairs(self._user) do
+        if now - v.status_time >= 6000 then
             skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
-        end
-        self._user = {}
-        self._pos = {}
-        self._count = 0
-        self._ready_count = 0
-        self:clear()
-    else
-        for k, v in pairs(self._user) do
-            if now - v.status_time >= 6000 then
-                skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
-            end
         end
     end
 end
@@ -145,7 +128,6 @@ end
 function timestep:clear()
     -- TODO: update last_time
     self._last_time = 0
-    self._status_time = nil
     self._bullet_id = 0
     self._bullet = {}
     self._game_time = 0
@@ -202,7 +184,6 @@ end
 function timestep:start()
     self._last_time = skynet_m.now()
     timer.add_routine("timestep_update", self._update_func, 100)
-    self._status_time = self._last_time
     math.randomseed(self._last_time)
     self:update()
 end
