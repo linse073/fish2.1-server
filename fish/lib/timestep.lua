@@ -461,7 +461,8 @@ function timestep:ready(info, data)
         if self._ready_count == 1 then
             self:start()
         end
-        local msg = string.pack(">I2B", s_to_c.room_data, info.pos)
+        local client_time = string.unpack("d", data, 3)
+        local msg = string.pack(">I2dfB", s_to_c.room_data, client_time, self._game_time, info.pos)
         msg = msg .. string.pack("B", self._ready_count - 1)
         for _, v in pairs(self._user) do
             if v.ready and v.user_id ~= info.user_id then
