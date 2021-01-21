@@ -148,7 +148,7 @@ function timestep:clear()
     self._spline = {}
     self._spline_cd = {}
     self._fish_pool = {
-        [event_type.small_fish] = {
+        [fish_type.small_fish] = {
             pool = {},
             count = 0,
             max_count = 50,
@@ -157,7 +157,7 @@ function timestep:clear()
             rand_min = 5,
             rand_max = 15,
         },
-        [event_type.big_fish] = {
+        [fish_type.big_fish] = {
             pool = {},
             count = 0,
             max_count = 30,
@@ -166,7 +166,7 @@ function timestep:clear()
             rand_min = 3,
             rand_max = 5,
         },
-        [event_type.boss_fish] = {
+        [fish_type.boss_fish] = {
             pool = {},
         },
     }
@@ -181,10 +181,10 @@ end
 
 function timestep:loop()
     self._event.index = 1
-    local small_pool = self._fish_pool[event_type.small_fish]
+    local small_pool = self._fish_pool[fish_type.small_fish]
     small_pool.pool = {}
     small_pool.max_count = 50
-    local big_pool = self._fish_pool[event_type.big_fish]
+    local big_pool = self._fish_pool[fish_type.big_fish]
     big_pool.pool = {}
     big_pool.max_count = 30
     self._spline = {}

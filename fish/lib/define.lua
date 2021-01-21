@@ -15,9 +15,9 @@ define.event_type = {
 }
 
 define.fish_type = {
-    small_fish = 0,
-    big_fish = 1,
-    boss_fish = 2,
+    small_fish = 1,
+    big_fish = 2,
+    boss_fish = 3,
 }
 
 return define
