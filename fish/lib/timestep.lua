@@ -1,15 +1,6 @@
 local skynet_m = require "skynet_m"
 local timer = require "timer"
-local message = require "message"
-local s_to_c = message.s_to_c
-local c_to_s_i = message.c_to_s_i
-local error_code = message.error_code
-local fish_data = require "fish_data"
-local spline_data = require "spline_data"
-local event_data = require "event_data"
-local define = require "define"
-local event_type = define.event_type
-local fish_type = define.fish_type
+local share = require "share"
 
 local string = string
 local pairs = pairs
@@ -19,10 +10,20 @@ local math = math
 
 local game_mode = skynet_m.getenv("game_mode")
 
-local camera_spline = {}
-local loop_time = 600
-
 local MAX_USER = 4
+
+local message
+local s_to_c
+local c_to_s_i
+local error_code
+local fish_data
+local spline_data
+local event_data
+local define
+local event_type
+local fish_type
+local loop_time
+local camera_spline
 
 local agent_mgr
 local game_message
@@ -34,6 +35,18 @@ skynet_m.init(function()
     else
         game_message = skynet_m.queryservice("game_message")
     end
+    message = share.message
+    s_to_c = message.s_to_c
+    c_to_s_i = message.c_to_s_i
+    error_code = message.error_code
+    fish_data = share.fish_data
+    spline_data = share.spline_data
+    event_data = share.event_data
+    define = share.define
+    event_type = define.event_type
+    fish_type = define.fish_type
+    loop_time = share.loop_data
+    camera_spline = share.camera_spline
 end)
 
 local timestep = {}
