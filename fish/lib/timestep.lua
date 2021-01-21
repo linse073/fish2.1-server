@@ -468,10 +468,12 @@ function timestep:ready(info, data)
                 msg = msg .. string.pack(">I4B", v.user_id, v.pos)
             end
         end
-        msg = msg .. string.pack(">I2", self._fish_count)
+        local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
-            msg = msg .. string.pack(">I4>I4>I4>I4ff", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
+            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4ff", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
+            fish_count = fish_count + 1
         end
+        msg = msg .. string.pack(">I2", fish_count) .. fish_msg
         local event = self._event
         if event.info then
             if event.info.type == event_type.fight_boss then
