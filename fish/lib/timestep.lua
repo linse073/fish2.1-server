@@ -252,24 +252,24 @@ function timestep:new_fish(info, data, num, new_fish)
 end
 
 local event_function = {
-    [define.active_scene_spline] = function(self, info)
+    [event_type.active_scene_spline] = function(self, info)
         self._spline[info.spline_id] = info
     end,
-    [define.deactive_scene_spline] = function(self, info)
+    [event_type.deactive_scene_spline] = function(self, info)
         self._spline[info.spline_id] = nil
     end,
-    [define.active_camera_spline] = function(self, info)
+    [event_type.active_camera_spline] = function(self, info)
         self._use_follow_spline = true
     end,
-    [define.deactive_camera_spline] = function(self, info)
+    [event_type.deactive_camera_spline] = function(self, info)
         self._use_follow_spline = false
     end,
-    [define.active_fish] = function(self, info)
+    [event_type.active_fish] = function(self, info)
         local data = fish_data[info.fish_id]
         local pool = self._fish_pool[data.type]
         pool[#pool+1] = {info, data}
     end,
-    [define.deactive_fish] = function(self, info)
+    [event_type.deactive_fish] = function(self, info)
         local data = fish_data[info.fish_id]
         local pool = self._fish_pool[data.type]
         for i = #pool, 1, -1 do
@@ -278,7 +278,7 @@ local event_function = {
             end
         end
     end,
-    [define.fight_boss] = function(self, info)
+    [event_type.fight_boss] = function(self, info)
         local event = self._event
         event.info = info
         event.time = self._game_time - info.time
@@ -286,10 +286,10 @@ local event_function = {
         local msg = string.pack(">I2>I4f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
         self:broadcast(msg)
     end,
-    [define.max_small_fish] = function(self, info)
+    [event_type.max_small_fish] = function(self, info)
         self._fish_pool[fish_type.small_fish].max_count = info.num
     end,
-    [define.max_big_fish] = function(self, info)
+    [event_type.max_big_fish] = function(self, info)
         self._fish_pool[fish_type.big_fish].max_count = info.num
     end,
 }
