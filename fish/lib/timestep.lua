@@ -1,6 +1,7 @@
 local skynet_m = require "skynet_m"
 local timer = require "timer"
 local share = require "share"
+local loop_time = require "loop_data"
 
 local string = string
 local pairs = pairs
@@ -22,7 +23,6 @@ local event_data
 local define
 local event_type
 local fish_type
-local loop_time
 local camera_spline
 
 local agent_mgr
@@ -45,7 +45,6 @@ skynet_m.init(function()
     define = share.define
     event_type = define.event_type
     fish_type = define.fish_type
-    loop_time = share.loop_data
     camera_spline = share.camera_spline
 end)
 
