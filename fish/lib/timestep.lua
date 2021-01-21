@@ -27,6 +27,7 @@ local camera_spline
 
 local agent_mgr
 local game_message
+local event_function
 
 skynet_m.init(function()
     agent_mgr = skynet_m.queryservice("agent_mgr")
@@ -46,6 +47,48 @@ skynet_m.init(function()
     event_type = define.event_type
     fish_type = define.fish_type
     camera_spline = share.camera_spline
+    event_function = {
+        [event_type.active_scene_spline] = function(self, info)
+            self._spline[info.spline_id] = info
+        end,
+        [event_type.deactive_scene_spline] = function(self, info)
+            self._spline[info.spline_id] = nil
+        end,
+        [event_type.active_camera_spline] = function(self, info)
+            self._use_follow_spline = true
+        end,
+        [event_type.deactive_camera_spline] = function(self, info)
+            self._use_follow_spline = false
+        end,
+        [event_type.active_fish] = function(self, info)
+            local data = fish_data[info.fish_id]
+            local pool = self._fish_pool[data.type]
+            pool[#pool+1] = {info, data}
+        end,
+        [event_type.deactive_fish] = function(self, info)
+            local data = fish_data[info.fish_id]
+            local pool = self._fish_pool[data.type]
+            for i = #pool, 1, -1 do
+                if pool[i][1].fish_id == info.fish_id then
+                    table.remove(pool, i)
+                end
+            end
+        end,
+        [event_type.fight_boss] = function(self, info)
+            local event = self._event
+            event.info = info
+            event.time = self._game_time - info.time
+            event.data = fish_data[info.fish_id]
+            local msg = string.pack(">I2>I4f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
+            self:broadcast(msg)
+        end,
+        [event_type.max_small_fish] = function(self, info)
+            self._fish_pool[fish_type.small_fish].max_count = info.num
+        end,
+        [event_type.max_big_fish] = function(self, info)
+            self._fish_pool[fish_type.big_fish].max_count = info.num
+        end,
+    }
 end)
 
 local timestep = {}
@@ -250,49 +293,6 @@ function timestep:new_fish(info, data, num, new_fish)
         begin_time = begin_time + 0.5
     end
 end
-
-local event_function = {
-    [event_type.active_scene_spline] = function(self, info)
-        self._spline[info.spline_id] = info
-    end,
-    [event_type.deactive_scene_spline] = function(self, info)
-        self._spline[info.spline_id] = nil
-    end,
-    [event_type.active_camera_spline] = function(self, info)
-        self._use_follow_spline = true
-    end,
-    [event_type.deactive_camera_spline] = function(self, info)
-        self._use_follow_spline = false
-    end,
-    [event_type.active_fish] = function(self, info)
-        local data = fish_data[info.fish_id]
-        local pool = self._fish_pool[data.type]
-        pool[#pool+1] = {info, data}
-    end,
-    [event_type.deactive_fish] = function(self, info)
-        local data = fish_data[info.fish_id]
-        local pool = self._fish_pool[data.type]
-        for i = #pool, 1, -1 do
-            if pool[i][1].fish_id == info.fish_id then
-                table.remove(pool, i)
-            end
-        end
-    end,
-    [event_type.fight_boss] = function(self, info)
-        local event = self._event
-        event.info = info
-        event.time = self._game_time - info.time
-        event.data = fish_data[info.fish_id]
-        local msg = string.pack(">I2>I4f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
-        self:broadcast(msg)
-    end,
-    [event_type.max_small_fish] = function(self, info)
-        self._fish_pool[fish_type.small_fish].max_count = info.num
-    end,
-    [event_type.max_big_fish] = function(self, info)
-        self._fish_pool[fish_type.big_fish].max_count = info.num
-    end,
-}
 
 function timestep:update_fish(etime, pool_info, new_fish)
     pool_info._time = pool_info._time + etime
