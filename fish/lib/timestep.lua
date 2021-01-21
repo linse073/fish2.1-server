@@ -295,7 +295,7 @@ function timestep:new_fish(info, data, num, new_fish)
 end
 
 function timestep:update_fish(etime, pool_info, new_fish)
-    pool_info._time = pool_info._time + etime
+    pool_info.time = pool_info.time + etime
     if (pool_info.time >= pool_info.interval and pool_info.count < pool_info.max_count) or pool_info.count < pool_info.max_count * 10 // 8 then
         local pool = pool_info.pool
         if #pool > 0 then
