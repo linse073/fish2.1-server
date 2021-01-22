@@ -2,6 +2,7 @@ local skynet_m = require "skynet_m"
 local timer = require "timer"
 local share = require "share"
 local loop_time = require "loop_data"
+local util = require "util"
 
 local string = string
 local pairs = pairs
@@ -387,10 +388,13 @@ function timestep:update()
         event_function[info.type](self, info)
         event.index = event.index + 1
     end
+    util.dump(self._fish_pool, "fish_pool")
+    util.dump(self._spline, "spline")
     local new_fish = {}
     for k, v in ipairs({fish_type.small_fish, fish_type.big_fish}) do
         self:update_fish(etime, self._fish_pool[v], new_fish)
     end
+    util.dump(new_fish, "new_fish")
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
     local new_num = #new_fish
     if new_num > 0 then
