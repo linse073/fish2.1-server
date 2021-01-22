@@ -119,7 +119,7 @@ function timestep:join(user_id, free_pos, agent)
         return false
     end
     free_pos = free_pos + 1
-    if free_pos<=0 or free_pos>MAX_USER then
+    if free_pos <= 0 or free_pos > MAX_USER then
         skynet_m.log(string.format("Illegal pos %d.", free_pos))
         return false
     end
@@ -134,7 +134,7 @@ function timestep:join(user_id, free_pos, agent)
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
-    self._count = self._count+1
+    self._count = self._count + 1
     -- NOTICE: game server notify user leave
     -- timer.add_routine("timestep_check", self._check_func, 100)
     return true
@@ -307,9 +307,7 @@ function timestep:update_fish(etime, pool_info, new_fish)
             self:new_fish(info[1], info[2], num, new_fish)
             pool_info.count = pool_info.count + num
         end
-        if pool_info.time >= pool_info.interval then
-            pool_info.time = pool_info.time - pool_info.interval
-        end
+        pool.time = 0
     end
 end
 
