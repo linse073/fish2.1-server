@@ -48,7 +48,7 @@ function util.split(input, delimiter)
 end
 
 function util.dump(val, desc, nesting)
-    if type(nesting) ~= "number" then nesting = 3 end
+    if type(nesting) ~= "number" then nesting = 5 end
 
     local lookupTable = {}
     local result = {}
