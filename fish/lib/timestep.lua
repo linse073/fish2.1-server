@@ -351,6 +351,7 @@ end
 
 function timestep:update()
     local now = skynet_m.now()
+    skynet_m.log(type(now) .. ":" .. now)
     local etime = now - self._last_time
     self._last_time = now
     for k, v in pairs(self._spline_cd) do

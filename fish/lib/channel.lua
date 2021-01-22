@@ -140,11 +140,11 @@ function channel:kick(code)
 end
 
 function channel:update()
-    local now = floor(skynet_m.now()*10)
+    local now = floor(skynet_m.now() * 10)
     self._kcp:lkcp_update(now)
-    local nt = self._kcp:lkcp_check(now)-now
+    local nt = self._kcp:lkcp_check(now) - now
     if nt > 0 then
-        timer.add_routine("kcp_update", self._update_func, nt/10)
+        timer.add_routine("kcp_update", self._update_func, nt / 10)
     end
     self._next_update = false
 end
