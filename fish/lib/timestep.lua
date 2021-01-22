@@ -13,6 +13,7 @@ local math = math
 local game_mode = skynet_m.getenv("game_mode")
 
 local MAX_USER = 4
+local ACTIVITY_TIMEOUT = 60 * 100 * 30
 
 local message
 local s_to_c
@@ -175,7 +176,7 @@ end
 function timestep:checkActivity()
     local now = skynet_m.now()
     for k, v in pairs(self._user) do
-        if now - v.status_time >= 6000 then
+        if now - v.status_time >= ACTIVITY_TIMEOUT then
             skynet_m.send_lua(agent_mgr, "quit", k, error_code.low_activity)
         end
     end
@@ -350,8 +351,7 @@ end
 
 function timestep:update()
     local now = skynet_m.now()
-    skynet_m.log(type(now) .. ":" .. now)
-    local etime = now - self._last_time
+    local etime = (now - self._last_time) * 0.01
     self._last_time = now
     for k, v in pairs(self._spline_cd) do
         v = v - etime
