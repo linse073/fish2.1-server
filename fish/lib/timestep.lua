@@ -63,12 +63,12 @@ skynet_m.init(function()
         end,
         [event_type.active_fish] = function(self, info)
             local data = fish_data[info.fish_id]
-            local pool = self._fish_pool[data.type]
+            local pool = self._fish_pool[data.type].pool
             pool[#pool+1] = {info, data}
         end,
         [event_type.deactive_fish] = function(self, info)
             local data = fish_data[info.fish_id]
-            local pool = self._fish_pool[data.type]
+            local pool = self._fish_pool[data.type].pool
             for i = #pool, 1, -1 do
                 if pool[i][1].fish_id == info.fish_id then
                     table.remove(pool, i)
