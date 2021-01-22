@@ -414,7 +414,7 @@ function timestep:update()
             fish = new_msg,
         })
     end
-    util.dump(self._fish, "fish");
+    -- util.dump(self._fish, "fish");
 end
 
 function timestep:kick(user_id, agent)
