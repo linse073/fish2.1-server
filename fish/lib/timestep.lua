@@ -305,6 +305,7 @@ function timestep:update_fish(etime, pool_info, new_fish)
             local num = math.random(pool_info.rand_min, pool_info.rand_max)
             self:new_fish(info[1], info[2], num, new_fish)
             pool_info.count = pool_info.count + num
+            util.dump(pool_info, "pool_info")
         end
         if pool_info.time >= pool_info.interval then
             pool_info.time = pool_info.time - pool_info.interval
