@@ -293,7 +293,7 @@ function timestep:new_fish(info, data, num, new_fish)
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
-        begin_time = begin_time + 0.5
+        begin_time = begin_time + 5
     end
 end
 
