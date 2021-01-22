@@ -305,7 +305,6 @@ function timestep:update_fish(etime, pool_info, new_fish)
             local num = math.random(pool_info.rand_min, pool_info.rand_max)
             self:new_fish(info[1], info[2], num, new_fish)
             pool_info.count = pool_info.count + num
-            util.dump(pool_info, "pool_info")
         end
         if pool_info.time >= pool_info.interval then
             pool_info.time = pool_info.time - pool_info.interval
@@ -338,7 +337,7 @@ function timestep:update_boss(pool_info, new_fish)
 end
 
 function timestep:delete_fish(info)
-    self._fish[info.fish_id] = nil
+    self._fish[info.id] = nil
     local pool_info = self._fish_pool[info.data.type]
     pool_info.count = pool_info.count - 1
     local event = self._event
@@ -397,7 +396,7 @@ function timestep:update()
         self:update_fish(etime, self._fish_pool[v], new_fish)
     end
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
-    -- util.dump(new_fish, "new_fish");
+    util.dump(new_fish, "new_fish");
     util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
