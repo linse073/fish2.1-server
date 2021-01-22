@@ -240,7 +240,7 @@ end
 
 function timestep:start()
     self._last_time = skynet_m.now()
-    timer.add_routine("timestep_update", self._update_func, 10)
+    timer.add_routine("timestep_update", self._update_func, 100)
     math.randomseed(self._last_time)
     self:update()
 end
