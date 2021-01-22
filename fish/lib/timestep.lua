@@ -80,7 +80,7 @@ skynet_m.init(function()
             event.info = info
             event.time = self._game_time - info.time
             event.data = fish_data[info.fish_id]
-            local msg = string.pack(">I2>I4f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
+            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
             self:broadcast(msg)
         end,
         [event_type.max_small_fish] = function(self, info)
@@ -404,7 +404,7 @@ function timestep:update()
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         for k, v in ipairs(new_fish) do
             new_msg = new_msg .. string.pack("<I4<I2", v.id, v.fish_id)
-            client_msg = client_msg .. string.pack(">I4>I4>I4>I4ff", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
+            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
         end
         self:broadcast(client_msg)
         for i = new_num + 1, 100 do
@@ -467,8 +467,8 @@ function timestep:ready(info, data)
         if self._ready_count == 1 then
             self:start()
         end
-        local client_time = string.unpack("d", data, 3)
-        local msg = string.pack(">I2dfB", s_to_c.room_data, client_time, self._game_time, info.pos)
+        local client_time = string.unpack(">d", data, 3)
+        local msg = string.pack(">I2>d>fB", s_to_c.room_data, client_time, self._game_time, info.pos)
         msg = msg .. string.pack("B", self._ready_count - 1)
         for _, v in pairs(self._user) do
             if v.ready and v.user_id ~= info.user_id then
@@ -477,20 +477,20 @@ function timestep:ready(info, data)
         end
         local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
-            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4ff", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
+            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
             fish_count = fish_count + 1
         end
         msg = msg .. string.pack(">I2", fish_count) .. fish_msg
         local event = self._event
         if event.info then
             if event.info.type == event_type.fight_boss then
-                msg = msg .. string.pack(">I4f", event.info.id, event.data.life_time - event.time)
+                msg = msg .. string.pack(">I4>f", event.info.id, event.data.life_time - event.time)
             else
                 skynet_m.log(string.format("Can't get trigger event %d left time.", event.info.id))
-                msg = msg .. string.pack(">I4f", event.info.id, 10)
+                msg = msg .. string.pack(">I4>f", event.info.id, 10)
             end
         else
-            msg = msg .. string.pack(">I4f", 0, 0)
+            msg = msg .. string.pack(">I4>f", 0, 0)
         end
         skynet_m.send_lua(info.agent, "send", msg)
     end
@@ -501,7 +501,7 @@ function timestep:quit(info, data)
 end
 
 function timestep:fire(info, data)
-    local self_id, angle, multi, kind = string.unpack(">I4f>I4>I4", data, 3)
+    local self_id, angle, multi, kind = string.unpack(">I4>f>I4>I4", data, 3)
     self._bullet_id = self._bullet_id + 1
     info.bullet[self_id] = self._bullet_id
     skynet_m.send_lua(game_message, "send_fire", {
@@ -544,8 +544,8 @@ function timestep:hit(info, data)
 end
 
 function timestep:heart_beat(info, data)
-    local client_time = string.unpack("d", data, 3)
-    local msg = string.pack(">I2df", s_to_c.heart_beat, client_time, self._game_time)
+    local client_time = string.unpack(">d", data, 3)
+    local msg = string.pack(">I2>d>f", s_to_c.heart_beat, client_time, self._game_time)
     skynet_m.send_lua(info.agent, "send", msg)
 end
 
@@ -565,7 +565,7 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
-    local msg = string.pack(">I2>I4>I4>I4Bf>I4>I4>I8", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore)
+    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore)
     self:broadcast(msg)
 end
 
