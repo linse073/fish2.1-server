@@ -212,6 +212,7 @@ function timestep:clear()
         },
         [fish_type.boss_fish] = {
             pool = {},
+            count = 0,
         },
     }
     self._event = {
@@ -330,6 +331,7 @@ function timestep:update_boss(pool_info, new_fish)
             new_fish[#new_fish+1] = new_info
             self._fish[self._fish_id] = new_info
         end
+        pool_info.count = pool_info.count + #pool_info.pool
         pool_info.pool = {}
     end
 end
@@ -393,6 +395,8 @@ function timestep:update()
         self:update_fish(etime, self._fish_pool[v], new_fish)
     end
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
+    util.dump(new_fish, "new_fish");
+    util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
         local new_msg = ""
