@@ -196,20 +196,20 @@ function timestep:clear()
         [fish_type.small_fish] = {
             pool = {},
             count = 0,
-            max_count = 3,
+            max_count = 50,
             time = 0,
             interval = 4,
-            rand_min = 1,
-            rand_max = 2,
+            rand_min = 5,
+            rand_max = 15,
         },
         [fish_type.big_fish] = {
             pool = {},
             count = 0,
-            max_count = 0,
+            max_count = 30,
             time = 0,
             interval = 5,
-            rand_min = 2,
-            rand_max = 3,
+            rand_min = 3,
+            rand_max = 5,
         },
         [fish_type.boss_fish] = {
             pool = {},
@@ -381,7 +381,7 @@ function timestep:update()
         self._game_time = self._game_time - loop_time
         self:loop()
     end
-    skynet_m.log(string.format("Game time %f.", self._game_time))
+    -- skynet_m.log(string.format("Game time %f.", self._game_time))
     while event.index <= #event_data do
         local info = event_data[event.index]
         if self._game_time < info.time then
@@ -414,7 +414,7 @@ function timestep:update()
             fish = new_msg,
         })
     end
-    util.dump(self._fish, "fish");
+    -- util.dump(self._fish, "fish");
 end
 
 function timestep:kick(user_id, agent)
