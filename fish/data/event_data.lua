@@ -35,7 +35,7 @@ local data = {
 		type = 6,
 		fish_id = 5000,
 		spline_id = 0,
-		speed = 25.000000,
+		speed = 45.000000,
 	},
 	{
 		id = 7,
@@ -43,7 +43,7 @@ local data = {
 		type = 6,
 		fish_id = 5001,
 		spline_id = 0,
-		speed = 30.000000,
+		speed = 50.000000,
 	},
 	{
 		id = 8,
@@ -51,7 +51,7 @@ local data = {
 		type = 6,
 		fish_id = 5002,
 		spline_id = 0,
-		speed = 35.000000,
+		speed = 60.000000,
 	},
 	{
 		id = 9,
@@ -59,7 +59,7 @@ local data = {
 		type = 6,
 		fish_id = 5003,
 		spline_id = 0,
-		speed = 30.000000,
+		speed = 50.000000,
 	},
 	{
 		id = 10,
@@ -67,7 +67,7 @@ local data = {
 		type = 6,
 		fish_id = 5004,
 		spline_id = 0,
-		speed = 25.000000,
+		speed = 40.000000,
 	},
 }
 
