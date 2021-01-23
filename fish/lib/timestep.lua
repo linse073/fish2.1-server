@@ -196,16 +196,16 @@ function timestep:clear()
         [fish_type.small_fish] = {
             pool = {},
             count = 0,
-            max_count = 10,
+            max_count = 3,
             time = 0,
             interval = 4,
-            rand_min = 3,
-            rand_max = 5,
+            rand_min = 1,
+            rand_max = 2,
         },
         [fish_type.big_fish] = {
             pool = {},
             count = 0,
-            max_count = 5,
+            max_count = 0,
             time = 0,
             interval = 5,
             rand_min = 2,
@@ -414,7 +414,7 @@ function timestep:update()
             fish = new_msg,
         })
     end
-    -- util.dump(self._fish, "fish");
+    util.dump(self._fish, "fish");
 end
 
 function timestep:kick(user_id, agent)
