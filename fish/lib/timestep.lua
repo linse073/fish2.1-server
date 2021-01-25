@@ -187,7 +187,7 @@ function timestep:clear()
     self._bullet_id = 0
     self._bullet = {}
     self._game_time = 0
-    self._fish_id = 0
+    self._fish_id = 1000
     self._group_id = 0
     self._fish = {}
     self._spline = {}
