@@ -168,7 +168,7 @@ function timestep:join_01(user_id, agent)
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
-    self._count = self._count+1
+    self._count = self._count + 1
     timer.add_routine("timestep_check", self._check_func, 100)
     return true
 end
@@ -293,7 +293,7 @@ function timestep:new_fish(info, data, num, new_fish)
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
-        begin_time = begin_time + 1
+        -- begin_time = begin_time + 1
     end
 end
 
