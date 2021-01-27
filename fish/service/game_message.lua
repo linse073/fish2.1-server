@@ -50,7 +50,7 @@ local function pack_link(msg)
     skynet_m.log(string.format("pack_link %d %s.", server_id, udp_send_address))
     local pack = string.pack("<I4", server_id)
     pack = pack .. pack_string(udp_send_address)
-    local port = skynet_m.call_lua(gate_mgr, "get_port");
+    local port = skynet_m.call_lua(gate_mgr, "get_port")
     pack = pack .. string.pack("<I4", #port)
     for _, v in ipairs(port) do
         pack = pack .. string.pack("<I4", v)
