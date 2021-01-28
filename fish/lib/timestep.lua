@@ -522,7 +522,7 @@ function timestep:update()
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         for k, v in ipairs(new_fish) do
             new_msg = new_msg .. string.pack("<I4<I2", v.id, v.fish_id)
-            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>I4>f>f", v.id, v.fish_id, v.spline_id, v.group_id, v.matrix_id, v.speed, v.begin_time)
+            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time, v.matrix_id)
         end
         self:broadcast(client_msg)
         for i = new_num + 1, 100 do
