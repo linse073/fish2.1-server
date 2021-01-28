@@ -11,6 +11,7 @@ skynet_m.init(function()
     share.message = sharedata.query("message")
     share.define = sharedata.query("define")
     share.camera_spline = sharedata.query("camera_spline")
+    share.matrix_data = sharedata.query("matrix_data")
 end)
 
 return share

@@ -16,6 +16,8 @@ skynet_m.start(function()
     sharedata.new("message", message)
     local define = require("define")
     sharedata.new("define", define)
+    local matrix_data = require("matrix_data")
+    sharedata.new("matrix_data", matrix_data)
 
     local camera_spline = {}
     for k, v in pairs(spline_data) do

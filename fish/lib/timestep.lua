@@ -26,6 +26,7 @@ local define
 local event_type
 local fish_type
 local camera_spline
+local matrix_data
 
 local agent_mgr
 local game_message
@@ -49,6 +50,7 @@ skynet_m.init(function()
     event_type = define.event_type
     fish_type = define.fish_type
     camera_spline = share.camera_spline
+    matrix_data = share.matrix_data
     event_function = {
         [event_type.active_scene_spline] = function(self, info)
             self._spline[info.spline_id] = {
@@ -265,6 +267,10 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
         life_time = spline_data[spline_id].length / info.speed
     end
+    local matrix_id = info.matrix_id
+    if matrix_id == 0 and #matrix_data > 0 then
+        matrix_id = matrix_data[math.random(#matrix_data)]
+    end
     for i = 1, num do
         self._fish_id = self._fish_id + 1
         local new_info = {
@@ -277,6 +283,7 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
             life_time = life_time,
             time = self._game_time - begin_time,
             data = data,
+            matrix_id = matrix_id,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -309,11 +316,11 @@ function timestep:update_spline_fish(etime, pool_info, new_fish)
     end
 end
 
-function timestep:new_fish(info, data, num, new_fish)
-    local begin_time = self._game_time
+function timestep:new_fish(info, data, num, begin_time, new_fish)
     self._group_id = self._group_id + 1
     local spline_id = info.spline_id
-    if spline_id == 0 and data.life_time == 0 then
+    local life_time = data.life_time
+    if spline_id == 0 and life_time == 0 then
         local rand_spline, all_spline = {}, {}
         for k, v in pairs(camera_spline) do
             if not self._spline_cd[k] then
@@ -330,9 +337,12 @@ function timestep:new_fish(info, data, num, new_fish)
     if spline_id > 0 then
         self._spline_cd[spline_id] = 10
     end
-    local life_time = data.life_time
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
         life_time = spline_data[spline_id].length / info.speed
+    end
+    local matrix_id = info.matrix_id
+    if matrix_id == 0 and #matrix_data > 0 then
+        matrix_id = matrix_data[math.random(#matrix_data)]
     end
     for i = 1, num do
         self._fish_id = self._fish_id + 1
@@ -346,6 +356,7 @@ function timestep:new_fish(info, data, num, new_fish)
             life_time = life_time,
             time = self._game_time - begin_time,
             data = data,
+            matrix_id = matrix_id,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -361,45 +372,78 @@ function timestep:update_fish(etime, pool_info, new_fish)
             if #pool > 0 then
                 local info = pool[math.random(#pool)]
                 local num = math.random(pool_info.rand_min, pool_info.rand_max)
-                self:new_fish(info[1], info[2], num, new_fish)
+                self:new_fish(info[1], info[2], num, self._game_time, new_fish)
                 pool_info.count = pool_info.count + num
             end
             pool_info.time = 0
         end
     end
     if #pool_info.ready > 0 then
-        self:new_fish_01(pool_info.ready, new_fish)
+        for k, v in ipairs(pool_info.ready) do
+            local num = math.random(pool_info.rand_min, pool_info.rand_max)
+            local info = v[1]
+            self:new_fish(info, v[2], num, info.time, new_fish)
+            -- NOTICE: don't count fish
+        end
         pool_info.ready = {}
     end
 end
 
-function timestep:new_fish_01(pool, new_fish)
-    for k, v in ipairs(pool) do
-        local info, data = v[1], v[2]
-        self._fish_id = self._fish_id + 1
-        local new_info = {
-            id = self._fish_id,
-            fish_id = info.fish_id,
-            spline_id = info.spline_id,
-            group_id = 0,
-            speed = info.speed,
-            begin_time = info.time,
-            life_time = data.life_time,
-            time = self._game_time - info.time,
-            data = data,
-        }
-        new_fish[#new_fish+1] = new_info
-        self._fish[self._fish_id] = new_info
+function timestep:new_boss(info, data, new_fish)
+    self._group_id = self._group_id + 1
+    local spline_id = info.spline_id
+    local life_time = data.life_time
+    if spline_id == 0 and life_time == 0 then
+        local rand_spline, all_spline = {}, {}
+        for k, v in pairs(camera_spline) do
+            if not self._spline_cd[k] then
+                rand_spline[#rand_spline+1] = k
+            end
+            all_spline[#all_spline+1] = k
+        end
+        if #rand_spline > 0 then
+            spline_id = rand_spline[math.random(#rand_spline)]
+        elseif #all_spline > 0 then
+            spline_id = all_spline[math.random(#all_spline)]
+        end
     end
+    if spline_id > 0 then
+        self._spline_cd[spline_id] = 10
+    end
+    if life_time == 0 and spline_id > 0 and info.speed > 0 then
+        life_time = spline_data[spline_id].length / info.speed
+    end
+    local matrix_id = info.matrix_id
+    if matrix_id == 0 and #matrix_data > 0 then
+        matrix_id = matrix_data[math.random(#matrix_data)]
+    end
+    self._fish_id = self._fish_id + 1
+    local new_info = {
+        id = self._fish_id,
+        fish_id = info.fish_id,
+        spline_id = spline_id,
+        group_id = self._group_id,
+        speed = info.speed,
+        begin_time = info.time,
+        life_time = life_time,
+        time = self._game_time - info.time,
+        data = data,
+    }
+    new_fish[#new_fish+1] = new_info
+    self._fish[self._fish_id] = new_info
 end
 
 function timestep:update_boss(pool_info, new_fish)
     if #pool_info.pool > 0 then
-        self:new_fish_01(pool_info.pool, new_fish)
+        for k, v in ipairs(pool_info.pool) do
+            self:new_boss(v[1], v[2], new_fish)
+        end
         pool_info.pool = {}
     end
     if #pool_info.ready > 0 then
-        self:new_fish_01(pool_info.ready, new_fish)
+        for k, v in ipairs(pool_info.ready) do
+            self:new_boss(v[1], v[2], new_fish)
+        end
         pool_info.ready = {}
     end
 end
