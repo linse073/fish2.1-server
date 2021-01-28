@@ -41,7 +41,7 @@ local data = {
 		fish_id = 5000,
 		spline_id = 0,
 		speed = 90.000000,
-		maxtix_id = 6,
+		matrix_id = 0,
 	},
 	{
 		id = 7,
@@ -50,7 +50,7 @@ local data = {
 		fish_id = 5001,
 		spline_id = 0,
 		speed = 100.000000,
-		maxtix_id = 0,
+		matrix_id = 0,
 	},
 	{
 		id = 8,
@@ -59,7 +59,7 @@ local data = {
 		fish_id = 5002,
 		spline_id = 0,
 		speed = 120.000000,
-		maxtix_id = 0,
+		matrix_id = 0,
 	},
 	{
 		id = 9,
@@ -68,7 +68,7 @@ local data = {
 		fish_id = 5003,
 		spline_id = 0,
 		speed = 100.000000,
-		maxtix_id = 0,
+		matrix_id = 0,
 	},
 	{
 		id = 10,
@@ -77,7 +77,7 @@ local data = {
 		fish_id = 5004,
 		spline_id = 0,
 		speed = 80.000000,
-		maxtix_id = 0,
+		matrix_id = 0,
 	},
 }
 
