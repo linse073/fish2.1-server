@@ -69,7 +69,7 @@ skynet_m.init(function()
         end,
         [event_type.active_fish] = function(self, info)
             local data = fish_data[info.fish_id]
-            if info.spline_id then
+            if info.spline_id > 0 then
                 local ready = self._fish_pool[data.type].ready
                 ready[#ready+1] = {info, data}
             else
@@ -514,7 +514,7 @@ function timestep:update()
     for k, v in pairs(self._spline) do
         self:update_spline_fish(etime, v, new_fish)
     end
-    util.dump(new_fish, "new_fish")
+    -- util.dump(new_fish, "new_fish")
     -- util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
