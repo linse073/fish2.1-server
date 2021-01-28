@@ -514,7 +514,7 @@ function timestep:update()
     for k, v in pairs(self._spline) do
         self:update_spline_fish(etime, v, new_fish)
     end
-    util.dump(new_fish, "new_fish")
+    -- util.dump(new_fish, "new_fish")
     -- util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
@@ -596,7 +596,7 @@ function timestep:ready(info, data)
         end
         local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
-            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time)
+            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f>I4", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.begin_time, v.matrix_id)
             fish_count = fish_count + 1
         end
         msg = msg .. string.pack(">I2", fish_count) .. fish_msg
