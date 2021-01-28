@@ -316,7 +316,7 @@ function timestep:update_spline_fish(etime, pool_info, new_fish)
     end
 end
 
-function timestep:new_fish(info, data, num, begin_time, new_fish)
+function timestep:new_fish(info, data, num, begin_time, new_fish, incount)
     self._group_id = self._group_id + 1
     local spline_id = info.spline_id
     local life_time = data.life_time
@@ -357,6 +357,7 @@ function timestep:new_fish(info, data, num, begin_time, new_fish)
             time = self._game_time - begin_time,
             data = data,
             matrix_id = matrix_id,
+            incount = incount,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -367,12 +368,12 @@ end
 function timestep:update_fish(etime, pool_info, new_fish)
     pool_info.time = pool_info.time + etime
     if self._use_follow_spline then
-        if pool_info.time >= pool_info.interval or pool_info.count < pool_info.max_count * 10 // 8 then
+        if (pool_info.time >= pool_info.interval and pool_info.count < pool_info.max_count) or pool_info.count < pool_info.max_count * 10 // 8 then
             local pool = pool_info.pool
             if #pool > 0 then
                 local info = pool[math.random(#pool)]
                 local num = math.random(pool_info.rand_min, pool_info.rand_max)
-                self:new_fish(info[1], info[2], num, self._game_time, new_fish)
+                self:new_fish(info[1], info[2], num, self._game_time, new_fish, true)
                 pool_info.count = pool_info.count + num
             end
             pool_info.time = 0
@@ -452,7 +453,7 @@ end
 function timestep:delete_fish(info)
     self._fish[info.id] = nil
     local pool_info = self._fish_pool[info.data.type]
-    if pool_info.count then
+    if pool_info.count and info.incount then
         pool_info.count = pool_info.count - 1
     end
     local event = self._event
