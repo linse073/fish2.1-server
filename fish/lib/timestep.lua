@@ -428,6 +428,7 @@ function timestep:new_boss(info, data, new_fish)
         life_time = life_time,
         time = self._game_time - info.time,
         data = data,
+        matrix_id = matrix_id,
     }
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
