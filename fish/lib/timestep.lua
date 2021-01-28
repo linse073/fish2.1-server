@@ -307,7 +307,7 @@ function timestep:update_spline_fish(etime, pool_info, new_fish)
                 info = small_pool[rand_num]
                 num = math.random(small_info.rand_min, small_info.rand_max)
             else
-                info = big_pool[rand_num]
+                info = big_pool[rand_num - #small_pool]
                 num = math.random(big_info.rand_min, big_info.rand_max)
             end
             self:new_spline_fish(info[1], info[2], num, spline_info.spline_id, new_fish)
