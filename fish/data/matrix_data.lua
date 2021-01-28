@@ -1,5 +1,5 @@
 local data = {
-    1,
+	1,
 }
 
 return data

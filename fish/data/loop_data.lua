@@ -1,2 +1,2 @@
-local loop_time = 573.908447
+local loop_time = 572.886108
 return loop_time

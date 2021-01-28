@@ -3,31 +3,36 @@ local data = {
 		id = 1,
 		time = 0.000000,
 		type = 2,
-		spline_id = 3001,
+		spline_id = 3004,
+		interval = 6,
 	},
 	{
 		id = 2,
 		time = 0.000000,
 		type = 2,
-		spline_id = 3002,
+		spline_id = 3015,
+		interval = 6,
 	},
 	{
 		id = 3,
 		time = 0.000000,
 		type = 2,
-		spline_id = 3003,
+		spline_id = 3026,
+		interval = 6,
 	},
 	{
 		id = 4,
 		time = 0.000000,
 		type = 2,
-		spline_id = 3004,
+		spline_id = 3037,
+		interval = 6,
 	},
 	{
 		id = 5,
 		time = 0.000000,
 		type = 2,
-		spline_id = 3005,
+		spline_id = 3048,
+		interval = 6,
 	},
 	{
 		id = 6,
@@ -36,6 +41,7 @@ local data = {
 		fish_id = 5000,
 		spline_id = 0,
 		speed = 90.000000,
+		maxtix_id = 6,
 	},
 	{
 		id = 7,
@@ -44,6 +50,7 @@ local data = {
 		fish_id = 5001,
 		spline_id = 0,
 		speed = 100.000000,
+		maxtix_id = 0,
 	},
 	{
 		id = 8,
@@ -52,6 +59,7 @@ local data = {
 		fish_id = 5002,
 		spline_id = 0,
 		speed = 120.000000,
+		maxtix_id = 0,
 	},
 	{
 		id = 9,
@@ -60,6 +68,7 @@ local data = {
 		fish_id = 5003,
 		spline_id = 0,
 		speed = 100.000000,
+		maxtix_id = 0,
 	},
 	{
 		id = 10,
@@ -68,6 +77,7 @@ local data = {
 		fish_id = 5004,
 		spline_id = 0,
 		speed = 80.000000,
+		maxtix_id = 0,
 	},
 }
 
