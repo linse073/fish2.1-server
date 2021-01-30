@@ -71,6 +71,10 @@ local data = {
 		type = 1,
 		life_time = 0.000000,
 	},
+	[1001] = {
+		type = 3,
+		life_time = 240.000000,
+	},
 }
 
 return data
