@@ -14,6 +14,7 @@ local game_mode = skynet_m.getenv("game_mode")
 
 local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
+local SPLINE_INTERVAL = 25
 
 local message
 local s_to_c
@@ -55,7 +56,7 @@ skynet_m.init(function()
         [event_type.active_scene_spline] = function(self, info)
             self._spline[info.spline_id] = {
                 info = info,
-                time = info.interval,
+                time = SPLINE_INTERVAL,
             }
         end,
         [event_type.deactive_scene_spline] = function(self, info)
@@ -294,7 +295,7 @@ end
 function timestep:update_spline_fish(etime, pool_info, new_fish)
     pool_info.time = pool_info.time + etime
     local spline_info = pool_info.info
-    if pool_info.time >= spline_info.interval then
+    if pool_info.time >= SPLINE_INTERVAL then
         local small_info = self._fish_pool[fish_type.small_fish]
         local small_pool = small_info.pool
         local big_info = self._fish_pool[fish_type.big_fish]
