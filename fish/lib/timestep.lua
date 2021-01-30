@@ -91,8 +91,10 @@ skynet_m.init(function()
             local event = self._event
             event.info = info
             event.time = self._game_time - info.time
-            event.data = fish_data[info.fish_id]
-            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, event.data.life_time - event.time)
+            if info.fish_id > 0 then
+                event.data = fish_data[info.fish_id]
+            end
+            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, info.duration - event.time)
             self:broadcast(msg)
         end,
         [event_type.max_small_fish] = function(self, info)
@@ -459,9 +461,7 @@ function timestep:delete_fish(info)
     end
     local event = self._event
     if event.info and event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
-        event.info = nil
-        event.time = 0
-        event.data = nil
+        event.time = event.info.duration - 3
     end
 end
 
@@ -492,6 +492,12 @@ function timestep:update()
     local event = self._event
     if event.info then
         event.time = event.time + etime
+        if event.info.type == event_type.fight_boss and event.time >= event.info.duration then
+            self._game_time = event.info.time + (event.time - event.info.duration)
+            event.info = nil
+            event.time = 0
+            event.data = nil
+        end
     else
         self._game_time = self._game_time + etime
     end
@@ -605,7 +611,7 @@ function timestep:ready(info, data)
         local event = self._event
         if event.info then
             if event.info.type == event_type.fight_boss then
-                msg = msg .. string.pack(">I4>f", event.info.id, event.data.life_time - event.time)
+                msg = msg .. string.pack(">I4>f", event.info.id, event.info.duration - event.time)
             else
                 skynet_m.log(string.format("Can't get trigger event %d left time.", event.info.id))
                 msg = msg .. string.pack(">I4>f", event.info.id, 10)
