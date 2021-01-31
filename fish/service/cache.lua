@@ -18,6 +18,8 @@ skynet_m.start(function()
     sharedata.new("define", define)
     local matrix_data = require("matrix_data")
     sharedata.new("matrix_data", matrix_data)
+    local skill_data = require("skill_data")
+    sharedata.new("skill_data", skill_data)
 
     local camera_spline = {}
     for k, v in pairs(spline_data) do

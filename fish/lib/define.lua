@@ -20,4 +20,10 @@ define.fish_type = {
     boss_fish = 3,
 }
 
+define.skill_status = {
+    ready = 1,
+    cast = 2,
+    done = 3,
+}
+
 return define

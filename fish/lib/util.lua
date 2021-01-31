@@ -8,6 +8,7 @@ local ipairs = ipairs
 local table = table
 local type = type
 local traceback = debug.traceback
+local math = math
 
 local util = {}
 
@@ -108,6 +109,14 @@ function util.dump(val, desc, nesting)
 
     for i, line in ipairs(result) do
         skynet_m.log(line)
+    end
+end
+
+function util.shuffle(card)
+    local len = #card
+    for i = 1, len - 1 do
+        local r = math.random(i, len)
+        card[i], card[r] = card[r], card[i]
     end
 end
 

@@ -30,6 +30,7 @@ message.s_to_c = {
     new_fish = 2010,
     delete_fish = 2011,
     trigger_event = 2012,
+    cast_skill = 2013,
 }
 
 message.op_cmd = {

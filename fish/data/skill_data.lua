@@ -1,63 +1,67 @@
 local data = {
     [1001] = {
-        interval = 6,       --boss¼¼ÄÜ¼ä¸ôÊ±¼ä
-        born_time = 15,      --boss³öÉúµ½µÚÒ»¸ö¼¼ÄÜ¿ªÊ¼Ê±¼ä
+        interval = 6,       --bossæŠ€èƒ½é—´éš”æ—¶é—´
+        born_time = 15,      --bosså‡ºç”Ÿåˆ°ç¬¬ä¸€ä¸ªæŠ€èƒ½å¼€å§‹æ—¶é—´
         skill = {
             {
-                duration = 50, --¼¼ÄÜ³ÖĞøÊ±¼ä
-				hit_count = 1, --±»ÃüÖĞ¼¸´Î´ò¶Ï¼¼ÄÜ
+                duration = 50, --æŠ€èƒ½æŒç»­æ—¶é—´
+				hit_count = 1, --è¢«å‘½ä¸­å‡ æ¬¡æ‰“æ–­æŠ€èƒ½
 				fish = {
 					{
 						fish_id = 3000,
 						spline_id = 0,
-						time = 3,   --¶àÉÙÃë¿ÉÒÔË¢Õâ¸öÓã
+						time = 3,   --å¤šå°‘ç§’å¯ä»¥åˆ·è¿™ä¸ªé±¼
 						in_count = true,
-                        num = 1,   --¶à¸öbossÄ¿±êµã
-                        matrix_id = 0,  --ÓãÕóÁĞID
+                        num = 1,   --å¤šä¸ªbossç›®æ ‡ç‚¹
+						matrix_id = 0,  --é±¼é˜µåˆ—ID
+						speed = 0,
 					},
 				},
             },
             {
                 duration = 50,
-				hit_count = 3, --±»ÃüÖĞ¼¸´Î´ò¶Ï¼¼ÄÜ
+				hit_count = 3, --è¢«å‘½ä¸­å‡ æ¬¡æ‰“æ–­æŠ€èƒ½
 				fish = {
 					{
 						fish_id = 3001,
 						spline_id = 0,
-						time = 1,   --¶àÉÙÃë¿ÉÒÔË¢Õâ¸öÓã
+						time = 1,   --å¤šå°‘ç§’å¯ä»¥åˆ·è¿™ä¸ªé±¼
 						in_count = true,
-                        num = 3,   --¶à¸öbossÄ¿±êµã
-                        matrix_id = 0,  --ÓãÕóÁĞID
+                        num = 3,   --å¤šä¸ªbossç›®æ ‡ç‚¹
+						matrix_id = 0,  --é±¼é˜µåˆ—ID
+						speed = 0,
 					},
 				},
 
             },
             {
                 duration = 50,
-				hit_count = 2, --±»ÃüÖĞ¼¸´Î´ò¶Ï¼¼ÄÜ
+				hit_count = 2, --è¢«å‘½ä¸­å‡ æ¬¡æ‰“æ–­æŠ€èƒ½
 				fish = {
 					{
 						fish_id = 3002,
 						spline_id = 0,
-						time = 4,   --¶àÉÙÃë¿ÉÒÔË¢Õâ¸öÓã
+						time = 4,   --å¤šå°‘ç§’å¯ä»¥åˆ·è¿™ä¸ªé±¼
 						in_count = true,
-                        num = 2,   --¶à¸öbossÄ¿±êµã
-                        matrix_id = 0,  --ÓãÕóÁĞID
+                        num = 2,   --å¤šä¸ªbossç›®æ ‡ç‚¹
+						matrix_id = 0,  --é±¼é˜µåˆ—ID
+						speed = 0,
 					},
 				},
 
             },
             {
                 duration = 50,
-				hit_count = 1, --±»ÃüÖĞ¼¸´Î´ò¶Ï¼¼ÄÜ
+				hit_count = 1, --è¢«å‘½ä¸­å‡ æ¬¡æ‰“æ–­æŠ€èƒ½
 				fish = {
 					{
 						fish_id = 3003,
 						spline_id = 0,
-						time = 2,   --¶àÉÙÃë¿ÉÒÔË¢Õâ¸öÓã
+						time = 2,   --å¤šå°‘ç§’å¯ä»¥åˆ·è¿™ä¸ªé±¼
 						in_count = true,
-                        num = 1,   --¶à¸öbossÄ¿±êµã
-                        matrix_id = 0,  --ÓãÕóÁĞID
+                        num = 1,   --å¤šä¸ªbossç›®æ ‡ç‚¹
+						matrix_id = 0,  --é±¼é˜µåˆ—ID
+						speed = 0,
 					},
 				},
 
