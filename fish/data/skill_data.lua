@@ -32,7 +32,6 @@ local data = {
 						speed = 0,
 					},
 				},
-
             },
             {
                 duration = 50,
@@ -48,7 +47,6 @@ local data = {
 						speed = 0,
 					},
 				},
-
             },
             {
                 duration = 50,
@@ -64,7 +62,6 @@ local data = {
 						speed = 0,
 					},
 				},
-
             },
         }
     },
