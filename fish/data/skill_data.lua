@@ -11,7 +11,7 @@ local data = {
 						fish_id = 3000,
 						spline_id = 0,
 						time = 3,   --多少秒可以刷这个鱼
-						in_count = 1,
+						in_count = true,
                         num = 1,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
@@ -26,7 +26,7 @@ local data = {
 						fish_id = 3001,
 						spline_id = 0,
 						time = 1,   --多少秒可以刷这个鱼
-						in_count = 1,
+						in_count = true,
                         num = 3,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
@@ -41,7 +41,7 @@ local data = {
 						fish_id = 3002,
 						spline_id = 0,
 						time = 4,   --多少秒可以刷这个鱼
-						in_count = 1,
+						in_count = true,
                         num = 2,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
@@ -56,7 +56,7 @@ local data = {
 						fish_id = 3003,
 						spline_id = 0,
 						time = 2,   --多少秒可以刷这个鱼
-						in_count = 1,
+						in_count = true,
                         num = 1,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
@@ -66,3 +66,5 @@ local data = {
         }
     },
 }
+
+return data

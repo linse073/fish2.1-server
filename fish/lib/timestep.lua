@@ -405,7 +405,7 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
-        if info.in_count == 1 then
+        if info.in_count then
             skill_fish[self._fish_id] = new_info
         end
     end
