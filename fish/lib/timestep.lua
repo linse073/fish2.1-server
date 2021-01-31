@@ -649,11 +649,6 @@ function timestep:delete_fish(info)
     end
 end
 
-function timestep:update_skill(etime, new_fish)
-    local data = self._event.data
-    skill_function[data.skill_status](self, data, etime, new_fish)
-end
-
 function timestep:update()
     local now = skynet_m.now()
     local etime = (now - self._last_time) * 0.01
@@ -690,7 +685,7 @@ function timestep:update()
                 event.data = nil
             else
                 if event.data and event.data.skill_data then
-                    self:update_skill(etime, new_fish)
+                    skill_function[event.data.skill_status](self, event.data, etime, new_fish)
                 end
             end
         end
