@@ -74,7 +74,6 @@ skynet_m.init(function()
             self._use_follow_spline = false
         end,
         [event_type.active_fish] = function(self, info)
-            util.dump(info)
             local data = fish_data[info.fish_id]
             if info.spline_id > 0 then
                 local ready = self._fish_pool[data.type].ready
@@ -128,6 +127,15 @@ skynet_m.init(function()
                         if v[1].fish_id == info.fish_id then
                             find = true
                             break
+                        end
+                    end
+                    if fdata.type == fish_type.boss_fish then
+                        local pool = self._fish_pool[fdata.type].pool
+                        for k, v in ipairs(pool) do
+                            if v[1].fish_id == info.fish_id then
+                                find = true
+                                break
+                            end
                         end
                     end
                     if not find then
