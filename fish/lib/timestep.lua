@@ -159,6 +159,7 @@ skynet_m.init(function()
             data.skill_time = data.skill_time - etime
             if data.skill_time <= 0 then
                 data.skill_index = data.skill_index + 1
+                util.dump(data)
                 data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
                 data.skill_fish = {}
                 data.fish_index = 1
