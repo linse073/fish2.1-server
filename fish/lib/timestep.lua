@@ -731,7 +731,7 @@ function timestep:update()
     -- util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
-        util.dump(new_fish, "new_fish")
+        -- util.dump(new_fish, "new_fish")
         local new_msg = ""
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         local event_target = 0
