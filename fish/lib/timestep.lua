@@ -160,7 +160,7 @@ skynet_m.init(function()
             if data.skill_time <= 0 then
                 data.skill_index = data.skill_index + 1
                 local fish_skill = data.rand_skill[data.skill_index]
-                util.dump(data)
+                -- util.dump(data)
                 data.skill_info = data.skill_data.skill[fish_skill]
                 data.skill_fish = {}
                 data.fish_index = 1
@@ -200,7 +200,7 @@ skynet_m.init(function()
                 data.skill_info = nil
                 data.fish_index = nil
                 data.hit_count = nil
-                if data.skill_index <= #data.rand_skill then
+                if data.skill_index < #data.rand_skill then
                     data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
                     data.skill_status = skill_status.ready
                 else
