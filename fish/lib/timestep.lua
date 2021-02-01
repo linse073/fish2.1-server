@@ -159,15 +159,16 @@ skynet_m.init(function()
             data.skill_time = data.skill_time - etime
             if data.skill_time <= 0 then
                 data.skill_index = data.skill_index + 1
+                local fish_skill = data.rand_skill[data.skill_index]
                 util.dump(data)
-                data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                data.skill_info = data.skill_data.skill[fish_skill]
                 data.skill_fish = {}
                 data.fish_index = 1
                 data.hit_count = 0
                 data.skill_time = -data.skill_time
                 data.skill_status = skill_status.cast
                 if data.fish then
-                    local msg = string.pack(">I2>I4>I2", s_to_c.cast_skill, data.fish.id, data.rand_skill[data.skill_index])
+                    local msg = string.pack(">I2>I4>I2", s_to_c.cast_skill, data.fish.id, fish_skill)
                     self:broadcast(msg)
                 end
                 local fish_pool = data.skill_info.fish
