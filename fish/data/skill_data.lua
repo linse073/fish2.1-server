@@ -175,7 +175,25 @@ local data = {
 						spline_id = 0,
 						time = 1,   --多少秒可以刷这个鱼
 						in_count = true,
-                        num = 3,   --多个boss目标点
+                        num = 1,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 0,
+					},
+					{
+						fish_id = 3002,
+						spline_id = 0,
+						time = 1,   --多少秒可以刷这个鱼
+						in_count = true,
+                        num = 1,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 0,
+					},
+					{
+						fish_id = 3003,
+						spline_id = 0,
+						time = 1,   --多少秒可以刷这个鱼
+						in_count = true,
+                        num = 1,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
 					},
@@ -186,11 +204,20 @@ local data = {
 				hit_count = 2, --被命中几次打断技能
 				fish = {
 					{
-						fish_id = 3002,
+						fish_id = 3004,
 						spline_id = 0,
 						time = 4,   --多少秒可以刷这个鱼
 						in_count = true,
-                        num = 2,   --多个boss目标点
+                        num = 1,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 0,
+					},
+					{
+						fish_id = 3005,
+						spline_id = 0,
+						time = 4,   --多少秒可以刷这个鱼
+						in_count = true,
+                        num = 1,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
 					},
@@ -201,7 +228,7 @@ local data = {
 				hit_count = 1, --被命中几次打断技能
 				fish = {
 					{
-						fish_id = 3003,
+						fish_id = 3006,
 						spline_id = 0,
 						time = 2,   --多少秒可以刷这个鱼
 						in_count = true,

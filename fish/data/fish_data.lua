@@ -91,6 +91,18 @@ local data = {
 		type = 1,
 		life_time = 40.000000,
 	},
+	[3004] = {
+		type = 1,
+		life_time = 40.000000,
+	},
+	[3005] = {
+		type = 1,
+		life_time = 40.000000,
+	},
+	[3006] = {
+		type = 1,
+		life_time = 40.000000,
+	},
 }
 
 return data
