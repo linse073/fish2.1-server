@@ -16,6 +16,154 @@ local data = {
 						matrix_id = 0,  --鱼阵列ID
 						speed = 0,
 					},
+					--第一条线6001
+					{
+						fish_id = 5011,
+						spline_id = 6001,
+						time = 3,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6001,
+						time = 18,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6001,
+						time = 33,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6001,
+						time = 48,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					--第二条线6002
+					{
+						fish_id = 5011,
+						spline_id = 6002,
+						time = 6,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6002,
+						time = 21,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6002,
+						time = 36,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6002,
+						time = 51,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					--第三条线6003
+										{
+						fish_id = 5011,
+						spline_id = 6003,
+						time = 5,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6003,
+						time = 20,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6003,
+						time = 35,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6003,
+						time = 50,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					--第四条线6004
+										{
+						fish_id = 5011,
+						spline_id = 6004,
+						time = 8,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6004,
+						time = 26,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6004,
+						time = 41,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
+					{
+						fish_id = 5011,
+						spline_id = 6004,
+						time = 57,   --多少秒可以刷这个鱼
+						in_count = false,
+                        num = 12,   --多个boss目标点
+						matrix_id = 0,  --鱼阵列ID
+						speed = 140,
+					},
 				},
             },
             {
