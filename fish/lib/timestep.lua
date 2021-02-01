@@ -193,10 +193,6 @@ skynet_m.init(function()
                     del_count = del_count + 1
                     del_msg = del_msg .. string.pack(">I4", k)
                 end
-                data.skill_fish = nil
-                data.skill_info = nil
-                data.fish_index = nil
-                data.hit_count = nil
                 if data.fish then
                     local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
                     self:broadcast(msg)
@@ -220,6 +216,10 @@ skynet_m.init(function()
                     del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
                     self:broadcast(del_msg)
                 end
+                data.skill_fish = nil
+                data.skill_info = nil
+                data.fish_index = nil
+                data.hit_count = nil
             else
                 local fish_pool = data.skill_info.fish
                 while data.fish_index <= #fish_pool do
@@ -644,9 +644,6 @@ function timestep:delete_fish(info, hit)
                         del_count = del_count + 1
                         del_msg = del_msg .. string.pack(">I4", k)
                     end
-                    data.skill_info = nil
-                    data.fish_index = nil
-                    data.hit_count = nil
                     if data.fish then
                         local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
                         self:broadcast(msg)
@@ -670,6 +667,9 @@ function timestep:delete_fish(info, hit)
                         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
                         self:broadcast(del_msg)
                     end
+                    data.skill_info = nil
+                    data.fish_index = nil
+                    data.hit_count = nil
                 end
             end
         end
