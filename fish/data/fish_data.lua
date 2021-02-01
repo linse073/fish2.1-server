@@ -12,11 +12,39 @@ local data = {
 		life_time = 0.000000,
 	},
 	[5003] = {
-		type = 2,
+		type = 1,
 		life_time = 0.000000,
 	},
 	[5004] = {
-		type = 2,
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5005] = {
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5006] = {
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5007] = {
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5008] = {
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5009] = {
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5010] = {
+		type = 1,
+		life_time = 0.000000,
+	},
+	[5011] = {
+		type = 1,
 		life_time = 0.000000,
 	},
 	[5100] = {
@@ -69,6 +97,18 @@ local data = {
 	},
 	[5112] = {
 		type = 1,
+		life_time = 0.000000,
+	},
+	[5502] = {
+		type = 2,
+		life_time = 0.000000,
+	},
+	[5503] = {
+		type = 2,
+		life_time = 0.000000,
+	},
+	[5504] = {
+		type = 2,
 		life_time = 0.000000,
 	},
 	[1001] = {
