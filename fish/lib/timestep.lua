@@ -385,7 +385,7 @@ function timestep:start()
 end
 
 function timestep:new_skill_fish(info, time, skill_fish, new_fish)
-    local data = fish_data[info.fish]
+    local data = fish_data[info.fish_id]
     self._group_id = self._group_id + 1
     local spline_id = info.spline_id
     if spline_id > 0 then
