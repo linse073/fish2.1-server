@@ -721,10 +721,10 @@ function timestep:update()
     for k, v in pairs(self._spline) do
         self:update_spline_fish(etime, v, new_fish)
     end
-    util.dump(new_fish, "new_fish")
     -- util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
+        util.dump(new_fish, "new_fish")
         local new_msg = ""
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         local event_target = 0
