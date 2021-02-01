@@ -160,6 +160,7 @@ skynet_m.init(function()
             if data.skill_time <= 0 then
                 data.skill_index = data.skill_index + 1
                 local fish_skill = data.rand_skill[data.skill_index]
+                skynet_m.log(string.format("cast skill %d", fish_skill))
                 -- util.dump(data)
                 data.skill_info = data.skill_data.skill[fish_skill]
                 data.skill_fish = {}
