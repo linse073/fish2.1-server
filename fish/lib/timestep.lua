@@ -644,20 +644,31 @@ function timestep:delete_fish(info, hit)
                         del_count = del_count + 1
                         del_msg = del_msg .. string.pack(">I4", k)
                     end
+                    data.skill_info = nil
+                    data.fish_index = nil
+                    data.hit_count = nil
+                    if data.fish then
+                        local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
+                        self:broadcast(msg)
+                    end
+                    if data.skill_index < #data.rand_skill then
+                        data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
+                        data.skill_status = skill_status.ready
+                    else
+                        data.skill_time = 0
+                        data.skill_status = skill_status.done
+                        if data.fish then
+                            self:delete_fish(data.fish, false)
+                            del_count = del_count + 1
+                            del_msg = del_msg .. string.pack(">I4", data.fish.id)
+                            data.fish = nil
+                        end
+                    end
+                    skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                     if del_count > 0 then
                         -- TODO: send delete fish message to game server
                         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
                         self:broadcast(del_msg)
-                    end
-                    data.skill_info = nil
-                    data.fish_index = nil
-                    data.hit_count = nil
-                    if data.skill_index < #data.rand_skill then
-                        data.skill_time = data.skill_data.interval
-                        data.skill_status = skill_status.ready
-                    else
-                        data.skill_time = data.skill_data.interval
-                        data.skill_status = skill_status.done
                     end
                 end
             end
