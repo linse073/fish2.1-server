@@ -74,6 +74,7 @@ skynet_m.init(function()
             self._use_follow_spline = false
         end,
         [event_type.active_fish] = function(self, info)
+            util.dump(info)
             local data = fish_data[info.fish_id]
             if info.spline_id > 0 then
                 local ready = self._fish_pool[data.type].ready
