@@ -308,7 +308,7 @@ function timestep:join_01(user_id, agent)
         ready = false,
         pos = free_pos,
         status_time = now,
-        bullet_id = 0,
+        bullet = {},
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
