@@ -184,6 +184,7 @@ skynet_m.init(function()
         end,
         [skill_status.cast] = function(self, data, etime, new_fish)
             data.skill_time = data.skill_time + etime
+            skynet_m.log(string.format("skill time %f", data.skill_time))
             if data.skill_time >= data.skill_info.duration then
                 local del_count, del_msg = 0, ""
                 for k, v in pairs(data.skill_fish) do
