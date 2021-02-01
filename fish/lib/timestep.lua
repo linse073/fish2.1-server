@@ -205,8 +205,10 @@ skynet_m.init(function()
                     data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
                     data.skill_status = skill_status.done
                 end
-                local msg = string.pack(">I2", s_to_c.end_skill)
-                self:broadcast(msg)
+                if data.fish then
+                    local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
+                    self:broadcast(msg)
+                end
             else
                 local fish_pool = data.skill_info.fish
                 while data.fish_index <= #fish_pool do
