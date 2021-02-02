@@ -649,7 +649,7 @@ function timestep:delete_fish(info, hit)
                         self:broadcast(msg)
                     end
                     if data.skill_index < #data.rand_skill then
-                        data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
+                        data.skill_time = data.skill_data.interval
                         data.skill_status = skill_status.ready
                     else
                         data.skill_time = 0
