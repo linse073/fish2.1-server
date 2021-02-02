@@ -838,10 +838,10 @@ function timestep:ready(info, data)
                 msg = msg .. string.pack(">I4>f", event.info.id, event.info.duration - event.time)
             else
                 skynet_m.log(string.format("Can't get trigger event %d left time.", event.info.id))
-                msg = msg .. string.pack(">I4>f", event.info.id, 10)
+                msg = msg .. string.pack(">I4", event.info.id)
             end
         else
-            msg = msg .. string.pack(">I4>f", 0, 0)
+            msg = msg .. string.pack(">I4", 0)
         end
         skynet_m.send_lua(info.agent, "send", msg)
     end
