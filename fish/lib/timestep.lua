@@ -191,7 +191,7 @@ skynet_m.init(function()
                 for k, v in pairs(data.skill_fish) do
                     self:delete_fish(v, false)
                     del_count = del_count + 1
-                    del_msg = del_msg .. string.pack(">I4", k)
+                    del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                 end
                 if data.fish then
                     local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
@@ -206,7 +206,7 @@ skynet_m.init(function()
                     if data.fish then
                         self:delete_fish(data.fish, false)
                         del_count = del_count + 1
-                        del_msg = del_msg .. string.pack(">I4", data.fish.id)
+                        del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
                         data.fish = nil
                     end
                 end
@@ -642,7 +642,7 @@ function timestep:delete_fish(info, hit)
                     for k, v in pairs(skill_fish) do
                         self:delete_fish(v, false)
                         del_count = del_count + 1
-                        del_msg = del_msg .. string.pack(">I4", k)
+                        del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                     end
                     if data.fish then
                         local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
@@ -657,7 +657,7 @@ function timestep:delete_fish(info, hit)
                         if data.fish then
                             self:delete_fish(data.fish, false)
                             del_count = del_count + 1
-                            del_msg = del_msg .. string.pack(">I4", data.fish.id)
+                            del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
                             data.fish = nil
                         end
                     end
@@ -692,7 +692,7 @@ function timestep:update()
         if v.time >= v.life_time then
             self:delete_fish(v, false)
             del_count = del_count + 1
-            del_msg = del_msg .. string.pack(">I4", k)
+            del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
         end
     end
     if del_count > 0 then
@@ -930,7 +930,7 @@ function timestep:on_dead(info)
     if fish_info then
         self:delete_fish(fish_info, true)
         -- NOTICE: no bullet self_id info
-        local msg = string.pack(">I2B>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>>I4I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
     end
 end
