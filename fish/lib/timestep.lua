@@ -191,7 +191,7 @@ skynet_m.init(function()
                     del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                 end
                 if data.fish then
-                    local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
+                    local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 0)
                     self:broadcast(msg)
                 end
                 if data.skill_index < #data.rand_skill then
@@ -657,7 +657,7 @@ function timestep:delete_fish(info, hit)
                         del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                     end
                     if data.fish then
-                        local msg = string.pack(">I2>I4", s_to_c.end_skill, data.fish.id)
+                        local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 1)
                         self:broadcast(msg)
                     end
                     if data.skill_index < #data.rand_skill then
