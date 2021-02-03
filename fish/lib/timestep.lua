@@ -59,10 +59,7 @@ skynet_m.init(function()
     skill_data = share.skill_data
     event_function = {
         [event_type.active_scene_spline] = function(self, info)
-            self._spline[info.spline_id] = {
-                info = info,
-                time = SPLINE_INTERVAL,
-            }
+            self._spline[info.spline_id] = info
         end,
         [event_type.deactive_scene_spline] = function(self, info)
             self._spline[info.spline_id] = nil
@@ -368,6 +365,7 @@ function timestep:clear()
         info = nil,
     }
     self._use_follow_spline = true
+    self._spline_time = 0
     timer.del_all()
 end
 
@@ -430,7 +428,7 @@ end
 function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
     self._group_id = self._group_id + 1
     if spline_id > 0 then
-        self._spline_cd[spline_id] = 10
+        self._spline_cd[spline_id] = 15
     end
     local life_time = data.life_time
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
@@ -458,28 +456,42 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
     end
 end
 
-function timestep:update_spline_fish(etime, pool_info, new_fish)
-    pool_info.time = pool_info.time + etime
-    local spline_info = pool_info.info
-    if pool_info.time >= SPLINE_INTERVAL then
-        local small_info = self._fish_pool[fish_type.small_fish]
-        local small_pool = small_info.pool
-        local big_info = self._fish_pool[fish_type.big_fish]
-        local big_pool = big_info.pool
-        local total_count = #small_pool + #big_pool
-        if total_count > 0 then
-            local rand_num = math.random(total_count)
-            local info, num
-            if rand_num <= #small_pool then
-                info = small_pool[rand_num]
-                num = math.random(small_info.rand_min, small_info.rand_max)
-            else
-                info = big_pool[rand_num - #small_pool]
-                num = math.random(big_info.rand_min, big_info.rand_max)
-            end
-            self:new_spline_fish(info[1], info[2], num, spline_info.spline_id, new_fish)
+function timestep:update_spline_fish(spline_info, new_fish)
+    local small_info = self._fish_pool[fish_type.small_fish]
+    local small_pool = small_info.pool
+    local big_info = self._fish_pool[fish_type.big_fish]
+    local big_pool = big_info.pool
+    local total_count = #small_pool + #big_pool
+    if total_count > 0 then
+        local rand_num = math.random(total_count)
+        local info, num
+        if rand_num <= #small_pool then
+            info = small_pool[rand_num]
+            num = math.random(small_info.rand_min, small_info.rand_max)
+        else
+            info = big_pool[rand_num - #small_pool]
+            num = math.random(big_info.rand_min, big_info.rand_max)
         end
-        pool_info.time = 0
+        self:new_spline_fish(info[1], info[2], num, spline_info.spline_id, new_fish)
+    end
+end
+
+function timestep:update_spline(new_fish)
+    local rand_spline, all_spline = {}, {}
+    for k, v in pairs(self._spline) do
+        if not self._spline_cd[k] then
+            rand_spline[#rand_spline+1] = v
+        end
+        all_spline[#all_spline+1] = v
+    end
+    local spline_info
+    if #rand_spline > 0 then
+        spline_info = rand_spline[math.random(#rand_spline)]
+    elseif #all_spline > 0 then
+        spline_info = all_spline[math.random(#all_spline)]
+    end
+    if spline_info then
+        self:update_spline_fish(spline_info, new_fish)
     end
 end
 
@@ -736,8 +748,10 @@ function timestep:update()
         self:update_fish(etime, self._fish_pool[v], new_fish)
     end
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
-    for k, v in pairs(self._spline) do
-        self:update_spline_fish(etime, v, new_fish)
+    self._spline_time = self._spline_time + etime
+    if self._spline_time >= 10 then
+        self:update_spline(new_fish)
+        self._spline_time = self._spline_time - 10
     end
     -- util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
