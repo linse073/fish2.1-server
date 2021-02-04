@@ -30,4 +30,9 @@ define.item_type = {
     frozen = 1,
 }
 
+define.item_id_map = {}
+for k, v in pairs(define.item_type) do
+    define.item_id_map[v] = k
+end
+
 return define

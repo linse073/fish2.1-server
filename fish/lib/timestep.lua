@@ -32,6 +32,7 @@ local camera_spline
 local matrix_data
 local skill_data
 local item_type
+local item_id_map
 
 local agent_mgr
 local game_message
@@ -57,6 +58,7 @@ skynet_m.init(function()
     fish_type = define.fish_type
     skill_status = define.skill_status
     item_type = define.item_type
+    item_id_map = define.item_id_map
     camera_spline = share.camera_spline
     matrix_data = share.matrix_data
     skill_data = share.skill_data
@@ -972,6 +974,10 @@ end
 
 function timestep:use_item(info, data)
     local item_id = string.unpack(">I2", data, 3)
+    if not item_id_map[item_id] then
+        skynet_m.log(string.format("Can't find item %d when user %d use item.", item_id, info.user_id))
+        return
+    end
     skynet_m.send_lua(game_message, "send_use_item", {
         tableid = self._room_id,
         seatid = info.pos - 1,
