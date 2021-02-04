@@ -120,4 +120,11 @@ function util.shuffle(card)
     end
 end
 
+function util.empty(t)
+    for k, v in pairs(t) do
+        return false
+    end
+    return true
+end
+
 return util

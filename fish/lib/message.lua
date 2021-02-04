@@ -10,6 +10,7 @@ message.c_to_s = {
     fire = 1004,
     hit = 1005,
     heart_beat = 1006,
+    use_item = 1007,
 }
 
 message.c_to_s_i = {}
@@ -32,6 +33,8 @@ message.s_to_c = {
     trigger_event = 2012,
     cast_skill = 2013,
     end_skill = 2014,
+    use_item = 2015,
+    end_item = 2016,
 }
 
 message.op_cmd = {

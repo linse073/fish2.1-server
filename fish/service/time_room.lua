@@ -40,6 +40,10 @@ function CMD.on_set_cannon(info)
     timestep_i:on_set_cannon(info)
 end
 
+function CMD.on_use_item(info)
+    timestep_i:on_use_item(info)
+end
+
 skynet_m.start(function()
     timestep_i = setmetatable({}, timestep)
     timestep_i:init(room_id)

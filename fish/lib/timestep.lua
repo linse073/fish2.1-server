@@ -15,6 +15,7 @@ local game_mode = skynet_m.getenv("game_mode")
 local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
 local SPLINE_INTERVAL = 25
+local FROZEN_TIME = 15
 
 local message
 local s_to_c
@@ -30,6 +31,7 @@ local skill_status
 local camera_spline
 local matrix_data
 local skill_data
+local item_type
 
 local agent_mgr
 local game_message
@@ -54,6 +56,7 @@ skynet_m.init(function()
     event_type = define.event_type
     fish_type = define.fish_type
     skill_status = define.skill_status
+    item_type = define.item_type
     camera_spline = share.camera_spline
     matrix_data = share.matrix_data
     skill_data = share.skill_data
@@ -364,8 +367,10 @@ function timestep:clear()
         time = 0,
         info = nil,
     }
+    self._item = {}
     self._use_follow_spline = true
     self._spline_time = 0
+    self._item_id = 0
     timer.del_all()
 end
 
@@ -714,17 +719,32 @@ function timestep:update()
     end
     local new_fish = {}
     local event = self._event
-    if event.info then
-        event.time = event.time + etime
-        if event.info.type == event_type.fight_boss then
-            if event.time >= event.info.duration then
-                self._game_time = event.info.time + (event.time - event.info.duration)
-                event.info = nil
-                event.time = 0
-                event.data = nil
-            else
-                if event.data and event.data.skill_data then
-                    skill_function[event.data.skill_status](self, event.data, etime, new_fish)
+    local item = self._item
+    if event.info or not util.empty(item) then
+        if event.info then
+            event.time = event.time + etime
+            if event.info.type == event_type.fight_boss then
+                if event.time >= event.info.duration then
+                    -- self._game_time = event.info.time + (event.time - event.info.duration)
+                    event.info = nil
+                    event.time = 0
+                    event.data = nil
+                else
+                    if event.data and event.data.skill_data then
+                        skill_function[event.data.skill_status](self, event.data, etime, new_fish)
+                    end
+                end
+            end
+        end
+        if not util.empty(item)  then
+            for k, v in pairs(item) do
+                v.time = v.time + etime
+                if v.item_id == item_type.frozen then
+                    if v.time >= FROZEN_TIME then
+                        local msg = string.pack(">I2>I4", s_to_c.end_item, k)
+                        self:broadcast(msg)
+                        item[k] = nil
+                    end
                 end
             end
         end
@@ -920,6 +940,16 @@ function timestep:heart_beat(info, data)
     skynet_m.send_lua(info.agent, "send", msg)
 end
 
+function timestep:use_item(info, data)
+    local item_id = string.unpack(">I2", data, 3)
+    skynet_m.send_lua(game_message, "send_use_item", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        itemid = item_id,
+    })
+end
+
 function timestep:on_fire(info)
     local binfo = info.bullet
     if info.code ~= 0 then
@@ -962,6 +992,24 @@ function timestep:on_set_cannon(info)
         return
     end
     local msg = string.pack(">I2>I2", s_to_c.set_cannon, info.cannon)
+    self:broadcast(msg)
+end
+
+function timestep:on_use_item(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Use item can't find user %d.", info.userid))
+        return
+    end
+    self._item_id = self._item_id + 1
+    local item_info = {
+        id = self._item_id,
+        item_id = info.itemid,
+        time = 0,
+        use_id = info.userid,
+    }
+    self._item[self._item_id] = item_info
+    local msg = string.pack(">I2>I4>I4>I2", s_to_c.use_item, info.useid, self._item_id, info.itemid)
     self:broadcast(msg)
 end
 

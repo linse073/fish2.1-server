@@ -26,4 +26,8 @@ define.skill_status = {
     done = 3,
 }
 
+define.item_type = {
+    frozen = 1,
+}
+
 return define
