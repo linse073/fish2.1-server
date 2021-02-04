@@ -890,7 +890,11 @@ function timestep:ready(info, data)
                 msg = msg .. string.pack(">I4>f", event.info.id, event.info.duration - event.time)
                 local edata = event.data
                 if edata and edata.fish then
-                    msg = msg .. string.pack(">I4>I2", edata.fish.id, edata.rand_skill[edata.skill_index])
+                    if edata.skill_status == skill_status.cast then
+                        msg = msg .. string.pack(">I4>I2", edata.fish.id, edata.rand_skill[edata.skill_index])
+                    else
+                        msg = msg .. string.pack(">I4>I2", edata.fish.id, 0)
+                    end
                 else
                     msg = msg .. string.pack(">I4", 0)
                 end
