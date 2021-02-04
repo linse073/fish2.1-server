@@ -1031,7 +1031,7 @@ function timestep:on_use_item(info)
         use_id = info.userid,
     }
     self._item[self._item_id] = item_info
-    local msg = string.pack(">I2>I4>I4>I2", s_to_c.use_item, info.useid, self._item_id, info.itemid)
+    local msg = string.pack(">I2>I4>I4>I2", s_to_c.use_item, info.userid, self._item_id, info.itemid)
     self:broadcast(msg)
     if info.itemid == item_type.frozen then
         for k, v in pairs(self._fish) do
