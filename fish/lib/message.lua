@@ -34,7 +34,6 @@ message.s_to_c = {
     cast_skill = 2013,
     end_skill = 2014,
     use_item = 2015,
-    end_item = 2016,
 }
 
 message.op_cmd = {

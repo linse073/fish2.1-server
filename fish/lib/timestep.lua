@@ -728,45 +728,43 @@ function timestep:update()
     end
     local new_fish = {}
     local event = self._event
+    local stop_time = false
+    if event.info then
+        event.time = event.time + etime
+        if event.info.type == event_type.fight_boss then
+            stop_time = true
+            if event.time >= event.info.duration then
+                -- self._game_time = event.info.time + (event.time - event.info.duration)
+                event.info = nil
+                event.time = 0
+                event.data = nil
+            else
+                if event.data and event.data.skill_data then
+                    skill_function[event.data.skill_status](self, event.data, etime, new_fish)
+                end
+            end
+        end
+    end
     local item = self._item
-    if event.info or not util.empty(item) then
-        if event.info then
-            event.time = event.time + etime
-            if event.info.type == event_type.fight_boss then
-                if event.time >= event.info.duration then
-                    -- self._game_time = event.info.time + (event.time - event.info.duration)
-                    event.info = nil
-                    event.time = 0
-                    event.data = nil
-                else
-                    if event.data and event.data.skill_data then
-                        skill_function[event.data.skill_status](self, event.data, etime, new_fish)
-                    end
-                end
+    local frozen, frozen_timeout = false, false
+    for k, v in pairs(item) do
+        v.time = v.time + etime
+        if v.item_id == item_type.frozen then
+            stop_time = true
+            if v.time >= FROZEN_TIME then
+                item[k] = nil
+                frozen_timeout = true
+            else
+                frozen = true
             end
         end
-        if not util.empty(item)  then
-            local frozen, frozen_timeout = false, false
-            for k, v in pairs(item) do
-                v.time = v.time + etime
-                if v.item_id == item_type.frozen then
-                    if v.time >= FROZEN_TIME then
-                        local msg = string.pack(">I2>I4", s_to_c.end_item, k)
-                        self:broadcast(msg)
-                        item[k] = nil
-                        frozen_timeout = true
-                    else
-                        frozen = true
-                    end
-                end
-            end
-            if frozen_timeout and not frozen then
-                for k, v in pairs(self._fish) do
-                    v.frozen = nil
-                end
-            end
+    end
+    if frozen_timeout and not frozen then
+        for k, v in pairs(self._fish) do
+            v.frozen = nil
         end
-    else
+    end
+    if not stop_time then
         self._game_time = self._game_time + etime
     end
     if self._game_time >= loop_time then
@@ -900,11 +898,21 @@ function timestep:ready(info, data)
                 end
             else
                 skynet_m.log(string.format("Can't get trigger event %d left time.", event.info.id))
-                msg = msg .. string.pack(">I4", event.info.id)
+                msg = msg .. string.pack(">I4", 0)
             end
         else
             msg = msg .. string.pack(">I4", 0)
         end
+        local item_msg, item_count = "", 0
+        for k, v in pairs(self._item) do
+            if v.item_id == item_type.frozen then
+                item_msg = item_msg .. string.pack(">I4>I4>I2>f", v.user_id, v.id, v.item_id, FROZEN_TIME - v.time)
+                item_count = item_count + 1
+            else
+                skynet_m.log(string.format("Can't get item %d left time.", v.item_id))
+            end
+        end
+        msg = msg .. string.pack(">I2", item_count) .. item_msg
         skynet_m.send_lua(info.agent, "send", msg)
     end
 end
@@ -1031,7 +1039,7 @@ function timestep:on_use_item(info)
         use_id = info.userid,
     }
     self._item[self._item_id] = item_info
-    local msg = string.pack(">I2>I4>I4>I2", s_to_c.use_item, info.userid, self._item_id, info.itemid)
+    local msg = string.pack(">I2>I4>I4>I2>f", s_to_c.use_item, info.userid, self._item_id, info.itemid, FROZEN_TIME)
     self:broadcast(msg)
     if info.itemid == item_type.frozen then
         for k, v in pairs(self._fish) do
