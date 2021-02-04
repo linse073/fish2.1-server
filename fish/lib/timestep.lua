@@ -850,6 +850,12 @@ function timestep:ready(info, data)
         if event.info then
             if event.info.type == event_type.fight_boss then
                 msg = msg .. string.pack(">I4>f", event.info.id, event.info.duration - event.time)
+                local edata = event.data
+                if edata and edata.fish then
+                    msg = msg .. string.pack(">I4>I2", edata.fish.id, edata.rand_skill[edata.skill_index])
+                else
+                    msg = msg .. string.pack(">I4", 0)
+                end
             else
                 skynet_m.log(string.format("Can't get trigger event %d left time.", event.info.id))
                 msg = msg .. string.pack(">I4", event.info.id)
