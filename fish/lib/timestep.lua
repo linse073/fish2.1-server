@@ -693,6 +693,13 @@ function timestep:delete_fish(info, hit)
     end
 end
 
+local normal_status = function(info)
+    if not info.data.frozen_immune and info.frozen then
+        return false
+    end
+    return true
+end
+
 function timestep:update()
     local now = skynet_m.now()
     local etime = (now - self._last_time) * 0.01
@@ -705,11 +712,13 @@ function timestep:update()
     end
     local del_count, del_msg = 0, ""
     for k, v in pairs(self._fish) do
-        v.time = v.time + etime
-        if v.time >= v.life_time then
-            self:delete_fish(v, false)
-            del_count = del_count + 1
-            del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+        if normal_status(v) then
+            v.time = v.time + etime
+            if v.time >= v.life_time then
+                self:delete_fish(v, false)
+                del_count = del_count + 1
+                del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+            end
         end
     end
     if del_count > 0 then
@@ -737,6 +746,7 @@ function timestep:update()
             end
         end
         if not util.empty(item)  then
+            local frozen, frozen_timeout = false, false
             for k, v in pairs(item) do
                 v.time = v.time + etime
                 if v.item_id == item_type.frozen then
@@ -744,7 +754,15 @@ function timestep:update()
                         local msg = string.pack(">I2>I4", s_to_c.end_item, k)
                         self:broadcast(msg)
                         item[k] = nil
+                        frozen_timeout = true
+                    else
+                        frozen = true
                     end
+                end
+            end
+            if frozen_timeout and not frozen then
+                for k, v in pairs(self._fish) do
+                    v.frozen = nil
                 end
             end
         end
@@ -1011,6 +1029,11 @@ function timestep:on_use_item(info)
     self._item[self._item_id] = item_info
     local msg = string.pack(">I2>I4>I4>I2", s_to_c.use_item, info.useid, self._item_id, info.itemid)
     self:broadcast(msg)
+    if info.itemid == item_type.frozen then
+        for k, v in pairs(self._fish) do
+            v.frozen = true;
+        end
+    end
 end
 
 return {__index=timestep}
