@@ -179,6 +179,11 @@ local data = {
 		life_time = 100.000000,
 		frozen_immune = false,
 	},
+	[1002] = {
+		type = 3,
+		life_time = 56.000000,
+		frozen_immune = false,
+	},
 }
 
 return data
