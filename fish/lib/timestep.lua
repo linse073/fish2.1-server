@@ -1003,6 +1003,11 @@ function timestep:hit(info, data)
         skynet_m.log(string.format("Can't find bullet %d when user %d hit fish %d.", self_id, info.user_id, fishid))
         return
     end
+    local fish_info = self._fish[fishid]
+    if not fish_info then
+        skynet_m.log(string.format("Can't find fish %d when user %d hit fish.", fishid, info.user_id))
+        return
+    end
     info.bullet[self_id] = nil
     skynet_m.send_lua(game_message, "send_catch_fish", {
         tableid = self._room_id,
