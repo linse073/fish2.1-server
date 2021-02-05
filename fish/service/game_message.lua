@@ -97,6 +97,10 @@ local function pack_catch_fish(msg)
     return string.pack("<I2<I4<I4<I4<I2", msg.seatid, msg.userid, msg.bulletid, msg.fishid, msg.bulletMulti)
 end
 
+local function pack_kill_fish(msg)
+    return msg.fish
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -106,6 +110,7 @@ pack_cmd[1403] = pack_use_prop
 pack_cmd[1404] = pack_build_fish
 pack_cmd[1405] = pack_fire
 pack_cmd[1406] = pack_catch_fish
+pack_cmd[1407] = pack_kill_fish
 
 function CMD.send_link()
     send_msg(13501)
@@ -137,6 +142,10 @@ end
 
 function CMD.send_catch_fish(msg)
     send_cmd(1406, msg)
+end
+
+function CMD.send_kill_fish(msg)
+    send_cmd(1407, msg)
 end
 
 -- NOTICE: recv message
@@ -196,6 +205,8 @@ local function recv_use_prop(tableid, msg)
     info.tableid = tableid
     info.seatid, info.userid, info.probid, info.probCount = string.unpack("<I2<I4<I4<I4", msg)
     skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_use_item", info)
 end
 
 local function recv_build_fish(tableid, msg)

@@ -27,7 +27,7 @@ define.skill_status = {
 }
 
 define.item_type = {
-    frozen = 1,
+    frozen = 132,
 }
 
 define.item_id_map = {}

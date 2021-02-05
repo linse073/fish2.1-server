@@ -71,10 +71,6 @@ function CMD.send_catch_fish(msg)
     send_cmd(1406, msg)
 end
 
-function CMD.send_use_item(msg)
-    send_cmd(1408, msg)
-end
-
 -- NOTICE: recv message
 
 local message_map = {
@@ -87,8 +83,7 @@ local message_map = {
     [1404] = 1304,
     [1405] = 1305,
     [1406] = 1306,
-    [1407] = 1307,
-    [1408] = 1308,
+    [1407] = 0,
 }
 
 local function recv_cmd(msg)
@@ -121,6 +116,8 @@ end
 
 local function recv_use_prop(tableid, info)
     skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_use_item", info)
 end
 
 local function recv_build_fish(tableid, msg)
@@ -159,9 +156,7 @@ local function recv_set_cannon(tableid, info)
     skynet_m.send_lua(room, "on_set_cannon", info)
 end
 
-local function recv_use_item(tableid, info)
-    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-    skynet_m.send_lua(room, "on_use_item", info)
+local function null_op(tableid, info)
 end
 
 message_handle[13502] = recv_link
@@ -175,7 +170,8 @@ cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
-cmd_handle[1308] = recv_use_item
+
+cmd_handle[0] = null_op
 
 function CMD.recv_msg(id, msg)
     assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)

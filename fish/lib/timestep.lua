@@ -38,6 +38,7 @@ local agent_mgr
 local game_message
 local event_function
 local skill_function
+local item_function
 
 skynet_m.init(function()
     agent_mgr = skynet_m.queryservice("agent_mgr")
@@ -163,7 +164,6 @@ skynet_m.init(function()
                 data.skill_index = data.skill_index + 1
                 local fish_skill = data.rand_skill[data.skill_index]
                 skynet_m.log(string.format("cast skill %d", fish_skill))
-                -- util.dump(data)
                 data.skill_info = data.skill_data.skill[fish_skill]
                 data.skill_fish = {}
                 data.fish_index = 1
@@ -187,13 +187,13 @@ skynet_m.init(function()
         end,
         [skill_status.cast] = function(self, data, etime, new_fish)
             data.skill_time = data.skill_time + etime
-            -- skynet_m.log(string.format("skill time %f", data.skill_time))
             if data.skill_time >= data.skill_info.duration then
-                local del_count, del_msg = 0, ""
+                local del_count, del_msg, kill_msg = 0, "", ""
                 for k, v in pairs(data.skill_fish) do
                     self:delete_fish(v, false)
                     del_count = del_count + 1
                     del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+                    kill_msg = kill_msg .. string.pack("<I4", k)
                 end
                 if data.fish then
                     local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 0)
@@ -214,7 +214,13 @@ skynet_m.init(function()
                 end
                 skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                 if del_count > 0 then
-                    -- TODO: send delete fish message to game server
+                    for i = del_count + 1, 100 do
+                        kill_msg = kill_msg .. string.pack("<I4", 0)
+                    end
+                    skynet_m.send_lua(game_message, "send_kill_fish", {
+                        tableid = self._room_id,
+                        fish = kill_msg,
+                    })
                     del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
                     self:broadcast(del_msg)
                 end
@@ -235,6 +241,22 @@ skynet_m.init(function()
             end
         end,
         [skill_status.done] = function(self, data, etime, new_fish)
+        end,
+    }
+    item_function = {
+        [item_type.frozen] = function(self, info)
+            local item_info = {
+                item_id = info.probid,
+                num = info.probCount,
+                time = 0,
+                use_id = info.userid,
+            }
+            self._item[#self._item+1] = item_info
+            local msg = string.pack(">I2>I4>I4>I4>f", s_to_c.use_item, info.userid, info.probid, info.probCount, FROZEN_TIME)
+            self:broadcast(msg)
+            for k, v in pairs(self._fish) do
+                v.frozen = true;
+            end
         end,
     }
 end)
@@ -372,7 +394,6 @@ function timestep:clear()
     self._item = {}
     self._use_follow_spline = true
     self._spline_time = 0
-    self._item_id = 0
     timer.del_all()
 end
 
@@ -657,11 +678,12 @@ function timestep:delete_fish(info, hit)
                 data.hit_count = data.hit_count + 1
                 if data.hit_count >= data.skill_info.hit_count then
                     data.skill_fish = nil
-                    local del_count, del_msg = 0, ""
+                    local del_count, del_msg, kill_msg = 0, "", ""
                     for k, v in pairs(skill_fish) do
                         self:delete_fish(v, false)
                         del_count = del_count + 1
                         del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+                        kill_msg = kill_msg .. string.pack("<I4", k)
                     end
                     if data.fish then
                         local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 1)
@@ -677,12 +699,19 @@ function timestep:delete_fish(info, hit)
                             self:delete_fish(data.fish, false)
                             del_count = del_count + 1
                             del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
+                            kill_msg = kill_msg .. string.pack("<I4", data.fish.id)
                             data.fish = nil
                         end
                     end
                     skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                     if del_count > 0 then
-                        -- TODO: send delete fish message to game server
+                        for i = del_count + 1, 100 do
+                            kill_msg = kill_msg .. string.pack("<I4", 0)
+                        end
+                        skynet_m.send_lua(game_message, "send_kill_fish", {
+                            tableid = self._room_id,
+                            fish = kill_msg,
+                        })
                         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
                         self:broadcast(del_msg)
                     end
@@ -712,7 +741,7 @@ function timestep:update()
             self._spline_cd[k] = nil
         end
     end
-    local del_count, del_msg = 0, ""
+    local del_count, del_msg, kill_msg = 0, "", ""
     for k, v in pairs(self._fish) do
         if normal_status(v) then
             v.time = v.time + etime
@@ -720,11 +749,18 @@ function timestep:update()
                 self:delete_fish(v, false)
                 del_count = del_count + 1
                 del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+                kill_msg = kill_msg .. string.pack("<I4", k)
             end
         end
     end
     if del_count > 0 then
-        -- TODO: send delete fish message to game server
+        for i = del_count + 1, 100 do
+            kill_msg = kill_msg .. string.pack("<I4", 0)
+        end
+        skynet_m.send_lua(game_message, "send_kill_fish", {
+            tableid = self._room_id,
+            fish = kill_msg,
+        })
         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
         self:broadcast(del_msg)
     end
@@ -749,12 +785,13 @@ function timestep:update()
     end
     local item = self._item
     local frozen, frozen_timeout = false, false
-    for k, v in pairs(item) do
+    for i = #item, 1, -1 do
+        local v = item[i]
         v.time = v.time + etime
         if v.item_id == item_type.frozen then
             stop_time = true
             if v.time >= FROZEN_TIME then
-                item[k] = nil
+                table.remove(item, i)
                 frozen_timeout = true
             else
                 frozen = true
@@ -773,7 +810,6 @@ function timestep:update()
         self._game_time = self._game_time - loop_time
         self:loop()
     end
-    -- skynet_m.log(string.format("Game time %f.", self._game_time))
     while event.index <= #event_data do
         local info = event_data[event.index]
         if self._game_time < info.time then
@@ -791,10 +827,8 @@ function timestep:update()
         self:update_spline(new_fish)
         self._spline_time = self._spline_time - 10
     end
-    -- util.dump(self._fish_pool, "fish_pool")
     local new_num = #new_fish
     if new_num > 0 then
-        -- util.dump(new_fish, "new_fish")
         local new_msg = ""
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         local event_target = 0
@@ -817,7 +851,6 @@ function timestep:update()
             fish = new_msg,
         })
     end
-    -- util.dump(self._fish, "fish")
 end
 
 function timestep:kick(user_id, agent)
@@ -906,9 +939,9 @@ function timestep:ready(info, data)
             msg = msg .. string.pack(">I4", 0)
         end
         local item_msg, item_count = "", 0
-        for k, v in pairs(self._item) do
+        for k, v in ipairs(self._item) do
             if v.item_id == item_type.frozen then
-                item_msg = item_msg .. string.pack(">I4>I4>I2>f", v.user_id, v.id, v.item_id, FROZEN_TIME - v.time)
+                item_msg = item_msg .. string.pack(">I4>I4>I4>f", v.user_id, v.item_id, v.num, FROZEN_TIME - v.time)
                 item_count = item_count + 1
             else
                 skynet_m.log(string.format("Can't get item %d left time.", v.item_id))
@@ -1037,20 +1070,12 @@ function timestep:on_use_item(info)
         skynet_m.log(string.format("Use item can't find user %d.", info.userid))
         return
     end
-    self._item_id = self._item_id + 1
-    local item_info = {
-        id = self._item_id,
-        item_id = info.itemid,
-        time = 0,
-        use_id = info.userid,
-    }
-    self._item[self._item_id] = item_info
-    local msg = string.pack(">I2>I4>I4>I2>f", s_to_c.use_item, info.userid, self._item_id, info.itemid, FROZEN_TIME)
-    self:broadcast(msg)
-    if info.itemid == item_type.frozen then
-        for k, v in pairs(self._fish) do
-            v.frozen = true;
-        end
+    local func = item_function[info.probid]
+    if func then
+        func(self, info)
+    else
+        skynet_m.log(string.format("Use item can't find item data %d.", info.probid))
+        return
     end
 end
 
