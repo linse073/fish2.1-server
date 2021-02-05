@@ -1020,7 +1020,7 @@ function timestep:use_item(info, data)
         skynet_m.log(string.format("Can't find item %d when user %d use item.", item_id, info.user_id))
         return
     end
-    skynet_m.send_lua(game_message, "send_use_prop", {
+    skynet_m.send_lua(game_message, "send_use_prob", {
         tableid = self._room_id,
         seatid = info.pos - 1,
         userid = info.user_id,

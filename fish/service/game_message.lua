@@ -70,7 +70,7 @@ local function pack_leave_game(msg)
     return string.pack("<I2<I4", msg.seatid, msg.userid)
 end
 
-local function pack_use_prop(msg)
+local function pack_use_prob(msg)
     return string.pack("<I2<I4<I4<I4", msg.seatid, msg.userid, msg.probid, msg.probCount)
 end
 
@@ -106,7 +106,7 @@ pack_message[1] = pack_heart_beat
 
 pack_cmd[1401] = pack_enter_game
 pack_cmd[1402] = pack_leave_game
-pack_cmd[1403] = pack_use_prop
+pack_cmd[1403] = pack_use_prob
 pack_cmd[1404] = pack_build_fish
 pack_cmd[1405] = pack_fire
 pack_cmd[1406] = pack_catch_fish
@@ -200,11 +200,11 @@ local function recv_leave_game(tableid, msg)
     CMD.send_leave_game(info)
 end
 
-local function recv_use_prop(tableid, msg)
+local function recv_use_prob(tableid, msg)
     local info = {}
     info.tableid = tableid
     info.seatid, info.userid, info.probid, info.probCount = string.unpack("<I2<I4<I4<I4", msg)
-    skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+    skynet_m.log(string.format("UserUseProb: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_use_item", info)
 end
@@ -267,7 +267,7 @@ message_handle[1] = recv_heart_beat
 
 cmd_handle[1301] = recv_enter_game
 cmd_handle[1302] = recv_leave_game
-cmd_handle[1303] = recv_use_prop
+cmd_handle[1303] = recv_use_prob
 cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish

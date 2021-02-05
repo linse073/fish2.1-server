@@ -117,8 +117,8 @@ local function recv_leave_game(tableid, info)
     skynet_m.send_lua(agent_mgr, "quit", info.userid, error_code.ok)
 end
 
-local function recv_use_prop(tableid, info)
-    skynet_m.log(string.format("UserUseProp: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+local function recv_use_prob(tableid, info)
+    skynet_m.log(string.format("UserUseProb: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_use_item", info)
 end
@@ -165,7 +165,7 @@ message_handle[1] = recv_heart_beat
 
 cmd_handle[1301] = recv_enter_game
 cmd_handle[1302] = recv_leave_game
-cmd_handle[1303] = recv_use_prop
+cmd_handle[1303] = recv_use_prob
 cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
