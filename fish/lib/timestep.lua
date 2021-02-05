@@ -848,7 +848,8 @@ function timestep:update()
             if v.fish_id == event_target then
                 event.data.fish = v
             end
-            new_msg = new_msg .. string.pack("<I4<I2", v.id, v.fish_id)
+            -- NOTICE: define fish type with game server
+            new_msg = new_msg .. string.pack("<I4<I2", v.id, 1)
             client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id)
         end
         self:broadcast(client_msg)
