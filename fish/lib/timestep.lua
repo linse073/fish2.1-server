@@ -966,28 +966,33 @@ function timestep:quit(info, data)
 end
 
 function timestep:fire(info, data)
-    local self_id, angle, multi, kind = string.unpack(">I4>f>I4>I4", data, 3)
-    self._bullet_id = self._bullet_id + 1
-    info.bullet[self_id] = self._bullet_id
-    skynet_m.send_lua(game_message, "send_fire", {
-        tableid = self._room_id,
-        seatid = info.pos - 1,
-        userid = info.user_id,
-        bullet = {
+    local num, index  = string.unpack("B", data, 3)
+    for i = 1, num do
+        local self_id, angle, multi, kind, rotate
+        self_id, angle, multi, kind, rotate, index = string.unpack(">I4>f>I4>I4B", data, index)
+        self._bullet_id = self._bullet_id + 1
+        info.bullet[self_id] = self._bullet_id
+        skynet_m.send_lua(game_message, "send_fire", {
+            tableid = self._room_id,
+            seatid = info.pos - 1,
+            userid = info.user_id,
+            bullet = {
+                id = self._bullet_id,
+                kind = kind,
+                multi = multi,
+                power = 1,
+                expTime = 0,
+            },
+        })
+        self._bullet[self._bullet_id] = {
             id = self._bullet_id,
+            self_id = self_id,
             kind = kind,
+            angle = angle,
             multi = multi,
-            power = 1,
-            expTime = 0,
-        },
-    })
-    self._bullet[self._bullet_id] = {
-        id = self._bullet_id,
-        self_id = self_id,
-        kind = kind,
-        angle = angle,
-        multi = multi,
-    }
+            rotate = rotate,
+        }
+    end
 end
 
 function timestep:hit(info, data)
@@ -1045,7 +1050,7 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
-    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore)
+    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate)
     self:broadcast(msg)
 end
 
