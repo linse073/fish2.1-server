@@ -214,6 +214,9 @@ skynet_m.init(function()
                 end
                 skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                 if del_count > 0 then
+                    if del_count > 100 then
+                        skynet_m.log("Kill fish exceed max count.")
+                    end
                     for i = del_count + 1, 100 do
                         kill_msg = kill_msg .. string.pack("<I4", 0)
                     end
@@ -705,6 +708,9 @@ function timestep:delete_fish(info, hit)
                     end
                     skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                     if del_count > 0 then
+                        if del_count > 100 then
+                            skynet_m.log("Kill fish exceed max count.")
+                        end
                         for i = del_count + 1, 100 do
                             kill_msg = kill_msg .. string.pack("<I4", 0)
                         end
@@ -754,6 +760,9 @@ function timestep:update()
         end
     end
     if del_count > 0 then
+        if del_count > 100 then
+            skynet_m.log("Kill fish exceed max count.")
+        end
         for i = del_count + 1, 100 do
             kill_msg = kill_msg .. string.pack("<I4", 0)
         end
@@ -1006,16 +1015,17 @@ function timestep:heart_beat(info, data)
 end
 
 function timestep:use_item(info, data)
-    local item_id = string.unpack(">I2", data, 3)
+    local item_id, item_num = string.unpack(">I4>I4", data, 3)
     if not item_id_map[item_id] then
         skynet_m.log(string.format("Can't find item %d when user %d use item.", item_id, info.user_id))
         return
     end
-    skynet_m.send_lua(game_message, "send_use_item", {
+    skynet_m.send_lua(game_message, "send_use_prop", {
         tableid = self._room_id,
         seatid = info.pos - 1,
         userid = info.user_id,
-        itemid = item_id,
+        probid = item_id,
+        probCount = item_num,
     })
 end
 

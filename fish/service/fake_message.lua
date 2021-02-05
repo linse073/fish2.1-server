@@ -71,6 +71,10 @@ function CMD.send_catch_fish(msg)
     send_cmd(1406, msg)
 end
 
+function CMD.send_kill_fish(msg)
+    -- NOTICE: cmd(1407) do nothing()
+end
+
 -- NOTICE: recv message
 
 local message_map = {
@@ -83,7 +87,6 @@ local message_map = {
     [1404] = 1304,
     [1405] = 1305,
     [1406] = 1306,
-    [1407] = 0,
 }
 
 local function recv_cmd(msg)
@@ -156,9 +159,6 @@ local function recv_set_cannon(tableid, info)
     skynet_m.send_lua(room, "on_set_cannon", info)
 end
 
-local function null_op(tableid, info)
-end
-
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -170,8 +170,6 @@ cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
-
-cmd_handle[0] = null_op
 
 function CMD.recv_msg(id, msg)
     assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)
