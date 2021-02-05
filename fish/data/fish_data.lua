@@ -181,7 +181,17 @@ local data = {
 	},
 	[1002] = {
 		type = 3,
-		life_time = 56.000000,
+		life_time = 100.000000,
+		frozen_immune = false,
+	},
+	[1003] = {
+		type = 3,
+		life_time = 100.000000,
+		frozen_immune = false,
+	},
+	[1004] = {
+		type = 3,
+		life_time = 100.000000,
 		frozen_immune = false,
 	},
 }
