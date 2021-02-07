@@ -969,8 +969,8 @@ end
 function timestep:fire(info, data)
     local num, index  = string.unpack("B", data, 3)
     for i = 1, num do
-        local self_id, angle, multi, kind, rotate
-        self_id, angle, multi, kind, rotate, index = string.unpack(">I4>f>I4>I4B", data, index)
+        local self_id, angle, multi, kind, rotate, target
+        self_id, angle, multi, kind, rotate, target, index = string.unpack(">I4>f>I4>I4B>I4", data, index)
         self._bullet_id = self._bullet_id + 1
         info.bullet[self_id] = self._bullet_id
         skynet_m.send_lua(game_message, "send_fire", {
@@ -992,6 +992,7 @@ function timestep:fire(info, data)
             angle = angle,
             multi = multi,
             rotate = rotate,
+            target = target,
         }
     end
 end
@@ -1051,7 +1052,7 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
-    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate)
+    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate, bullet.target)
     self:broadcast(msg)
 end
 
