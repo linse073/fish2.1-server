@@ -1067,6 +1067,9 @@ function timestep:on_dead(info)
         -- NOTICE: no bullet self_id info
         local msg = string.pack(">I2B>I4>I4>>I4I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
+    else
+        local msg = string.pack(">I2B>I4>I4>>I4I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        self:broadcast(msg)
     end
 end
 
