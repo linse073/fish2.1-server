@@ -908,11 +908,11 @@ function timestep:ready(info, data)
         skynet_m.log(string.format("User %d is ready.", info.user_id))
     else
         self:broadcast(string.pack(">I2>I4B", s_to_c.join_room, info.user_id, info.pos))
-        info.ready = true
         self._ready_count = self._ready_count + 1
         if self._ready_count == 1 then
             self:start()
         end
+        info.ready = true
         local client_time = string.unpack(">d", data, 3)
         local msg = string.pack(">I2>d>fB", s_to_c.room_data, client_time, self._game_time, info.pos)
         msg = msg .. string.pack("B", self._ready_count - 1)
