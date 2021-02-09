@@ -24,7 +24,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -33,7 +33,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -42,7 +42,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -51,7 +51,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					--第二条线6002
 					{
@@ -61,7 +61,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -70,7 +70,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -79,7 +79,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -88,7 +88,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					--第三条线6003
 										{
@@ -98,7 +98,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -107,7 +107,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -116,7 +116,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -125,7 +125,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					--第四条线6004
 										{
@@ -135,7 +135,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -144,7 +144,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -153,7 +153,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 					{
 						fish_id = 5011,
@@ -162,7 +162,7 @@ local data = {
 						in_count = false,
                         num = 12,   --多个boss目标点
 						matrix_id = 0,  --鱼阵列ID
-						speed = 140,
+						speed = 280,
 					},
 				},
             },
