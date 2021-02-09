@@ -127,4 +127,15 @@ function util.empty(t)
     return true
 end
 
+function util.rand_offset(min, max)
+    if min >= max then
+        return min
+    end
+    local r = (max - min + 1) * math.random() + min
+    if r > max then
+        r = max
+    end
+    return r
+end
+
 return util
