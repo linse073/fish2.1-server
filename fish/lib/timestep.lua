@@ -370,8 +370,8 @@ function timestep:clear()
             max_count = 50,
             time = 0,
             interval = 4,
-            rand_min = 5,
-            rand_max = 15,
+            rand_min = 1,
+            rand_max = 1,
             ready = {},
         },
         [fish_type.big_fish] = {
