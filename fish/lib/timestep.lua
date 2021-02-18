@@ -396,7 +396,7 @@ function timestep:clear()
     }
     self._item = {}
     self._use_follow_spline = true
-    self._spline_time = 0
+    -- self._spline_time = 0
     timer.del_all()
 end
 
@@ -845,11 +845,12 @@ function timestep:update()
         self:update_fish(etime, self._fish_pool[v], new_fish)
     end
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
-    self._spline_time = self._spline_time + etime
-    if self._spline_time >= 10 then
-        self:update_spline(new_fish)
-        self._spline_time = self._spline_time - 10
-    end
+    -- self._spline_time = self._spline_time + etime
+    -- if self._spline_time >= 10 then
+    --     self:update_spline(new_fish)
+    --     self._spline_time = self._spline_time - 10
+    -- end
+    self:update_spline(new_fish)
     local new_num = #new_fish
     if new_num > 0 then
         local new_msg = ""
