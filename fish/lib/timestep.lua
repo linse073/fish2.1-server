@@ -531,6 +531,7 @@ function timestep:update_spline(new_fish)
 
     for k, v in pairs(self._spline) do
         if not self._spline_cd[k] then
+            util.dump(v)
             self:update_spline_fish(v, new_fish)
         end
     end
