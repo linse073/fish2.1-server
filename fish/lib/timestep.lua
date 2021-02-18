@@ -533,6 +533,8 @@ function timestep:update_spline(new_fish)
         if not self._spline_cd[k] then
             util.dump(v)
             self:update_spline_fish(v, new_fish)
+        else
+            skynet_m.log(string.format("scene spline %d cd %f.", k, self._spline_cd[k]))
         end
     end
 end
