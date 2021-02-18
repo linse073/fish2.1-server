@@ -512,21 +512,27 @@ function timestep:update_spline_fish(spline_info, new_fish)
 end
 
 function timestep:update_spline(new_fish)
-    local rand_spline, all_spline = {}, {}
+    -- local rand_spline, all_spline = {}, {}
+    -- for k, v in pairs(self._spline) do
+    --     if not self._spline_cd[k] then
+    --         rand_spline[#rand_spline+1] = v
+    --     end
+    --     all_spline[#all_spline+1] = v
+    -- end
+    -- local spline_info
+    -- if #rand_spline > 0 then
+    --     spline_info = rand_spline[math.random(#rand_spline)]
+    -- elseif #all_spline > 0 then
+    --     spline_info = all_spline[math.random(#all_spline)]
+    -- end
+    -- if spline_info then
+    --     self:update_spline_fish(spline_info, new_fish)
+    -- end
+
     for k, v in pairs(self._spline) do
         if not self._spline_cd[k] then
-            rand_spline[#rand_spline+1] = v
+            self:update_spline_fish(v, new_fish)
         end
-        all_spline[#all_spline+1] = v
-    end
-    local spline_info
-    if #rand_spline > 0 then
-        spline_info = rand_spline[math.random(#rand_spline)]
-    elseif #all_spline > 0 then
-        spline_info = all_spline[math.random(#all_spline)]
-    end
-    if spline_info then
-        self:update_spline_fish(spline_info, new_fish)
     end
 end
 
