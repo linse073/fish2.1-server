@@ -425,7 +425,7 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
     self._group_id = self._group_id + 1
     local spline_id = info.spline_id
     if spline_id > 0 then
-        self._spline_cd[spline_id] = 10
+        self._spline_cd[spline_id] = { cd = 10 }
     end
     local life_time = data.life_time
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
@@ -461,7 +461,7 @@ end
 function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
     self._group_id = self._group_id + 1
     if spline_id > 0 then
-        self._spline_cd[spline_id] = 15
+        self._spline_cd[spline_id] = { cd = 15 }
     end
     local life_time = data.life_time
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
@@ -531,10 +531,7 @@ function timestep:update_spline(new_fish)
 
     for k, v in pairs(self._spline) do
         if not self._spline_cd[k] then
-            util.dump(v)
             self:update_spline_fish(v, new_fish)
-        else
-            skynet_m.log(string.format("scene spline %d cd %f.", k, self._spline_cd[k]))
         end
     end
 end
@@ -558,7 +555,7 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
         end
     end
     if spline_id > 0 then
-        self._spline_cd[spline_id] = 10
+        self._spline_cd[spline_id] = { cd = 10 }
     end
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
         life_time = spline_data[spline_id].length / info.speed
@@ -633,7 +630,7 @@ function timestep:new_boss(info, data, time, new_fish)
         end
     end
     if spline_id > 0 then
-        self._spline_cd[spline_id] = 10
+        self._spline_cd[spline_id] = { cd = 10 }
     end
     if life_time == 0 and spline_id > 0 and info.speed > 0 then
         life_time = spline_data[spline_id].length / info.speed
@@ -759,8 +756,8 @@ function timestep:update()
     local etime = (now - self._last_time) * 0.01
     self._last_time = now
     for k, v in pairs(self._spline_cd) do
-        v = v - etime
-        if v <= 0 then
+        v.cd = v.cd - etime
+        if v.cd <= 0 then
             self._spline_cd[k] = nil
         end
     end
