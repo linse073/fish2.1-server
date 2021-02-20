@@ -302,6 +302,7 @@ function timestep:join(user_id, free_pos, agent)
         pos = free_pos,
         status_time = now,
         bullet = {},
+        cannon = 0,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -336,6 +337,7 @@ function timestep:join_01(user_id, agent)
         pos = free_pos,
         status_time = now,
         bullet = {},
+        cannon = 0,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -929,11 +931,11 @@ function timestep:ready(info, data)
         end
         info.ready = true
         local client_time = string.unpack(">d", data, 3)
-        local msg = string.pack(">I2>d>fB", s_to_c.room_data, client_time, self._game_time, info.pos)
+        local msg = string.pack(">I2>d>fB>I2", s_to_c.room_data, client_time, self._game_time, info.pos, info.cannon)
         msg = msg .. string.pack("B", self._ready_count - 1)
         for _, v in pairs(self._user) do
             if v.ready and v.user_id ~= info.user_id then
-                msg = msg .. string.pack(">I4B", v.user_id, v.pos)
+                msg = msg .. string.pack(">I4B>I2", v.user_id, v.pos, v.cannon)
             end
         end
         local fish_msg, fish_count = "", 0
@@ -1051,6 +1053,13 @@ function timestep:use_item(info, data)
     })
 end
 
+function timestep:set_cannon(info, data)
+    local cannon = string.unpack(">I2", data, 3)
+    info.cannon = cannon
+    local msg = string.pack(">I2B>I2", s_to_c.set_cannon, info.pos, cannon)
+    self:broadcast(msg)
+end
+
 function timestep:on_fire(info)
     local binfo = info.bullet
     if info.code ~= 0 then
@@ -1095,7 +1104,8 @@ function timestep:on_set_cannon(info)
         skynet_m.log(string.format("Set cannon can't find user %d.", info.userid))
         return
     end
-    local msg = string.pack(">I2>I2", s_to_c.set_cannon, info.cannon)
+    user_info.cannon = info.cannon
+    local msg = string.pack(">I2B>I2", s_to_c.set_cannon, user_info.pos, info.cannon)
     self:broadcast(msg)
 end
 

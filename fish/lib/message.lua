@@ -11,6 +11,7 @@ message.c_to_s = {
     hit = 1005,
     heart_beat = 1006,
     use_item = 1007,
+    set_cannon = 1008,
 }
 
 message.c_to_s_i = {}
