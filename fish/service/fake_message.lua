@@ -175,12 +175,10 @@ local function recv_bomb_fish(tableid, msg)
         local id
         id, index = string.unpack("<I4", msg.fish, index)
         if id > 0 then
-            if math.random(1000) <= 300 then
-                local info = {}
-                info.fishid, info.fishKind, info.multi, info.winGold, info.fishScore = id, 1, 1, 10000, 100000
-                skynet_m.log(string.format("BombFish: %d %d %d.", info.fishid, info.winGold, info.fishScore))
-                fish[#fish+1] = info
-            end
+            local info = {}
+            info.fishid, info.fishKind, info.multi, info.winGold, info.fishScore = id, 1, 1, 10000, 100000
+            skynet_m.log(string.format("BombFish: %d %d %d.", info.fishid, info.winGold, info.fishScore))
+            fish[#fish+1] = info
         else
             break
         end
