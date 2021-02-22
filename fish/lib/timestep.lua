@@ -1139,7 +1139,6 @@ function timestep:hit_bomb(info, data)
     if num > 100 then
         num = 100
     end
-    skynet_m.log(string.format("Bomb fish %d, msg len %d.", num, #data))
     local count = 0
     for i = 1, num do
         local fish_id
