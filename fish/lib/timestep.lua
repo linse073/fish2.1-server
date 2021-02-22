@@ -1176,7 +1176,7 @@ function timestep:on_bomb_fish(info)
             del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", info.fishid, 0, info.multi, info.winGold, info.fishScore)
         end
     end
-    local msg = string.pack(">I2>I2", s_to_c.bomb_fish, #info.fish) .. del_msg
+    local msg = string.pack(">I2B>I2", s_to_c.bomb_fish, user_info.pos, #info.fish) .. del_msg
     self:broadcast(msg)
 end
 
