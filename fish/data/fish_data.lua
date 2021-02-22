@@ -71,79 +71,79 @@ local data = {
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5100] = {
+	[5012] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5101] = {
+	[5013] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5102] = {
+	[5014] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5103] = {
+	[5015] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5104] = {
+	[5016] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5105] = {
+	[5017] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5106] = {
+	[5018] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5107] = {
+	[5019] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5108] = {
+	[5020] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5109] = {
+	[5021] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5110] = {
+	[5022] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5111] = {
+	[5023] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 150.000000,
 	},
-	[5112] = {
+	[5024] = {
 		type = 1,
 		life_time = 0.000000,
 		frozen_immune = false,
@@ -166,6 +166,12 @@ local data = {
 		life_time = 0.000000,
 		frozen_immune = false,
 		avoid_radius = 500.000000,
+	},
+	[5555] = {
+		type = 1,
+		life_time = 30.000000,
+		frozen_immune = false,
+		avoid_radius = 150.000000,
 	},
 	[1001] = {
 		type = 3,
