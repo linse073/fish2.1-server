@@ -1136,7 +1136,6 @@ function timestep:hit_bomb(info, data)
     info.hit_bomb = false
     local msg = ""
     local num, index  = string.unpack(">I2", data, 3)
-    skynet_m.log(string.format("hit bomb %d.", num))
     if num > 100 then
         num = 100
     end
