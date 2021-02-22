@@ -1234,7 +1234,7 @@ function timestep:on_bomb_fish(info)
     end
     local del_msg = ""
     for k, v in ipairs(info.fish) do
-        local fish_info = self._fish[v]
+        local fish_info = self._fish[v.fishid]
         if fish_info then
             self:delete_fish(fish_info, true)
             del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", v.fishid, fish_info.fish_id, v.multi, v.winGold, v.fishScore)
