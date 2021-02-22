@@ -303,6 +303,7 @@ function timestep:join(user_id, free_pos, agent)
         status_time = now,
         bullet = {},
         cannon = 0,
+        hit_bomb = false,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -338,6 +339,7 @@ function timestep:join_01(user_id, agent)
         status_time = now,
         bullet = {},
         cannon = 0,
+        hit_bomb = false,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -1060,6 +1062,37 @@ function timestep:set_cannon(info, data)
     self:broadcast(msg)
 end
 
+function timestep:hit_bomb(info, data)
+    if not info.hit_bomb then
+        skynet_m.log(string.format("Can't find hit bomb when user %d hit bomb.", info.user_id))
+        return
+    end
+    info.hit_bomb = false
+    local msg = ""
+    local num, index  = string.unpack(">I2", data, 3)
+    if num > 100 then
+        num = 100
+    end
+    local count = 0
+    for i = 1, num do
+        local fish_id
+        fish_id, index = string.unpack(">I4", data, index)
+        if self._fish[fish_id] then
+            msg = msg .. string.pack("<I4", fish_id)
+            count = count + 1
+        end
+    end
+    for i = count + 1, 100 do
+        msg = msg .. string.pack("<I4", 0)
+    end
+    skynet_m.send_lua(game_message, "send_bomb_fish", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        fish = msg,
+    })
+end
+
 function timestep:on_fire(info)
     local binfo = info.bullet
     if info.code ~= 0 then
@@ -1090,10 +1123,13 @@ function timestep:on_dead(info)
     if fish_info then
         self:delete_fish(fish_info, true)
         -- NOTICE: no bullet self_id info
-        local msg = string.pack(">I2B>I4>I4>>I4I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
+        if fish_info.fish_id == define.bomb_fish then
+            user_info.hit_bomb = true
+        end
     else
-        local msg = string.pack(">I2B>I4>I4>>I4I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
     end
 end
@@ -1122,6 +1158,26 @@ function timestep:on_use_item(info)
         skynet_m.log(string.format("Use item can't find item data %d.", info.probid))
         return
     end
+end
+
+function timestep:on_bomb_fish(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Bomb fish can't find user %d.", info.userid))
+        return
+    end
+    local del_msg = ""
+    for k, v in ipairs(info.fish) do
+        local fish_info = self._fish[v]
+        if fish_info then
+            self:delete_fish(fish_info, true)
+            del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", info.fishid, fish_info.fish_id, info.multi, info.winGold, info.fishScore)
+        else
+            del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", info.fishid, 0, info.multi, info.winGold, info.fishScore)
+        end
+    end
+    local msg = string.pack(">I2>I2", s_to_c.bomb_fish, #info.fish) .. del_msg
+    self:broadcast(msg)
 end
 
 return {__index=timestep}

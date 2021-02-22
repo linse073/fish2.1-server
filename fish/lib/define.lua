@@ -35,4 +35,6 @@ for k, v in pairs(define.item_type) do
     define.item_id_map[v] = k
 end
 
+define.bomb_fish = 5555
+
 return define

@@ -12,6 +12,7 @@ message.c_to_s = {
     heart_beat = 1006,
     use_item = 1007,
     set_cannon = 1008,
+    hit_bomb = 1009,
 }
 
 message.c_to_s_i = {}
@@ -35,6 +36,7 @@ message.s_to_c = {
     cast_skill = 2013,
     end_skill = 2014,
     use_item = 2015,
+    bomb_fish = 2016,
 }
 
 message.op_cmd = {

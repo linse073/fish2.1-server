@@ -224,6 +224,8 @@ local function recv_build_fish(tableid, msg)
         info.id, info.kind, index = string.unpack("<I4<I2", msg, index)
         if info.id > 0 then
             fish[#fish+1] = info
+        else
+            break
         end
     end
     local code = string.unpack("<I2", msg, index)

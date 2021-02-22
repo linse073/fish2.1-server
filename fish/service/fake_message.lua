@@ -75,6 +75,10 @@ function CMD.send_kill_fish(msg)
     -- NOTICE: cmd(1407) do nothing()
 end
 
+function CMD.send_bomb_fish(msg)
+    send_cmd(1408, msg)
+end
+
 -- NOTICE: recv message
 
 local message_map = {
@@ -87,6 +91,7 @@ local message_map = {
     [1404] = 1304,
     [1405] = 1305,
     [1406] = 1306,
+    [1408] = 1308,
 }
 
 local function recv_cmd(msg)
@@ -131,6 +136,8 @@ local function recv_build_fish(tableid, msg)
         info.id, info.kind, index = string.unpack("<I4<I2", msg.fish, index)
         if info.id > 0 then
             fish[#fish+1] = info
+        else
+            break
         end
     end
     local code = 0
@@ -159,6 +166,29 @@ local function recv_set_cannon(tableid, info)
     skynet_m.send_lua(room, "on_set_cannon", info)
 end
 
+local function recv_bomb_fish(tableid, msg)
+    local room = skynet_m.call_lua(room_mgr, "get", msg.tableid)
+    local fish = {}
+    local index = 1
+    skynet_m.log(string.format("BombFish begin: %d %d %d.", msg.tableid, msg.seatid, msg.userid))
+    for i = 1, 100 do
+        local id
+        id, index = string.unpack("<I4", msg.fish, index)
+        if math.random(1000) <= 300 then
+            local info = {}
+            info.fishid, info.fishKind, info.multi, info.winGold, info.fishScore = id, 1, 1, 10000, 100000
+            skynet_m.log(string.format("BombFish: %d %d %d.", info.fishid, info.winGold, info.fishScore))
+            fish[#fish+1] = info
+        end
+    end
+    skynet_m.send_lua(room, "on_bomb_fish", {
+        tableid = msg.tableid,
+        seatid = msg.seatid,
+        userid = msg.userid,
+        fish = fish,
+    })
+end
+
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -170,6 +200,7 @@ cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
+cmd_handle[1308] = recv_bomb_fish
 
 function CMD.recv_msg(id, msg)
     assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)
