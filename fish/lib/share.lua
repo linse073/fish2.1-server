@@ -13,6 +13,7 @@ skynet_m.init(function()
     share.camera_spline = sharedata.query("camera_spline")
     share.matrix_data = sharedata.query("matrix_data")
     share.skill_data = sharedata.query("skill_data")
+    share.fish_born = sharedata.query("fish_born")
 end)
 
 return share

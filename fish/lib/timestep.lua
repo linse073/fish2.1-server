@@ -33,6 +33,7 @@ local matrix_data
 local skill_data
 local item_type
 local item_id_map
+local fish_born
 
 local agent_mgr
 local game_message
@@ -63,6 +64,7 @@ skynet_m.init(function()
     camera_spline = share.camera_spline
     matrix_data = share.matrix_data
     skill_data = share.skill_data
+    fish_born = share.fish_born
     event_function = {
         [event_type.active_scene_spline] = function(self, info)
             self._spline[info.spline_id] = info
@@ -401,6 +403,7 @@ function timestep:clear()
     self._item = {}
     self._use_follow_spline = true
     -- self._spline_time = 0
+    self._born_time = fish_born.cd
     timer.del_all()
 end
 
@@ -489,6 +492,54 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
             matrix_id = matrix_id,
             group_index = i - 1,
             offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+        }
+        new_fish[#new_fish+1] = new_info
+        self._fish[self._fish_id] = new_info
+    end
+end
+
+function timestep:new_born_fish(info, data, num, new_fish)
+    self._group_id = self._group_id + 1
+    local spline_id
+    local rand_spline, all_spline = {}, {}
+    for k, v in pairs(camera_spline) do
+        if not self._spline_cd[k] then
+            rand_spline[#rand_spline+1] = k
+        end
+        all_spline[#all_spline+1] = k
+    end
+    if #rand_spline > 0 then
+        spline_id = rand_spline[math.random(#rand_spline)]
+    elseif #all_spline > 0 then
+        spline_id = all_spline[math.random(#all_spline)]
+    end
+    if spline_id > 0 then
+        self._spline_cd[spline_id] = { cd = 15 }
+    end
+    local life_time = data.life_time
+    local speed
+    if life_time > 0 and spline_id > 0 then
+        speed = spline_data[spline_id].length / life_time
+    end
+    local matrix_id = info.matrix_id
+    if matrix_id == 0 and #matrix_data > 0 then
+        matrix_id = matrix_data[math.random(#matrix_data)]
+    end
+    for i = 1, num do
+        self._fish_id = self._fish_id + 1
+        local new_info = {
+            id = self._fish_id,
+            fish_id = info.fish_id,
+            spline_id = spline_id,
+            group_id = self._group_id,
+            speed = speed,
+            life_time = life_time,
+            time = 0,
+            data = data,
+            matrix_id = matrix_id,
+            group_index = i - 1,
+            offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            born_fish = true,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -686,6 +737,9 @@ function timestep:delete_fish(info, hit)
     if pool_info.count and info.incount then
         pool_info.count = pool_info.count - 1
     end
+    if info.born_fish then
+        self._born_time = fish_born.cd
+    end
     local event = self._event
     if event.info then
         if event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
@@ -855,6 +909,18 @@ function timestep:update()
     --     self._spline_time = self._spline_time - 10
     -- end
     self:update_spline(new_fish)
+    if self._born_time > 0 then
+        self._born_time = self._born_time - etime
+        if self._born_time <= 0 then
+            local born_fish = fish_born.fish
+            if #born_fish > 0 then
+                local info = born_fish[math.random(#born_fish)]
+                local num = math.random(info.rand_min, info.rand_max)
+                self:new_born_fish(info, fish_data[info.fish_id], num, new_fish)
+            end
+            self._born_time = 0
+        end
+    end
     local new_num = #new_fish
     if new_num > 0 then
         local new_msg = ""
