@@ -14,7 +14,7 @@ local game_mode = skynet_m.getenv("game_mode")
 
 local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
-local SPLINE_INTERVAL = 25
+-- local SPLINE_INTERVAL = 25
 local FROZEN_TIME = 15
 
 local message
@@ -404,6 +404,7 @@ function timestep:clear()
     self._use_follow_spline = true
     -- self._spline_time = 0
     self._born_time = fish_born.cd
+    self._rand_fish = {0, 0, 0}
     timer.del_all()
 end
 
@@ -456,6 +457,7 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
             matrix_id = matrix_id,
             group_index = i - 1,
             offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -492,6 +494,7 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
             matrix_id = matrix_id,
             group_index = i - 1,
             offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -540,6 +543,7 @@ function timestep:new_born_fish(info, data, num, new_fish)
             group_index = i - 1,
             offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
             born_fish = true,
+            rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
@@ -619,6 +623,7 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
     if matrix_id == 0 and #matrix_data > 0 then
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
+    local len = #new_fish
     for i = 1, num do
         self._fish_id = self._fish_id + 1
         local new_info = {
@@ -634,9 +639,19 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
             incount = incount,
             group_index = i - 1,
             offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
+    end
+    for k, v in ipairs(self._rand_fish) do
+        if v == 0 then
+            local rand_num = math.random(num)
+            local fish_info = new_fish[len + rand_num]
+            fish_info.rand_fish = k
+            self._rand_fish[k] = v + 1
+            break
+        end
     end
 end
 
@@ -707,6 +722,7 @@ function timestep:new_boss(info, data, time, new_fish)
         matrix_id = matrix_id,
         group_index = 0,
         offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+        rand_fish = 0,
     }
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
@@ -739,6 +755,9 @@ function timestep:delete_fish(info, hit)
     end
     if info.born_fish then
         self._born_time = fish_born.cd
+    end
+    if info.rand_fish > 0 then
+        self._rand_fish[info.rand_fish] = self._rand_fish[info.rand_fish] - 1
     end
     local event = self._event
     if event.info then
@@ -935,7 +954,7 @@ function timestep:update()
             end
             -- NOTICE: define fish type with game server
             new_msg = new_msg .. string.pack("<I4<I2", v.id, 1)
-            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>f", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset)
+            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset, v.rand_fish)
         end
         self:broadcast(client_msg)
         for i = new_num + 1, 100 do
@@ -1008,7 +1027,7 @@ function timestep:ready(info, data)
         end
         local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
-            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>f", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset)
+            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset, v.rand_fish)
             fish_count = fish_count + 1
         end
         msg = msg .. string.pack(">I2", fish_count) .. fish_msg
