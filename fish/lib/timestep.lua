@@ -623,7 +623,6 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
     if matrix_id == 0 and #matrix_data > 0 then
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
-    local len = #new_fish
     for i = 1, num do
         self._fish_id = self._fish_id + 1
         local new_info = {
@@ -644,18 +643,9 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
         new_fish[#new_fish+1] = new_info
         self._fish[self._fish_id] = new_info
     end
-    for k, v in ipairs(self._rand_fish) do
-        if v == 0 then
-            local rand_num = math.random(num)
-            local fish_info = new_fish[len + rand_num]
-            fish_info.rand_fish = k
-            self._rand_fish[k] = v + 1
-            break
-        end
-    end
 end
 
-function timestep:update_fish(etime, pool_info, new_fish)
+function timestep:update_fish(etime, pool_info, new_fish, rand_fish)
     pool_info.time = pool_info.time + etime
     if self._use_follow_spline then
         if (pool_info.time >= pool_info.interval and pool_info.count < pool_info.max_count) or pool_info.count < pool_info.max_count * 10 // 8 then
@@ -663,8 +653,20 @@ function timestep:update_fish(etime, pool_info, new_fish)
             if #pool > 0 then
                 local info = pool[math.random(#pool)]
                 local num = math.random(pool_info.rand_min, pool_info.rand_max)
+                local len = #new_fish
                 self:new_fish(info[1], info[2], num, 0, new_fish, true)
                 pool_info.count = pool_info.count + num
+                if rand_fish then
+                    for k, v in ipairs(self._rand_fish) do
+                        if v == 0 then
+                            local rand_num = math.random(num)
+                            local fish_info = new_fish[len + rand_num]
+                            fish_info.rand_fish = k
+                            self._rand_fish[k] = v + 1
+                            break
+                        end
+                    end
+                end
             end
             pool_info.time = 0
         end
@@ -918,9 +920,8 @@ function timestep:update()
         event_function[info.type](self, info)
         event.index = event.index + 1
     end
-    for k, v in ipairs({fish_type.small_fish, fish_type.big_fish}) do
-        self:update_fish(etime, self._fish_pool[v], new_fish)
-    end
+    self:update_fish(etime, self._fish_pool[fish_type.small_fish], new_fish)
+    self:update_fish(etime, self._fish_pool[fish_type.big_fish], new_fish, true)
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
     -- self._spline_time = self._spline_time + etime
     -- if self._spline_time >= 10 then
