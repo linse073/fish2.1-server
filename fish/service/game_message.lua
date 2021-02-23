@@ -101,6 +101,10 @@ local function pack_kill_fish(msg)
     return msg.fish
 end
 
+local function pack_bomb_fish(msg)
+    return msg.fish
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -111,6 +115,7 @@ pack_cmd[1404] = pack_build_fish
 pack_cmd[1405] = pack_fire
 pack_cmd[1406] = pack_catch_fish
 pack_cmd[1407] = pack_kill_fish
+pack_cmd[1408] = pack_bomb_fish
 
 function CMD.send_link()
     send_msg(13501)
@@ -146,6 +151,10 @@ end
 
 function CMD.send_kill_fish(msg)
     send_cmd(1407, msg)
+end
+
+function CMD.send_bomb_fish(msg)
+    send_cmd(1408, msg)
 end
 
 -- NOTICE: recv message
@@ -258,9 +267,34 @@ end
 
 local function recv_set_cannon(tableid, msg)
     local info = {}
+    info.tableid = tableid
     info.seatid, info.userid, info.cannon = string.unpack("<I2<I4<I2", msg)
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_set_cannon", info)
+end
+
+local function recv_bomb_fish(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    local index = 1
+    info.seatid, info.userid, index = string.unpack("<I2<I4", msg, index)
+    local fish = {}
+    skynet_m.log(string.format("BombFish begin: %d %d %d.", info.tableid, info.seatid, info.userid))
+    for i = 1, 100 do
+        local id
+        id, index = string.unpack("<I4", msg, index)
+        if id > 0 then
+            local fish_info = {}
+            fish_info.fishid, fish_info.fishKind, fish_info.multi, fish_info.winGold, fish_info.fishScore, index = string.unpack("<I4<I2<I2<I4<I8", msg, index)
+            skynet_m.log(string.format("BombFish: %d %d %d.", fish_info.fishid, fish_info.winGold, fish_info.fishScore))
+            fish[#fish+1] = fish_info
+        else
+            break
+        end
+    end
+    info.fish = fish
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_bomb_fish", info)
 end
 
 message_handle[13502] = recv_link
@@ -274,6 +308,7 @@ cmd_handle[1304] = recv_build_fish
 cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
+cmd_handle[1308] = recv_bomb_fish
 
 function CMD.recv_msg(msg)
     local len, id, index = string.unpack("<I2<I2", msg)
