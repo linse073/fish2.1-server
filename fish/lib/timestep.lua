@@ -1143,7 +1143,8 @@ function timestep:hit_bomb(info, data)
     for i = 1, num do
         local fish_id
         fish_id, index = string.unpack(">I4", data, index)
-        if self._fish[fish_id] then
+        local fish_info = self._fish[fish_id]
+        if fish_info and not fish_info.data.bomb_immune then
             msg = msg .. string.pack("<I4", fish_id)
             count = count + 1
         end
