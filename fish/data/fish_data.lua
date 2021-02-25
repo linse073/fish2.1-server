@@ -328,14 +328,21 @@ local data = {
 		bomb_immune = true,
 		avoid_radius = 0.000000,
 	},
-	[1003] = {
+	[1004] = {
 		type = 3,
 		life_time = 100.000000,
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
 	},
-	[1004] = {
+	[1005] = {
+		type = 3,
+		life_time = 100.000000,
+		frozen_immune = true,
+		bomb_immune = true,
+		avoid_radius = 0.000000,
+	},
+	[1006] = {
 		type = 3,
 		life_time = 100.000000,
 		frozen_immune = true,
