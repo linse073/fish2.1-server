@@ -9,7 +9,7 @@ local lflock = require "lflock"
 
 local string = string
 local pairs = pairs
-local ipairs = ipairs
+-- local ipairs = ipairs
 local table = table
 local floor = math.floor
 local assert = assert
@@ -204,7 +204,8 @@ function lockstep:start()
     local pilot_file = assert(io.open(path .. "Pilot.dat", "rb"))
     local pilot_data = pilot_file:read("*a")
     pilot_file:close()
-    self._flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, pilot_data, self._rand_seed, self._flock_func)
+    self._flock = lflock.lflock_create(flock_data, camera_data, obstacle_data, pilot_data, self._rand_seed,
+                                        self._flock_func)
 end
 
 function lockstep:kick(user_id, agent)
@@ -381,7 +382,8 @@ function lockstep:ready(info, data)
             self:start()
         end
         local msg = string.pack(">I2BB", s_to_c.room_data, info.pos, logic_step)
-        msg = msg..string.pack(">I4>I4>I4>I4", self._step, self._last_key_step, self._next_key_step, self._next_logic_step)
+        msg = msg..string.pack(">I4>I4>I4>I4", self._step, self._last_key_step, self._next_key_step,
+                                self._next_logic_step)
         msg = msg..string.pack("B", self._ready_count-1)
         for _, v in pairs(self._user) do
             if v.ready and v.user_id~=info.user_id then
@@ -495,7 +497,8 @@ function lockstep:fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
-    local pack = string.pack("B>I4>I4>i4>i4>I4>I4>I8", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y, bullet.multi, info.costGold, info.fishScore)
+    local pack = string.pack("B>I4>I4>i4>i4>I4>I4>I8", op_cmd.fire, bullet.id, bullet.kind, bullet.x, bullet.y,
+                                bullet.multi, info.costGold, info.fishScore)
     self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack
@@ -507,7 +510,8 @@ function lockstep:dead(info)
         skynet_m.log(string.format("Dead can't find user %d.", info.userid))
         return
     end
-    local pack = string.pack("B>I4>I4>I2>I2>I4>I8", op_cmd.dead, info.bulletid, info.fishid, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+    local pack = string.pack("B>I4>I4>I2>I2>I4>I8", op_cmd.dead, info.bulletid, info.fishid, info.multi,
+                                info.bulletMulti, info.winGold, info.fishScore)
     self:update_cmd_count(user_info)
     user_info.key_cmd_count = user_info.key_cmd_count + 1
     user_info.key_cmd = user_info.key_cmd .. pack

@@ -103,11 +103,13 @@ function channel:processPack(data)
                             self:joinFail(error_code.room_full)
                         end
                     else
-                        skynet_m.log(string.format("Illegal room %d from %s.", info.tableid, util.udp_address(self._from)))
+                        skynet_m.log(string.format("Illegal room %d from %s.", info.tableid,
+                                                    util.udp_address(self._from)))
                         self:joinFail(error_code.room_not_exist)
                     end
                 else
-                    skynet_m.log(string.format("Not receive enter game message from %s %d.", util.udp_address(self._from), user_id))
+                    skynet_m.log(string.format("Not receive enter game message from %s %d.",
+                                                util.udp_address(self._from), user_id))
                     self:joinFail(error_code.unknown_error)
                 end
             else

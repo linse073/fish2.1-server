@@ -257,7 +257,8 @@ skynet_m.init(function()
                 use_id = info.userid,
             }
             self._item[#self._item+1] = item_info
-            local msg = string.pack(">I2>I4>I4>I4>f", s_to_c.use_item, info.userid, info.probid, info.probCount, FROZEN_TIME)
+            local msg = string.pack(">I2>I4>I4>I4>f", s_to_c.use_item, info.userid, info.probid, info.probCount,
+                                    FROZEN_TIME)
             self:broadcast(msg)
             for k, v in pairs(self._fish) do
                 v.frozen = true;
@@ -648,7 +649,8 @@ end
 function timestep:update_fish(etime, pool_info, new_fish, rand_fish)
     pool_info.time = pool_info.time + etime
     if self._use_follow_spline then
-        if (pool_info.time >= pool_info.interval and pool_info.count < pool_info.max_count) or pool_info.count < pool_info.max_count * 10 // 8 then
+        if (pool_info.time >= pool_info.interval and pool_info.count < pool_info.max_count)
+                or pool_info.count < pool_info.max_count * 10 // 8 then
             local pool = pool_info.pool
             if #pool > 0 then
                 local info = pool[math.random(#pool)]
@@ -946,7 +948,8 @@ function timestep:update()
         local new_msg = ""
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         local event_target = 0
-        if event.info and event.info.type == event_type.fight_boss and event.info.fish_id > 0 and not event.data.fish then
+        if event.info and event.info.type == event_type.fight_boss and event.info.fish_id > 0
+                and not event.data.fish then
             event_target = event.info.fish_id
         end
         for k, v in ipairs(new_fish) do
@@ -955,7 +958,9 @@ function timestep:update()
             end
             -- NOTICE: define fish type with game server
             new_msg = new_msg .. string.pack("<I4<I2", v.id, 1)
-            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset, v.rand_fish)
+            client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id,
+                                                    v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset,
+                                                    v.rand_fish)
         end
         self:broadcast(client_msg)
         for i = new_num + 1, 100 do
@@ -1028,7 +1033,8 @@ function timestep:ready(info, data)
         end
         local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
-            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id, v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset, v.rand_fish)
+            fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id, v.group_id,
+                                                v.speed, v.time, v.matrix_id, v.group_index, v.offset, v.rand_fish)
             fish_count = fish_count + 1
         end
         msg = msg .. string.pack(">I2", fish_count) .. fish_msg
@@ -1196,7 +1202,9 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
-    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind, user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate, bullet.target)
+    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind,
+                            user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate,
+                            bullet.target)
     self:broadcast(msg)
 end
 
@@ -1210,13 +1218,15 @@ function timestep:on_dead(info)
     if fish_info then
         self:delete_fish(fish_info, true)
         -- NOTICE: no bullet self_id info
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
+                                fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
         if fish_info.fish_id == define.bomb_fish then
             user_info.hit_bomb = true
         end
     else
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0,
+                                info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
     end
 end
@@ -1258,7 +1268,8 @@ function timestep:on_bomb_fish(info)
         local fish_info = self._fish[v.fishid]
         if fish_info then
             self:delete_fish(fish_info, true)
-            del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", v.fishid, fish_info.fish_id, v.multi, v.winGold, v.fishScore)
+            del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", v.fishid, fish_info.fish_id, v.multi, v.winGold,
+                                            v.fishScore)
         else
             del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", v.fishid, 0, v.multi, v.winGold, v.fishScore)
         end
