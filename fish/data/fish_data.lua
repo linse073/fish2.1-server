@@ -202,27 +202,6 @@ local data = {
 		bomb_immune = false,
 		avoid_radius = 500.000000,
 	},
-	[5504] = {
-		type = 2,
-		life_time = 0.000000,
-		frozen_immune = false,
-		bomb_immune = false,
-		avoid_radius = 500.000000,
-	},
-	[5505] = {
-		type = 2,
-		life_time = 0.000000,
-		frozen_immune = false,
-		bomb_immune = false,
-		avoid_radius = 500.000000,
-	},
-	[5506] = {
-		type = 2,
-		life_time = 0.000000,
-		frozen_immune = false,
-		bomb_immune = false,
-		avoid_radius = 500.000000,
-	},
 	[2000] = {
 		type = 3,
 		life_time = 90.000000,

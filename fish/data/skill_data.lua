@@ -351,7 +351,7 @@ local data = {
         }
 	},
 	[1006] = {
-        interval = 3,       --boss技能间隔时间
+        interval = 1,       --boss技能间隔时间
         born_time = 9,      --boss出生到第一个技能开始时间
         skill = {
             {
