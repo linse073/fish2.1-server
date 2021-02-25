@@ -194,7 +194,8 @@ local function recv_enter_game(tableid, msg)
     local info = {}
     info.tableid = tableid
     info.seatid, info.userid, info.sessionid = string.unpack("<I2<I4c32", msg)
-    skynet_m.log(string.format("UserEnterGame: %d %d %d %s %d.", info.tableid, info.seatid, info.userid, info.sessionid, #info.sessionid))
+    skynet_m.log(string.format("UserEnterGame: %d %d %d %s %d.", info.tableid, info.seatid, info.userid, info.sessionid,
+                                #info.sessionid))
     skynet_m.send_lua(room_mgr, "enter_game", info)
     CMD.send_enter_game(info)
 end
@@ -213,7 +214,8 @@ local function recv_use_prob(tableid, msg)
     local info = {}
     info.tableid = tableid
     info.seatid, info.userid, info.probid, info.probCount = string.unpack("<I2<I4<I4<I4", msg)
-    skynet_m.log(string.format("UserUseProb: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+    skynet_m.log(string.format("UserUseProb: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid,
+                                info.probCount))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_use_item", info)
 end
@@ -247,10 +249,12 @@ local function recv_fire(tableid, msg)
     local index
     info.seatid, info.userid, index = string.unpack("<I2<I4", msg)
     local bullet = {}
-    bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime, index = string.unpack("<I4<I4<I4<I4<I8", msg, index)
+    bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime, index = string.unpack("<I4<I4<I4<I4<I8", msg,
+                                                                                                index)
     info.bullet = bullet
     info.code, info.costGold, info.fishScore = string.unpack("<I2<I4<I8", msg, index)
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold, info.fishScore))
+    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
+                                info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_fire", info)
 end
@@ -258,9 +262,10 @@ end
 local function recv_catch_fish(tableid, msg)
     local info = {}
     info.tableid = tableid
-    info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulletMulti, info.winGold, info.fishScore, info.code =
-        string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I8<I2", msg)
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+    info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulletMulti, info.winGold,
+        info.fishScore, info.code = string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I8<I2", msg)
+    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_dead", info)
 end
@@ -285,7 +290,8 @@ local function recv_bomb_fish(tableid, msg)
         id, index = string.unpack("<I4", msg, index)
         if id > 0 then
             local fish_info = {}
-            fish_info.fishid, fish_info.fishKind, fish_info.multi, fish_info.winGold, fish_info.fishScore, index = string.unpack("<I4<I2<I2<I4<I8", msg, index)
+            fish_info.fishid, fish_info.fishKind, fish_info.multi, fish_info.winGold, fish_info.fishScore, index
+                = string.unpack("<I4<I2<I2<I4<I8", msg, index)
             skynet_m.log(string.format("BombFish: %d %d %d.", fish_info.fishid, fish_info.winGold, fish_info.fishScore))
             fish[#fish+1] = fish_info
         else

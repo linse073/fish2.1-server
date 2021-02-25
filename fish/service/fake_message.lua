@@ -3,7 +3,7 @@ local message = require "message"
 local error_code = message.error_code
 
 local string = string
-local ipairs = ipairs
+-- local ipairs = ipairs
 local assert = assert
 local math = math
 
@@ -123,7 +123,8 @@ local function recv_leave_game(tableid, info)
 end
 
 local function recv_use_prob(tableid, info)
-    skynet_m.log(string.format("UserUseProb: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid, info.probCount))
+    skynet_m.log(string.format("UserUseProb: %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.probid,
+                                info.probCount))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_use_item", info)
 end
@@ -147,7 +148,8 @@ end
 local function recv_fire(tableid, info)
     local bullet = info.bullet
     info.code, info.costGold, info.fishScore = 0, 1000, 10000
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id, info.code, info.costGold, info.fishScore))
+    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
+                                info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_fire", info)
 end
@@ -155,7 +157,8 @@ end
 local function recv_catch_fish(tableid, info)
     if math.random(1000) <= 300 then
         info.fishKind, info.multi, info.winGold, info.fishScore, info.code = 1, 1, 10000, 100000, 0
-        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                    info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
         skynet_m.send_lua(room, "on_dead", info)
     end
