@@ -352,7 +352,7 @@ local data = {
 	},
 	[1006] = {
         interval = 1,       --boss技能间隔时间
-        born_time = 9,      --boss出生到第一个技能开始时间
+        born_time = 14,      --boss出生到第一个技能开始时间
         skill = {
             {
                 duration = 5, --技能持续时间
@@ -368,6 +368,12 @@ local data = {
             },
             {
                 duration = 5,
+				hit_count = 0, --被命中几次打断技能
+				fish = {
+				},
+            },
+			{
+                duration = 6,
 				hit_count = 0, --被命中几次打断技能
 				fish = {
 				},
