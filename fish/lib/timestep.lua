@@ -80,7 +80,7 @@ skynet_m.init(function()
         end,
         [event_type.active_fish] = function(self, info)
             local data = fish_data[info.fish_id]
-            if info.spline_id > 0 then
+            if info.spline_id > 0 or util.is_boss(info.fish_id) then
                 local ready = self._fish_pool[data.type].ready
                 ready[#ready+1] = {info, data}
             else
@@ -689,7 +689,7 @@ function timestep:update_fish(etime, pool_info, new_fish, rand_fish)
     end
 end
 
-function timestep:new_boss(info, data, time, new_fish, pool)
+function timestep:new_boss(info, data, time, new_fish, pool, incount)
     self._group_id = self._group_id + 1
     local spline_id = info.spline_id
     local life_time = data.life_time
@@ -731,12 +731,11 @@ function timestep:new_boss(info, data, time, new_fish, pool)
         group_index = 0,
         offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
         rand_fish = 0,
-        incount = true,
+        incount = incount,
     }
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
     pool.fish[info.fish_id] = new_info
-    pool.count = pool.count + 1
 end
 
 function timestep:update_boss(pool_info, new_fish)
@@ -757,7 +756,8 @@ function timestep:update_boss(pool_info, new_fish)
         end
         if #rand_pool > 0 then
             local rand_info = rand_pool[math.random(#rand_pool)]
-            self:new_boss(rand_info[1], rand_info[2], 0, new_fish, pool_info)
+            self:new_boss(rand_info[1], rand_info[2], 0, new_fish, pool_info, true)
+            pool_info.count = pool_info.count + 1
         end
     end
     if #pool_info.ready > 0 then
