@@ -394,6 +394,8 @@ function timestep:clear()
         [fish_type.boss_fish] = {
             pool = {},
             ready = {},
+            fish = {},
+            count = 0,
         },
     }
     self._event = {
@@ -413,10 +415,12 @@ function timestep:loop()
     self._event.index = 1
     local small_pool = self._fish_pool[fish_type.small_fish]
     small_pool.pool = {}
-    small_pool.max_count = 50
+    small_pool.max_count = 40
     local big_pool = self._fish_pool[fish_type.big_fish]
     big_pool.pool = {}
-    big_pool.max_count = 30
+    big_pool.max_count = 10
+    local boss_pool = self._fish_pool[fish_type.boss_fish]
+    boss_pool.pool = {}
     self._spline = {}
     self._spline_cd = {}
     self._use_follow_spline = true
@@ -685,7 +689,7 @@ function timestep:update_fish(etime, pool_info, new_fish, rand_fish)
     end
 end
 
-function timestep:new_boss(info, data, time, new_fish)
+function timestep:new_boss(info, data, time, new_fish, pool)
     self._group_id = self._group_id + 1
     local spline_id = info.spline_id
     local life_time = data.life_time
@@ -727,25 +731,40 @@ function timestep:new_boss(info, data, time, new_fish)
         group_index = 0,
         offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
         rand_fish = 0,
+        incount = true,
     }
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
+    pool.fish[info.fish_id] = new_info
+    pool.count = pool.count + 1
 end
 
 function timestep:update_boss(pool_info, new_fish)
-    if #pool_info.pool > 0 then
+    -- if #pool_info.pool > 0 then
+    --     for k, v in ipairs(pool_info.pool) do
+    --         local info = v[1]
+    --         local time = self._game_time - info.time
+    --         self:new_boss(info, v[2], time, new_fish)
+    --     end
+    --     pool_info.pool = {}
+    -- end
+    if pool_info.count < 3 then
+        local rand_pool = {}
         for k, v in ipairs(pool_info.pool) do
-            local info = v[1]
-            local time = self._game_time - info.time
-            self:new_boss(info, v[2], time, new_fish)
+            if not pool_info.fish[v[1].fish_id] then
+                rand_pool[#rand_pool+1] = v
+            end
         end
-        pool_info.pool = {}
+        if #rand_pool > 0 then
+            local rand_info = rand_pool[math.random(#rand_pool)]
+            self:new_boss(rand_info[1], rand_info[2], 0, new_fish, pool_info)
+        end
     end
     if #pool_info.ready > 0 then
         for k, v in ipairs(pool_info.ready) do
             local info = v[1]
             local time = self._game_time - info.time
-            self:new_boss(info, v[2], time, new_fish)
+            self:new_boss(info, v[2], time, new_fish, pool_info)
         end
         pool_info.ready = {}
     end
@@ -756,6 +775,9 @@ function timestep:delete_fish(info, hit)
     local pool_info = self._fish_pool[info.data.type]
     if pool_info.count and info.incount then
         pool_info.count = pool_info.count - 1
+    end
+    if info.data.type == fish_type.boss_fish then
+        pool_info.fish[info.fish_id] = nil
     end
     if info.born_fish then
         self._born_time = fish_born.cd
