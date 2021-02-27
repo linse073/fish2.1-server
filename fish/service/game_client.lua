@@ -93,6 +93,7 @@ start = function()
         -- TODO: send link message
         skynet_m.send_lua(game_message, "send_link")
     else
+        game_fd = nil
         timer.add_routine("start_update", start, 300)
         -- skynet_m.log(string.format("Connect game server %s:%d fail.", game_address, game_port))
     end
