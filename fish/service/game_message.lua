@@ -281,24 +281,32 @@ end
 local function recv_bomb_fish(tableid, msg)
     local info = {}
     info.tableid = tableid
-    local index = 1
-    info.seatid, info.userid, index = string.unpack("<I2<I4", msg, index)
-    local fish = {}
-    skynet_m.log(string.format("BombFish begin: %d %d %d.", info.tableid, info.seatid, info.userid))
+    local fish, index = {}, 1
+    info.seatid, info.userid, info.bulletid, info.bulletMulti, info.winGold, info.fishScore, index
+        = string.unpack("<I2<I4<I4<I2<I4<I8", msg, index)
     for i = 1, 100 do
         local id
         id, index = string.unpack("<I4", msg, index)
         if id > 0 then
-            local fish_info = {}
-            fish_info.fishid, fish_info.fishKind, fish_info.multi, fish_info.winGold, fish_info.fishScore, index
-                = string.unpack("<I4<I2<I2<I4<I8", msg, index)
-            skynet_m.log(string.format("BombFish: %d %d %d.", fish_info.fishid, fish_info.winGold, fish_info.fishScore))
-            fish[#fish+1] = fish_info
+            fish[#fish+1] = {
+                fishid = id,
+            }
+        end
+    end
+    for i = 1, 100 do
+        local score
+        score, index = string.unpack("<I4", msg, index)
+        local fish_info = fish[i]
+        if fish_info then
+            fish_info.score = score
         else
+            -- NOTICE: have no use for string.unpack
             break
         end
     end
     info.fish = fish
+    skynet_m.log(string.format("BombFish begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                info.winGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_bomb_fish", info)
 end

@@ -169,29 +169,28 @@ local function recv_set_cannon(tableid, info)
     skynet_m.send_lua(room, "on_set_cannon", info)
 end
 
-local function recv_bomb_fish(tableid, msg)
-    local room = skynet_m.call_lua(room_mgr, "get", msg.tableid)
-    local fish = {}
-    local index = 1
-    skynet_m.log(string.format("BombFish begin: %d %d %d.", msg.tableid, msg.seatid, msg.userid))
-    for i = 1, 100 do
-        local id
-        id, index = string.unpack("<I4", msg.fish, index)
-        if id > 0 then
-            local info = {}
-            info.fishid, info.fishKind, info.multi, info.winGold, info.fishScore = id, 1, 1, 10000, 100000
-            skynet_m.log(string.format("BombFish: %d %d %d.", info.fishid, info.winGold, info.fishScore))
-            fish[#fish+1] = info
-        else
-            break
+local function recv_bomb_fish(tableid, info)
+    if math.random(1000) <= 300 then
+        local fish, index, totalScore = {}, 1, 0
+        for i = 1, 100 do
+            local id
+            id, index = string.unpack("<I4", info.fish, index)
+            if id > 0 then
+                fish[#fish+1] = {
+                    fishid = id,
+                    score = 1000,
+                }
+                totalScore = totalScore + 1000
+            else
+                break
+            end
         end
+        info.fish, info.winGold, info.fishScore = fish, totalScore, 10000 + totalScore
+        skynet_m.log(string.format("BombFish begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                    info.winGold, info.fishScore))
+        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+        skynet_m.send_lua(room, "on_bomb_fish", info)
     end
-    skynet_m.send_lua(room, "on_bomb_fish", {
-        tableid = msg.tableid,
-        seatid = msg.seatid,
-        userid = msg.userid,
-        fish = fish,
-    })
 end
 
 message_handle[13502] = recv_link

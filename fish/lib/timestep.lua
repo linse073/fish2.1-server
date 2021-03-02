@@ -306,7 +306,6 @@ function timestep:join(user_id, free_pos, agent)
         status_time = now,
         bullet = {},
         cannon = 0,
-        hit_bomb = false,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -342,7 +341,6 @@ function timestep:join_01(user_id, agent)
         status_time = now,
         bullet = {},
         cannon = 0,
-        hit_bomb = false,
     }
     self._user[user_id] = info
     self._pos[free_pos] = info
@@ -1177,22 +1175,32 @@ function timestep:set_cannon(info, data)
 end
 
 function timestep:hit_bomb(info, data)
-    if not info.hit_bomb then
-        skynet_m.log(string.format("Can't find hit bomb when user %d hit bomb.", info.user_id))
+    local self_id, fishid, multi, index = string.unpack(">I4>I4>I4", data, 3)
+    local bulletid = info.bullet[self_id]
+    if not bulletid then
+        skynet_m.log(string.format("Can't find bullet %d when user %d hit bomb fish %d.",
+                                    self_id, info.user_id, fishid))
         return
     end
-    info.hit_bomb = false
-    local msg = ""
-    local num, index  = string.unpack(">I2", data, 3)
-    if num > 100 then
-        num = 100
+    local bomb_fish = self._fish[fishid]
+    if not bomb_fish or bomb_fish.fish_id ~= define.bomb_fish then
+        skynet_m.log(string.format("Illegal bomb fish %d.", fishid))
+        return
     end
-    local count = 0
+    info.bullet[self_id] = nil
+    local num
+    num, index = string.unpack(">I2", data, index)
+    if num > 99 then
+        num = 99
+    end
+    local msg = string.pack("<I4", fishid)
+    local count = 1
     for i = 1, num do
         local fish_id
-        fish_id, index = string.unpack(">I4", data, index)
+        fish_id, index = string.pack(">I4", data, index)
         local fish_info = self._fish[fish_id]
-        if fish_info and not fish_info.data.bomb_immune and fish_info.rand_fish == 0 then
+        if fish_info and not fish_info.data.bomb_immune
+                and fish_info.rand_fish == 0 then
             msg = msg .. string.pack("<I4", fish_id)
             count = count + 1
         end
@@ -1204,6 +1212,8 @@ function timestep:hit_bomb(info, data)
         tableid = self._room_id,
         seatid = info.pos - 1,
         userid = info.user_id,
+        bulletid = bulletid,
+        bulletMulti = multi,
         fish = msg,
     })
 end
@@ -1243,9 +1253,6 @@ function timestep:on_dead(info)
         local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
                                 fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
-        if fish_info.fish_id == define.bomb_fish then
-            user_info.hit_bomb = true
-        end
     else
         local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0,
                                 info.multi, info.bulletMulti, info.winGold, info.fishScore)
@@ -1290,13 +1297,13 @@ function timestep:on_bomb_fish(info)
         local fish_info = self._fish[v.fishid]
         if fish_info then
             self:delete_fish(fish_info, true)
-            del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", v.fishid, fish_info.fish_id, v.multi, v.winGold,
-                                            v.fishScore)
+            del_msg = del_msg .. string.pack(">I4>I4>I4", v.fishid, fish_info.fish_id, v.score)
         else
-            del_msg = del_msg .. string.pack(">I4>I4>I2>I4>I8", v.fishid, 0, v.multi, v.winGold, v.fishScore)
+            del_msg = del_msg .. string.pack(">I4>I4>I4", v.fishid, 0, v.score)
         end
     end
-    local msg = string.pack(">I2B>I2", s_to_c.bomb_fish, user_info.pos, #info.fish) .. del_msg
+    local msg = string.pack(">I2B>I4>I4>I4>I8>I2", s_to_c.bomb_fish, user_info.pos, info.bulletid, info.bulletMulti,
+                            info.winGold, info.fishScore, #info.fish) .. del_msg
     self:broadcast(msg)
 end
 
