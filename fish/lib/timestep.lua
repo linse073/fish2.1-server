@@ -1197,7 +1197,7 @@ function timestep:hit_bomb(info, data)
     local count = 1
     for i = 1, num do
         local fish_id
-        fish_id, index = string.pack(">I4", data, index)
+        fish_id, index = string.unpack(">I4", data, index)
         msg = msg .. string.pack("<I4", fish_id)
         count = count + 1
 
