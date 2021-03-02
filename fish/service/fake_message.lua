@@ -170,7 +170,6 @@ local function recv_set_cannon(tableid, info)
 end
 
 local function recv_bomb_fish(tableid, info)
-    skynet_m.log("recv_bomb_fish")
     if math.random(1000) <= 300 then
         local fish, index, totalScore = {}, 1, 0
         for i = 1, 100 do
@@ -181,12 +180,12 @@ local function recv_bomb_fish(tableid, info)
                     fishid = id,
                     score = 1000,
                 }
-                totalScore = totalScore + 1000
+                totalScore = totalScore + 10000
             else
                 break
             end
         end
-        info.fish, info.winGold, info.fishScore = fish, totalScore, 10000 + totalScore
+        info.fish, info.winGold, info.fishScore = fish, totalScore, 100000 + totalScore
         skynet_m.log(string.format("BombFish begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
                                     info.winGold, info.fishScore))
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
