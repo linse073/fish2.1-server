@@ -178,7 +178,7 @@ local function recv_bomb_fish(tableid, info)
             if id > 0 then
                 fish[#fish+1] = {
                     fishid = id,
-                    score = 1000,
+                    score = 10000,
                 }
                 totalScore = totalScore + 10000
             else
