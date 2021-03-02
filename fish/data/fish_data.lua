@@ -367,6 +367,14 @@ local data = {
 		avoid_radius = 0.000000,
 		kind = 1,
 	},
+	[1007] = {
+		type = 3,
+		life_time = 100.000000,
+		frozen_immune = true,
+		bomb_immune = true,
+		avoid_radius = 0.000000,
+		kind = 1,
+	},
 }
 
 return data
