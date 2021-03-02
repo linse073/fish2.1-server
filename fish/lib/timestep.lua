@@ -1290,6 +1290,7 @@ function timestep:on_use_item(info)
 end
 
 function timestep:on_bomb_fish(info)
+    skynet_m.log("on_bomb_fish")
     local user_info = self._user[info.userid]
     if not user_info then
         skynet_m.log(string.format("Bomb fish can't find user %d.", info.userid))
