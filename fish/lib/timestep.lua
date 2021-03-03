@@ -29,6 +29,7 @@ local event_type
 local fish_type
 local skill_status
 local camera_spline
+local camera_boss_spline
 local matrix_data
 local skill_data
 local item_type
@@ -62,6 +63,7 @@ skynet_m.init(function()
     item_type = define.item_type
     item_id_map = define.item_id_map
     camera_spline = share.camera_spline
+    camera_boss_spline = share.camera_boss_spline
     matrix_data = share.matrix_data
     skill_data = share.skill_data
     fish_born = share.fish_born
@@ -508,7 +510,7 @@ function timestep:new_born_fish(info, data, num, new_fish)
     self._group_id = self._group_id + 1
     local spline_id
     local rand_spline, all_spline = {}, {}
-    for k, v in pairs(camera_spline) do
+    for k, v in pairs(camera_boss_spline) do
         if not self._spline_cd[k] then
             rand_spline[#rand_spline+1] = k
         end
@@ -693,7 +695,7 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
     local life_time = data.life_time
     if spline_id == 0 and life_time == 0 then
         local rand_spline, all_spline = {}, {}
-        for k, v in pairs(camera_spline) do
+        for k, v in pairs(camera_boss_spline) do
             if not self._spline_cd[k] then
                 rand_spline[#rand_spline+1] = k
             end

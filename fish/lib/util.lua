@@ -18,7 +18,11 @@ function util.udp_address(from)
 end
 
 function util.is_camera_spline(spline)
-    return spline >= 2000 and spline < 3000
+    return spline >= 3000 and spline < 5000
+end
+
+function util.is_camera_boss_spline(spline)
+    return spline >= 4000 and spline < 5000
 end
 
 function util.is_boss(fish_id)

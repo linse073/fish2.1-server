@@ -24,10 +24,15 @@ skynet_m.start(function()
     sharedata.new("fish_born", fish_born)
 
     local camera_spline = {}
+    local camera_boss_spline = {}
     for k, v in pairs(spline_data) do
         if util.is_camera_spline(k) then
             camera_spline[k] = v
         end
+        if util.is_camera_boss_spline(k) then
+            camera_boss_spline[k] = v
+        end
     end
     sharedata.new("camera_spline", camera_spline)
+    sharedata.new("camera_boss_spline", camera_boss_spline)
 end)
