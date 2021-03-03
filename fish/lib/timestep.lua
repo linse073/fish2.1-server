@@ -786,7 +786,7 @@ function timestep:delete_fish(info, hit)
     local event = self._event
     if event.info then
         if event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
-            event.time = event.info.duration - 4
+            event.time = event.info.duration - 6
         end
         if event.data and hit then
             local data = event.data
