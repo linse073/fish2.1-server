@@ -461,7 +461,7 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
             data = data,
             matrix_id = matrix_id,
             group_index = i - 1,
-            offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
@@ -498,7 +498,7 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
             data = data,
             matrix_id = matrix_id,
             group_index = i - 1,
-            offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
@@ -546,7 +546,7 @@ function timestep:new_born_fish(info, data, num, new_fish)
             data = data,
             matrix_id = matrix_id,
             group_index = i - 1,
-            offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
             born_fish = true,
             rand_fish = 0,
         }
@@ -642,7 +642,7 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
             matrix_id = matrix_id,
             incount = incount,
             group_index = i - 1,
-            offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+            offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
@@ -729,7 +729,7 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
         data = data,
         matrix_id = matrix_id,
         group_index = 0,
-        offset = util.rand_offset(-data.avoid_radius, data.avoid_radius),
+        offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
         rand_fish = 0,
         incount = incount,
     }
