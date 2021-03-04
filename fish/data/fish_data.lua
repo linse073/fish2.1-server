@@ -415,7 +415,7 @@ local data = {
 	},
 	[1007] = {
 		type = 3,
-		life_time = 100.000000,
+		life_time = 0.000000,
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
