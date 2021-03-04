@@ -102,7 +102,7 @@ local function pack_kill_fish(msg)
 end
 
 local function pack_bomb_fish(msg)
-    return msg.fish
+    return string.pack("<I2<I4<I4<I2", msg.seatid, msg.userid, msg.bulletid, msg.bulletMulti) .. msg.fish
 end
 
 pack_message[13501] = pack_link
