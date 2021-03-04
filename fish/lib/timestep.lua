@@ -868,7 +868,7 @@ end
 
 function timestep:kill_fish(info, hit)
     local event = self._event
-    if event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
+    if event.info and event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
         local data = event.data
         if data then
             if data.skill_status == skill_status.ready then
