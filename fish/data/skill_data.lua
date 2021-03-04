@@ -2,6 +2,7 @@ local data = {
     [1001] = {
         interval = 5,       --boss技能间隔时间
         born_time = 12,      --boss出生到第一个技能开始时间
+		loop_skill = false,
         skill = {
             {
                 duration = 30, --技能持续时间
@@ -329,6 +330,7 @@ local data = {
 	[1005] = {
         interval = 3,       --boss技能间隔时间
         born_time = 9,      --boss出生到第一个技能开始时间
+		loop_skill = false,
         skill = {
             {
                 duration = 7, --技能持续时间
@@ -353,6 +355,7 @@ local data = {
 	[1006] = {
         interval = 1,       --boss技能间隔时间
         born_time = 14,      --boss出生到第一个技能开始时间
+		loop_skill = false,
         skill = {
             {
                 duration = 5, --技能持续时间
@@ -383,6 +386,7 @@ local data = {
 	[1007] = {
         interval = 1,       --boss技能间隔时间
         born_time = 7,      --boss出生到第一个技能开始时间
+		loop_skill = true,
         skill = {
             {
                 duration = 5, --技能持续时间
