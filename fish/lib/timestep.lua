@@ -203,6 +203,7 @@ skynet_m.init(function()
                     local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 0)
                     self:broadcast(msg)
                 end
+                skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                 if data.skill_index < #data.rand_skill then
                     data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
                     data.skill_status = skill_status.ready
@@ -225,7 +226,6 @@ skynet_m.init(function()
                         end
                     end
                 end
-                skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                 if del_count > 0 then
                     if del_count > 100 then
                         skynet_m.log("Kill fish exceed max count.")
