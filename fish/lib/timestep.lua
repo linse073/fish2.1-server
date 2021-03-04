@@ -1043,6 +1043,7 @@ function timestep:update()
             end
             -- NOTICE: define fish type with game server
             new_msg = new_msg .. string.pack("<I4<I2", v.id, v.data.kind)
+            skynet_m.log(string.format("new fish %d %d %d", v.id, v.fish_id, v.data.kind))
             client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id,
                                                     v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset,
                                                     v.rand_fish)
@@ -1259,6 +1260,7 @@ function timestep:hit_bomb(info, data)
         num = 99
     end
     local msg = string.pack("<I4", fishid)
+    skynet_m.log(string.format("hit bomb %d", fishid))
     local count = 1
     for i = 1, num do
         local fish_id
