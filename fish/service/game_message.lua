@@ -105,6 +105,10 @@ local function pack_bomb_fish(msg)
     return string.pack("<I2<I4<I4<I2", msg.seatid, msg.userid, msg.bulletid, msg.bulletMulti) .. msg.fish
 end
 
+local function pack_clear(msg)
+    return string.pack("<I4", msg.flag)
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -116,6 +120,7 @@ pack_cmd[1405] = pack_fire
 pack_cmd[1406] = pack_catch_fish
 pack_cmd[1407] = pack_kill_fish
 pack_cmd[1408] = pack_bomb_fish
+pack_cmd[1409] = pack_clear
 
 function CMD.send_link()
     send_msg(13501)
@@ -155,6 +160,10 @@ end
 
 function CMD.send_bomb_fish(msg)
     send_cmd(1408, msg)
+end
+
+function CMD.send_clear(msg)
+    send_cmd(1409, msg)
 end
 
 -- NOTICE: recv message

@@ -72,11 +72,15 @@ function CMD.send_catch_fish(msg)
 end
 
 function CMD.send_kill_fish(msg)
-    -- NOTICE: cmd(1407) do nothing()
+    -- NOTICE: cmd(1407) do nothing
 end
 
 function CMD.send_bomb_fish(msg)
     send_cmd(1408, msg)
+end
+
+function CMD.send_clear()
+    -- NOTICE: cmd(1409) do nothing
 end
 
 -- NOTICE: recv message
