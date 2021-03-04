@@ -16,6 +16,7 @@ local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
 -- local SPLINE_INTERVAL = 25
 local FROZEN_TIME = 15
+local BOSS_EVENT_DELAY = 5
 
 local message
 local s_to_c
@@ -217,7 +218,7 @@ skynet_m.init(function()
                         data.skill_time = 0
                         data.skill_status = skill_status.done
                         local event = self._event
-                        event.time = event.info.duration - 6
+                        event.time = event.info.duration - BOSS_EVENT_DELAY
                         if data.fish then
                             self:delete_fish(data.fish, false)
                             del_count = del_count + 1
@@ -826,7 +827,7 @@ function timestep:delete_fish(info, hit)
                     else
                         data.skill_time = 0
                         data.skill_status = skill_status.done
-                        event.time = event.info.duration - 6
+                        event.time = event.info.duration - BOSS_EVENT_DELAY
                         if data.fish then
                             self:delete_fish(data.fish, false)
                             del_count = del_count + 1
@@ -874,7 +875,7 @@ function timestep:kill_fish(info, hit)
             if data.skill_status == skill_status.ready then
                 data.skill_time = 0
                 data.skill_status = skill_status.done
-                event.time = event.info.duration - 6
+                event.time = event.info.duration - BOSS_EVENT_DELAY
                 data.fish = nil
                 data.skill_fish = nil
                 data.skill_info = nil
@@ -904,7 +905,7 @@ function timestep:kill_fish(info, hit)
                 end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
-                event.time = event.info.duration - 6
+                event.time = event.info.duration - BOSS_EVENT_DELAY
                 data.fish = nil
                 data.skill_fish = nil
                 data.skill_info = nil
