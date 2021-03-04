@@ -345,7 +345,7 @@ local data = {
 				},
             },
             {
-                duration = 12,
+                duration = 9,
 				hit_count = 0, --被命中几次打断技能
 				fish = {
 				},
