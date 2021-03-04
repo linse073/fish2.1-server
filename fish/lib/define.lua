@@ -37,4 +37,6 @@ end
 
 define.bomb_fish = 5555
 
+define.rand_fish_kind = 30
+
 return define
