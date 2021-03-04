@@ -1075,6 +1075,7 @@ function timestep:kick(user_id, agent)
         end
         if self._count == 0 then
             self:clear()
+            skynet_m.log(string.format("send clear table %d msg to game server.", self._room_id))
             skynet_m.send_lua(game_message, "send_clear", {
                 tableid = self._room_id,
                 flag = 0,
