@@ -1042,7 +1042,7 @@ function timestep:update()
                 event.data.fish = v
             end
             -- NOTICE: define fish type with game server
-            if v.rand_fihs > 0 then
+            if v.rand_fish > 0 then
                 new_msg = new_msg .. string.pack("<I4<I2", v.id, define.rand_fish_kind)
             else
                 new_msg = new_msg .. string.pack("<I4<I2", v.id, v.data.kind)
