@@ -1114,11 +1114,32 @@ function timestep:ready(info, data)
     else
         self:broadcast(string.pack(">I2>I4B", s_to_c.join_room, info.user_id, info.pos))
         self._ready_count = self._ready_count + 1
+        local client_time, start_time = string.unpack(">d>f", data, 3)
         if self._ready_count == 1 then
+            if start_time > 0 and self._game_time == 0 then
+                self._game_time = start_time
+                if self._game_time >= loop_time then
+                    self._game_time = self._game_time - loop_time
+                    self:loop()
+                end
+                local event = self._event
+                while event.index <= #event_data do
+                    local event_info = event_data[event.index]
+                    if self._game_time < event_info.time then
+                        break
+                    end
+                    if event_info.type ~= event_type.fight_boss then
+                        event_function[event_info.type](self, event_info)
+                    end
+                    event.index = event.index + 1
+                end
+                for k, v in pairs(fish_type) do
+                    self._fish_pool[v].ready = {}
+                end
+            end
             self:start()
         end
         info.ready = true
-        local client_time = string.unpack(">d", data, 3)
         local msg = string.pack(">I2>d>fB>I2", s_to_c.room_data, client_time, self._game_time, info.pos, info.cannon)
         msg = msg .. string.pack("B", self._ready_count - 1)
         for _, v in pairs(self._user) do
