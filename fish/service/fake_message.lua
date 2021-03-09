@@ -159,7 +159,7 @@ local function recv_fire(tableid, info)
 end
 
 local function recv_catch_fish(tableid, info)
-    if math.random(1000) <= 300 then
+    if math.random(1000) <= 100 then
         info.fishKind, info.multi, info.winGold, info.fishScore, info.code = 1, 1, 10000, 100000, 0
         skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
                                     info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
@@ -174,7 +174,7 @@ local function recv_set_cannon(tableid, info)
 end
 
 local function recv_bomb_fish(tableid, info)
-    if math.random(1000) <= 300 then
+    if math.random(1000) <= 100 then
         local fish, index, totalScore = {}, 1, 0
         for i = 1, 100 do
             local id
