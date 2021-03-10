@@ -101,7 +101,6 @@ skynet_m.init(function()
             end
         end,
         [event_type.fight_boss] = function(self, info)
-            util.dump(info)
             local event = self._event
             event.info = info
             event.time = self._game_time - info.time
@@ -747,7 +746,6 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
     pool.fish[info.fish_id] = new_info
-    -- util.dump(new_info)
 end
 
 function timestep:update_boss(pool_info, new_fish)
@@ -874,16 +872,7 @@ function timestep:kill_fish(info, hit)
     if event.info and event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
         local data = event.data
         if data then
-            if data.skill_status == skill_status.ready then
-                data.skill_time = 0
-                data.skill_status = skill_status.done
-                event.time = event.info.duration - BOSS_EVENT_DELAY
-                data.fish = nil
-                data.skill_fish = nil
-                data.skill_info = nil
-                data.fish_index = nil
-                data.hit_count = nil
-            elseif data.skill_status == skill_status.cast then
+            if data.skill_status == skill_status.cast then
                 local del_count, del_msg, kill_msg = 0, "", ""
                 for k, v in pairs(data.skill_fish) do
                     self:delete_fish(v, false)
@@ -905,6 +894,15 @@ function timestep:kill_fish(info, hit)
                     del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
                     self:broadcast(del_msg)
                 end
+                data.skill_time = 0
+                data.skill_status = skill_status.done
+                event.time = event.info.duration - BOSS_EVENT_DELAY
+                data.fish = nil
+                data.skill_fish = nil
+                data.skill_info = nil
+                data.fish_index = nil
+                data.hit_count = nil
+            else
                 data.skill_time = 0
                 data.skill_status = skill_status.done
                 event.time = event.info.duration - BOSS_EVENT_DELAY
@@ -1033,7 +1031,6 @@ function timestep:update()
     end
     local new_num = #new_fish
     if new_num > 0 then
-        -- util.dump(new_fish)
         local new_msg = ""
         local client_msg = string.pack(">I2>I2", s_to_c.new_fish, new_num)
         local event_target = 0
