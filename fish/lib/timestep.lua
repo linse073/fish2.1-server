@@ -518,7 +518,7 @@ end
 
 function timestep:new_born_fish(info, data, num, new_fish)
     self._group_id = self._group_id + 1
-    local spline_id
+    local spline_id = 0
     local rand_spline, all_spline = {}, {}
     for k, v in pairs(camera_boss_spline) do
         if not self._spline_cd[k] then
