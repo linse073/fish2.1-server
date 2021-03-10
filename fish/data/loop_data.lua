@@ -1,2 +1,2 @@
-local loop_time = 569.341431
+local loop_time = 502.289429
 return loop_time
