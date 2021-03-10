@@ -1006,6 +1006,7 @@ function timestep:update()
         if self._game_time < info.time then
             break
         end
+        skynet_m.log(string.format("event time %f.", self._game_time))
         event_function[info.type](self, info)
         event.index = event.index + 1
     end
