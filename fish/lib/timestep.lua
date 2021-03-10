@@ -535,7 +535,7 @@ function timestep:new_born_fish(info, data, num, new_fish)
         self._spline_cd[spline_id] = { cd = 15 }
     end
     local life_time = data.life_time
-    local speed
+    local speed = 0
     if life_time > 0 and spline_id > 0 then
         speed = spline_data[spline_id].length / life_time
     end
