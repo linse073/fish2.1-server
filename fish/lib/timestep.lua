@@ -740,7 +740,7 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
         matrix_id = matrix_id,
         group_index = 0,
         offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
-        rand_fish = 1,
+        rand_fish = 0,
         incount = incount,
     }
     new_fish[#new_fish+1] = new_info
