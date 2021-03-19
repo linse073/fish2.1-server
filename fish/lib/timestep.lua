@@ -1351,6 +1351,7 @@ function timestep:on_dead(info)
     if fish_info then
         self:kill_fish(fish_info, true)
         if fish_info.fish_id == define.frozen_fish then
+            skynet_m.log("kill frozen fish.")
             local item_info = {
                 item_id = info.fishid,
                 num = 0,
