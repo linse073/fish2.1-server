@@ -36,9 +36,11 @@ for k, v in pairs(define.item_type) do
 end
 
 define.bomb_fish = {}
-for k, v in ipairs({5555, 5556, 5557, 5558}) do
+for k, v in ipairs({5555, 5556, 5558}) do
     define.bomb_fish[v] = true
 end
+
+define.frozen_fish = 5557
 
 define.rand_fish_kind = 30
 

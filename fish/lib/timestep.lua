@@ -266,7 +266,7 @@ skynet_m.init(function()
                 item_id = info.probid,
                 num = info.probCount,
                 time = 0,
-                use_id = info.userid,
+                user_id = info.userid,
             }
             self._item[#self._item+1] = item_info
             local msg = string.pack(">I2>I4>I4>I4>f", s_to_c.use_item, info.userid, info.probid, info.probCount,
@@ -977,7 +977,8 @@ function timestep:update()
     for i = #item, 1, -1 do
         local v = item[i]
         v.time = v.time + etime
-        if v.item_id == item_type.frozen then
+        -- NOTICE: frozen fish (v.item_id == 0 and v.num == 0)
+        if v.item_id == item_type.frozen or (v.item_id == 0 and v.num == 0) then
             stop_time = true
             if v.time >= FROZEN_TIME then
                 table.remove(item, i)
@@ -1353,6 +1354,21 @@ function timestep:on_dead(info)
         local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
                                 fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
+        if fish_info.fish_id == define.frozen_fish then
+            local item_info = {
+                item_id = 0,
+                num = 0,
+                time = 0,
+                user_id = info.userid,
+            }
+            self._item[#self._item+1] = item_info
+            local frozen_msg = string.pack(">I2>I4>I4>I4>f", s_to_c.use_item, info.userid, info.probid, info.probCount,
+                                    FROZEN_TIME)
+            self:broadcast(frozen_msg)
+            for k, v in pairs(self._fish) do
+                v.frozen = true;
+            end
+        end
     else
         local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0,
                                 info.multi, info.bulletMulti, info.winGold, info.fishScore)
