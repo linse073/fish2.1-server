@@ -1279,7 +1279,7 @@ function timestep:hit_bomb(info, data)
         return
     end
     local bomb_fish = self._fish[fishid]
-    if not bomb_fish or bomb_fish.fish_id ~= define.bomb_fish then
+    if not bomb_fish or not define.bomb_fish[bomb_fish.fish_id] then
         skynet_m.log(string.format("Illegal bomb fish %d.", fishid))
         return
     end
