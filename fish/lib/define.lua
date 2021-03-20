@@ -42,6 +42,6 @@ end
 
 define.frozen_fish = 5557
 
-define.rand_fish_kind = 30
+define.rand_fish_kind = 47
 
 return define
