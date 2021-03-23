@@ -92,7 +92,7 @@ local data = {
 						speed = 280,
 					},
 					--第三条线6003
-										{
+					{
 						fish_id = 5011,
 						spline_id = 6003,
 						time = 5,   --多少秒可以刷这个鱼
@@ -129,7 +129,7 @@ local data = {
 						speed = 280,
 					},
 					--第四条线6004
-										{
+					{
 						fish_id = 5011,
 						spline_id = 6004,
 						time = 8,   --多少秒可以刷这个鱼
