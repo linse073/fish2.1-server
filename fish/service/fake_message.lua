@@ -79,8 +79,16 @@ function CMD.send_bomb_fish(msg)
     send_cmd(1408, msg)
 end
 
-function CMD.send_clear()
+function CMD.send_clear(msg)
     -- NOTICE: cmd(1409) do nothing
+end
+
+function CMD.send_trigger_fish(msg)
+    send_cmd(1410, msg)
+end
+
+function CMD.send_skill_damage(msg)
+    send_cmd(1411, msg)
 end
 
 -- NOTICE: recv message
@@ -96,6 +104,8 @@ local message_map = {
     [1405] = 1305,
     [1406] = 1306,
     [1408] = 1308,
+    [1410] = 1310,
+    [1411] = 1311,
 }
 
 local function recv_cmd(msg)
@@ -197,6 +207,42 @@ local function recv_bomb_fish(tableid, info)
     end
 end
 
+local function recv_trigger_fish(tableid, info)
+    if math.random(1000) <= 50 then
+        info.fishid = string.unpack("<I4", info.fish)
+        info.fish = nil
+        info.fishKind, info.multi, info.winGold, info.fishScore, info.code = 1, 1, 10000, 100000, 0
+        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                    info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+        skynet_m.send_lua(room, "on_dead", info)
+    end
+end
+
+local function recv_skill_damage(tableid, info)
+    if math.random(1000) <= 50 then
+        local fish, index, totalScore = {}, 1, 0
+        for i = 1, 100 do
+            local id
+            id, index = string.unpack("<I4", info.fish, index)
+            if id > 0 then
+                fish[#fish+1] = {
+                    fishid = id,
+                    score = 10000,
+                }
+                totalScore = totalScore + 10000
+            else
+                break
+            end
+        end
+        info.fish, info.winGold, info.fishScore = fish, totalScore, 100000 + totalScore
+        skynet_m.log(string.format("SkillDamage begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                    info.winGold, info.fishScore))
+        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+        skynet_m.send_lua(room, "on_skill_damage", info)
+    end
+end
+
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -209,6 +255,8 @@ cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
 cmd_handle[1308] = recv_bomb_fish
+cmd_handle[1310] = recv_trigger_fish
+cmd_handle[1311] = recv_skill_damage
 
 function CMD.recv_msg(id, msg)
     assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)

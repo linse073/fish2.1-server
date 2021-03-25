@@ -23,7 +23,8 @@ define.fish_type = {
 define.skill_status = {
     ready = 1,
     cast = 2,
-    done = 3,
+    idle = 3,
+    done = 4,
 }
 
 define.item_type = {

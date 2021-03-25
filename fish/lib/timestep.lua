@@ -113,14 +113,16 @@ skynet_m.init(function()
                 }
                 if sdata then
                     local rand_skill = {}
-                    for i = 1, #sdata.skill do
+                    for i = 1, #sdata.skill - 1 do
                         rand_skill[#rand_skill+1] = i
                     end
                     util.shuffle(rand_skill)
+                    rand_skill[#rand_skill+1] = #sdata.skill
                     data.rand_skill = rand_skill
-                    data.skill_index = 0
-                    data.skill_time = sdata.born_time - event.time
-                    data.skill_status = skill_status.ready
+                    data.skill_time = 0
+                    data.skill_status = skill_status.idle
+                    data.skill_index = 1
+                    data.skill_info = sdata.skill[rand_skill[data.skill_index]]
                 end
                 for k, v in pairs(self._fish) do
                     if v.fish_id == info.fish_id then
@@ -137,22 +139,13 @@ skynet_m.init(function()
                             break
                         end
                     end
-                    if fdata.type == fish_type.boss_fish then
-                        local pool = self._fish_pool[fdata.type].pool
-                        for k, v in ipairs(pool) do
-                            if v[1].fish_id == info.fish_id then
-                                find = true
-                                break
-                            end
-                        end
-                    end
                     if not find then
                         skynet_m.log(string.format("Can't find target fish[%d] of event[%d].", info.fish_id, info.id))
                     end
                 end
                 event.data = data
             end
-            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, info.duration - event.time)
+            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, info.total_time - event.time)
             self:broadcast(msg)
         end,
         [event_type.max_small_fish] = function(self, info)
@@ -163,31 +156,35 @@ skynet_m.init(function()
         end,
     }
     skill_function = {
+        [skill_status.idle] = function(self, data, etime, new_fish)
+            if not data.trigger_fish and data.fish then
+                local fish_id = data.skill_info.fish_id
+                if fish_id > 0 then
+                    data.trigger_fish = self:new_skill_trigger_fish(fish_id, 0, new_fish)
+                end
+            end
+        end,
         [skill_status.ready] = function(self, data, etime, new_fish)
-            data.skill_time = data.skill_time - etime
-            if data.skill_time <= 0 then
-                data.skill_index = data.skill_index + 1
-                local fish_skill = data.rand_skill[data.skill_index]
-                skynet_m.log(string.format("cast skill %d", fish_skill))
-                data.skill_info = data.skill_data.skill[fish_skill]
-                data.skill_fish = {}
-                data.fish_index = 1
-                data.hit_count = 0
-                data.skill_time = -data.skill_time
-                data.skill_status = skill_status.cast
-                if data.fish then
-                    local msg = string.pack(">I2>I4>I2", s_to_c.cast_skill, data.fish.id, fish_skill)
-                    self:broadcast(msg)
+            local fish_skill = data.rand_skill[data.skill_index]
+            skynet_m.log(string.format("cast skill %d", fish_skill))
+            data.skill_fish = {}
+            data.skill_damage = 1
+            data.fish_index = 1
+            data.hit_count = 0
+            data.skill_time = 0
+            data.skill_status = skill_status.cast
+            if data.fish then
+                local msg = string.pack(">I2>I4>I2", s_to_c.cast_skill, data.fish.id, fish_skill)
+                self:broadcast(msg)
+            end
+            local fish_pool = data.skill_info.fish
+            while data.fish_index <= #fish_pool do
+                local fish_info = fish_pool[data.fish_index]
+                if data.skill_time < fish_info.time then
+                    break
                 end
-                local fish_pool = data.skill_info.fish
-                while data.fish_index <= #fish_pool do
-                    local fish_info = fish_pool[data.fish_index]
-                    if data.skill_time < fish_info.time then
-                        break
-                    end
-                    self:new_skill_fish(fish_info, data.skill_time - fish_info.time, data.skill_fish, new_fish)
-                    data.fish_index = data.fish_index + 1
-                end
+                self:new_skill_fish(fish_info, data.skill_time - fish_info.time, data.skill_fish, new_fish)
+                data.fish_index = data.fish_index + 1
             end
         end,
         [skill_status.cast] = function(self, data, etime, new_fish)
@@ -195,7 +192,7 @@ skynet_m.init(function()
             if data.skill_time >= data.skill_info.duration then
                 local del_count, del_msg, kill_msg = 0, "", ""
                 for k, v in pairs(data.skill_fish) do
-                    self:delete_fish(v, false)
+                    self:delete_fish(v, 0)
                     del_count = del_count + 1
                     del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                     kill_msg = kill_msg .. string.pack("<I4", k)
@@ -206,25 +203,27 @@ skynet_m.init(function()
                 end
                 skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                 if data.skill_index < #data.rand_skill then
-                    data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
-                    data.skill_status = skill_status.ready
-                else
-                    if data.skill_data.loop_skill then
-                        util.shuffle(data.rand_skill)
-                        data.skill_index = 0
-                        data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
+                    data.skill_index = data.skill_index + 1
+                    data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                    data.skill_time = 0
+                    -- NOTICE: last skill has not trigger fish
+                    if data.skill_index == #data.rand_skill then
                         data.skill_status = skill_status.ready
                     else
-                        data.skill_time = 0
-                        data.skill_status = skill_status.done
-                        local event = self._event
-                        event.time = event.info.duration - BOSS_EVENT_DELAY
-                        if data.fish then
-                            self:delete_fish(data.fish, false)
-                            del_count = del_count + 1
-                            del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
-                            data.fish = nil
-                        end
+                        data.skill_status = skill_status.idle
+                    end
+                else
+                    data.skill_time = 0
+                    data.skill_index = nil
+                    data.skill_info = nil
+                    data.skill_status = skill_status.done
+                    local event = self._event
+                    event.time = event.info.total_time - BOSS_EVENT_DELAY
+                    if data.fish then
+                        self:delete_fish(data.fish, 0)
+                        del_count = del_count + 1
+                        del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
+                        data.fish = nil
                     end
                 end
                 if del_count > 0 then
@@ -242,7 +241,8 @@ skynet_m.init(function()
                     self:broadcast(del_msg)
                 end
                 data.skill_fish = nil
-                data.skill_info = nil
+                data.skill_damage = nil
+                data.trigger_user = nil
                 data.fish_index = nil
                 data.hit_count = nil
             else
@@ -443,6 +443,32 @@ function timestep:start()
     self:update()
 end
 
+function timestep:new_skill_trigger_fish(fish_id, time, new_fish)
+    local data = fish_data[fish_id]
+    self._group_id = self._group_id + 1
+    local spline_id = 0
+    local life_time = data.life_time
+    local matrix_id = 0
+    self._fish_id = self._fish_id + 1
+    local new_info = {
+        id = self._fish_id,
+        fish_id = fish_id,
+        spline_id = spline_id,
+        group_id = self._group_id,
+        speed = 0,
+        life_time = life_time,
+        time = time,
+        data = data,
+        matrix_id = matrix_id,
+        group_index = 0,
+        offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
+        rand_fish = 0,
+    }
+    new_fish[#new_fish+1] = new_info
+    self._fish[self._fish_id] = new_info
+    return new_info
+end
+
 function timestep:new_skill_fish(info, time, skill_fish, new_fish)
     local data = fish_data[info.fish_id]
     self._group_id = self._group_id + 1
@@ -586,23 +612,6 @@ function timestep:update_spline_fish(spline_info, new_fish)
 end
 
 function timestep:update_spline(new_fish)
-    -- local rand_spline, all_spline = {}, {}
-    -- for k, v in pairs(self._spline) do
-    --     if not self._spline_cd[k] then
-    --         rand_spline[#rand_spline+1] = v
-    --     end
-    --     all_spline[#all_spline+1] = v
-    -- end
-    -- local spline_info
-    -- if #rand_spline > 0 then
-    --     spline_info = rand_spline[math.random(#rand_spline)]
-    -- elseif #all_spline > 0 then
-    --     spline_info = all_spline[math.random(#all_spline)]
-    -- end
-    -- if spline_info then
-    --     self:update_spline_fish(spline_info, new_fish)
-    -- end
-
     for k, v in pairs(self._spline) do
         if not self._spline_cd[k] then
             self:update_spline_fish(v, new_fish)
@@ -749,14 +758,6 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
 end
 
 function timestep:update_boss(pool_info, new_fish)
-    -- if #pool_info.pool > 0 then
-    --     for k, v in ipairs(pool_info.pool) do
-    --         local info = v[1]
-    --         local time = self._game_time - info.time
-    --         self:new_boss(info, v[2], time, new_fish)
-    --     end
-    --     pool_info.pool = {}
-    -- end
     if pool_info.count < 3 then
         local rand_pool = {}
         for k, v in ipairs(pool_info.pool) do
@@ -780,7 +781,7 @@ function timestep:update_boss(pool_info, new_fish)
     end
 end
 
-function timestep:delete_fish(info, hit)
+function timestep:delete_fish(info, hit_user)
     self._fish[info.id] = nil
     local pool_info = self._fish_pool[info.data.type]
     if pool_info.count and info.incount then
@@ -796,65 +797,76 @@ function timestep:delete_fish(info, hit)
         self._rand_fish[info.rand_fish] = self._rand_fish[info.rand_fish] - 1
     end
     local event = self._event
-    if event.info and event.data and hit then
+    if event.info and event.data then
         local data = event.data
         local skill_fish = data.skill_fish
         if skill_fish and skill_fish[info.id] then
             skill_fish[info.id] = nil
-            data.hit_count = data.hit_count + 1
-            if data.hit_count >= data.skill_info.hit_count then
-                data.skill_fish = nil
-                local del_count, del_msg, kill_msg = 0, "", ""
-                for k, v in pairs(skill_fish) do
-                    self:delete_fish(v, false)
-                    del_count = del_count + 1
-                    del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
-                    kill_msg = kill_msg .. string.pack("<I4", k)
-                end
-                if data.fish then
-                    local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 1)
-                    self:broadcast(msg)
-                end
-                if data.skill_index < #data.rand_skill then
-                    data.skill_time = data.skill_data.interval
-                    data.skill_status = skill_status.ready
-                else
-                    if data.skill_data.loop_skill then
-                        util.shuffle(data.rand_skill)
-                        data.skill_index = 0
-                        data.skill_time = data.skill_data.interval - (data.skill_time - data.skill_info.duration)
-                        data.skill_status = skill_status.ready
+            if hit_user > 0 then
+                data.hit_count = data.hit_count + 1
+                if data.hit_count >= data.skill_info.hit_count then
+                    data.skill_fish = nil
+                    local del_count, del_msg, kill_msg = 0, "", ""
+                    for k, v in pairs(skill_fish) do
+                        self:delete_fish(v, 0)
+                        del_count = del_count + 1
+                        del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+                        kill_msg = kill_msg .. string.pack("<I4", k)
+                    end
+                    if data.fish then
+                        local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 1)
+                        self:broadcast(msg)
+                    end
+                    if data.skill_index < #data.rand_skill then
+                        data.skill_index = data.skill_index + 1
+                        data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                        data.skill_time = 0
+                        -- NOTICE: last skill has not trigger fish
+                        if data.skill_index == #data.rand_skill then
+                            data.skill_status = skill_status.ready
+                        else
+                            data.skill_status = skill_status.idle
+                        end
                     else
                         data.skill_time = 0
+                        data.skill_index = nil
+                        data.skill_info = nil
                         data.skill_status = skill_status.done
-                        event.time = event.info.duration - BOSS_EVENT_DELAY
+                        event.time = event.info.total_time - BOSS_EVENT_DELAY
                         if data.fish then
-                            self:delete_fish(data.fish, false)
+                            self:delete_fish(data.fish, 0)
                             del_count = del_count + 1
                             del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
                             kill_msg = kill_msg .. string.pack("<I4", data.fish.id)
                             data.fish = nil
                         end
                     end
-                end
-                skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
-                if del_count > 0 then
-                    if del_count > 100 then
-                        skynet_m.log("Kill fish exceed max count.")
+                    skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
+                    if del_count > 0 then
+                        if del_count > 100 then
+                            skynet_m.log("Kill fish exceed max count.")
+                        end
+                        for i = del_count + 1, 100 do
+                            kill_msg = kill_msg .. string.pack("<I4", 0)
+                        end
+                        skynet_m.send_lua(game_message, "send_kill_fish", {
+                            tableid = self._room_id,
+                            fish = kill_msg,
+                        })
+                        del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
+                        self:broadcast(del_msg)
                     end
-                    for i = del_count + 1, 100 do
-                        kill_msg = kill_msg .. string.pack("<I4", 0)
-                    end
-                    skynet_m.send_lua(game_message, "send_kill_fish", {
-                        tableid = self._room_id,
-                        fish = kill_msg,
-                    })
-                    del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
-                    self:broadcast(del_msg)
+                    data.skill_damage = nil
+                    data.trigger_user = nil
+                    data.fish_index = nil
+                    data.hit_count = nil
                 end
-                data.skill_info = nil
-                data.fish_index = nil
-                data.hit_count = nil
+            end
+        elseif data.trigger_fish and data.trigger_fish.id == info.id then
+            data.trigger_fish = nil
+            if hit_user > 0 then
+                data.skill_status = skill_status.ready
+                data.trigger_user = hit_user
             end
         end
     end
@@ -867,7 +879,7 @@ local normal_status = function(info)
     return true
 end
 
-function timestep:kill_fish(info, hit)
+function timestep:kill_fish(info, hit_user)
     local event = self._event
     if event.info and event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
         local data = event.data
@@ -875,7 +887,7 @@ function timestep:kill_fish(info, hit)
             if data.skill_status == skill_status.cast then
                 local del_count, del_msg, kill_msg = 0, "", ""
                 for k, v in pairs(data.skill_fish) do
-                    self:delete_fish(v, false)
+                    self:delete_fish(v, 0)
                     del_count = del_count + 1
                     del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                     kill_msg = kill_msg .. string.pack("<I4", k)
@@ -896,25 +908,53 @@ function timestep:kill_fish(info, hit)
                 end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
-                event.time = event.info.duration - BOSS_EVENT_DELAY
+                event.time = event.info.total_time - BOSS_EVENT_DELAY
                 data.fish = nil
                 data.skill_fish = nil
+                data.skill_damage = nil
+                data.trigger_user = nil
+                data.skill_index = nil
                 data.skill_info = nil
                 data.fish_index = nil
                 data.hit_count = nil
             else
+                local del_count, del_msg, kill_msg = 0, "", ""
+                if data.trigger_fish then
+                    self:delete_fish(data.trigger_fish, 0)
+                    del_count = del_count + 1
+                    del_msg = del_msg .. string.pack(">I4>I4", data.trigger_fish.id, data.trigger_fish.fish_id)
+                    kill_msg = kill_msg .. string.pack("<I4", data.trigger_fish.id)
+                    data.trigger_fish = nil
+                end
+                if del_count > 0 then
+                    if del_count > 100 then
+                        skynet_m.log("Kill fish exceed max count.")
+                    end
+                    for i = del_count + 1, 100 do
+                        kill_msg = kill_msg .. string.pack("<I4", 0)
+                    end
+                    skynet_m.send_lua(game_message, "send_kill_fish", {
+                        tableid = self._room_id,
+                        fish = kill_msg,
+                    })
+                    del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
+                    self:broadcast(del_msg)
+                end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
-                event.time = event.info.duration - BOSS_EVENT_DELAY
+                event.time = event.info.total_time - BOSS_EVENT_DELAY
                 data.fish = nil
                 data.skill_fish = nil
+                data.skill_damage = nil
+                data.trigger_user = nil
+                data.skill_index = nil
                 data.skill_info = nil
                 data.fish_index = nil
                 data.hit_count = nil
             end
         end
     end
-    self:delete_fish(info, hit)
+    self:delete_fish(info, hit_user)
 end
 
 function timestep:update()
@@ -932,7 +972,7 @@ function timestep:update()
         if normal_status(v) then
             v.time = v.time + etime
             if v.time >= v.life_time then
-                self:kill_fish(v, false)
+                self:kill_fish(v, 0)
                 del_count = del_count + 1
                 del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
                 kill_msg = kill_msg .. string.pack("<I4", k)
@@ -960,8 +1000,8 @@ function timestep:update()
         event.time = event.time + etime
         if event.info.type == event_type.fight_boss then
             stop_time = true
-            if event.time >= event.info.duration then
-                -- self._game_time = event.info.time + (event.time - event.info.duration)
+            if event.time >= event.info.total_time then
+                -- self._game_time = event.info.time + (event.time - event.info.total_time)
                 event.info = nil
                 event.time = 0
                 event.data = nil
@@ -1011,11 +1051,6 @@ function timestep:update()
     self:update_fish(etime, self._fish_pool[fish_type.small_fish], new_fish)
     self:update_fish(etime, self._fish_pool[fish_type.big_fish], new_fish, true)
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
-    -- self._spline_time = self._spline_time + etime
-    -- if self._spline_time >= 10 then
-    --     self:update_spline(new_fish)
-    --     self._spline_time = self._spline_time - 10
-    -- end
     self:update_spline(new_fish)
     if self._born_time > 0 then
         self._born_time = self._born_time - etime
@@ -1048,7 +1083,6 @@ function timestep:update()
             else
                 new_msg = new_msg .. string.pack("<I4<I2", v.id, v.data.kind)
             end
-            -- skynet_m.log(string.format("new fish %d %d %d", v.id, v.fish_id, v.data.kind))
             client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id,
                                                     v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset,
                                                     v.rand_fish)
@@ -1158,7 +1192,7 @@ function timestep:ready(info, data)
         local event = self._event
         if event.info then
             if event.info.type == event_type.fight_boss then
-                msg = msg .. string.pack(">I4>f", event.info.id, event.info.duration - event.time)
+                msg = msg .. string.pack(">I4>f", event.info.id, event.info.total_time - event.time)
                 local edata = event.data
                 if edata and edata.fish then
                     if edata.skill_status == skill_status.cast then
@@ -1291,20 +1325,12 @@ function timestep:hit_bomb(info, data)
         num = 99
     end
     local msg = string.pack("<I4", fishid)
-    -- skynet_m.log(string.format("hit bomb %d", fishid))
     local count = 1
     for i = 1, num do
         local fish_id
         fish_id, index = string.unpack(">I4", data, index)
         msg = msg .. string.pack("<I4", fish_id)
         count = count + 1
-
-        -- local fish_info = self._fish[fish_id]
-        -- if fish_info and not fish_info.data.bomb_immune
-        --         and fish_info.rand_fish == 0 then
-        --     msg = msg .. string.pack("<I4", fish_id)
-        --     count = count + 1
-        -- end
     end
     for i = count + 1, 100 do
         msg = msg .. string.pack("<I4", 0)
@@ -1315,6 +1341,94 @@ function timestep:hit_bomb(info, data)
         userid = info.user_id,
         bulletid = bulletid,
         bulletMulti = multi,
+        fish = msg,
+    })
+end
+
+function timestep:hit_trigger(info, data)
+    local self_id, fishid, multi, index = string.unpack(">I4>I4>I4", data, 3)
+    local bulletid = info.bullet[self_id]
+    if not bulletid then
+        skynet_m.log(string.format("Can't find bullet %d when user %d hit trigger fish %d.",
+                                    self_id, info.user_id, fishid))
+        return
+    end
+    local trigger_fish = self._fish[fishid]
+    if not trigger_fish or not util.is_trigger_fish(trigger_fish.fish_id) then
+        skynet_m.log(string.format("Illegal trigger fish %d.", fishid))
+        return
+    end
+    info.bullet[self_id] = nil
+    local num
+    num, index = string.unpack(">I2", data, index)
+    if num > 99 then
+        num = 99
+    end
+    local msg = string.pack("<I4", fishid)
+    local count = 1
+    for i = 1, num do
+        local fish_id
+        fish_id, index = string.unpack(">I4", data, index)
+        msg = msg .. string.pack("<I4", fish_id)
+        count = count + 1
+    end
+    for i = count + 1, 100 do
+        msg = msg .. string.pack("<I4", 0)
+    end
+    skynet_m.send_lua(game_message, "send_trigger_fish", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        bulletid = bulletid,
+        bulletMulti = multi,
+        fish = msg,
+    })
+end
+
+function timestep:update_damage_index(user_id, damage_index)
+    local event = self._event
+    if event.info then
+        if event.info.type == event_type.fight_boss then
+            local edata = event.data
+            if edata and edata.skill_status == skill_status.cast then
+                local skill_info = edata.skill_info
+                if skill_info and edata.skill_damage <= skill_info.damage_count
+                        and edata.skill_damage == damage_index then
+                    edata.skill_damage = edata.skill_damage + 1
+                    return true
+                end
+            end
+        end
+    end
+end
+
+function timestep:skill_damage(info, data)
+    local damage_index, index = string.unpack("B", data, 3)
+    if not self:update_damage_index(info.user_id, damage_index) then
+        skynet_m.log(string.format("Illegal skill status when user %d call skill damage.", info.user_id))
+        return
+    end
+    local num
+    num, index = string.unpack(">I2", data, index)
+    if num > 100 then
+        num = 100
+    end
+    local msg = ""
+    local count = 1
+    for i = 1, num do
+        local fish_id
+        fish_id, index = string.unpack(">I4", data, index)
+        msg = msg .. string.pack("<I4", fish_id)
+        count = count + 1
+    end
+    for i = count + 1, 100 do
+        msg = msg .. string.pack("<I4", 0)
+    end
+    skynet_m.send_lua(game_message, "send_skill_damage", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        damageindex = damage_index,
         fish = msg,
     })
 end
@@ -1349,7 +1463,7 @@ function timestep:on_dead(info)
     end
     local fish_info = self._fish[info.fishid]
     if fish_info then
-        self:kill_fish(fish_info, true)
+        self:kill_fish(fish_info, info.userid)
         if fish_info.fish_id == define.frozen_fish then
             skynet_m.log("kill frozen fish.")
             local item_info = {
@@ -1413,7 +1527,7 @@ function timestep:on_bomb_fish(info)
     for k, v in ipairs(info.fish) do
         local fish_info = self._fish[v.fishid]
         if fish_info then
-            self:kill_fish(fish_info, true)
+            self:kill_fish(fish_info, info.userid)
             del_msg = del_msg .. string.pack(">I4>I4>I4", v.fishid, fish_info.fish_id, v.score)
         else
             del_msg = del_msg .. string.pack(">I4>I4>I4", v.fishid, 0, v.score)
@@ -1421,6 +1535,27 @@ function timestep:on_bomb_fish(info)
     end
     local msg = string.pack(">I2B>I4>I2>I4>I8>I2", s_to_c.bomb_fish, user_info.pos, info.bulletid, info.bulletMulti,
                             info.winGold, info.fishScore, #info.fish) .. del_msg
+    self:broadcast(msg)
+end
+
+function timestep:on_skill_damage(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Skill damage can't find user %d.", info.userid))
+        return
+    end
+    local del_msg = ""
+    for k, v in ipairs(info.fish) do
+        local fish_info = self._fish[v.fishid]
+        if fish_info then
+            self:kill_fish(fish_info, info.userid)
+            del_msg = del_msg .. string.pack(">I4>I4>I4", v.fishid, fish_info.fish_id, v.score)
+        else
+            del_msg = del_msg .. string.pack(">I4>I4>I4", v.fishid, 0, v.score)
+        end
+    end
+    local msg = string.pack(">I2B>I4>I8>I2", s_to_c.skill_damage, user_info.pos, info.winGold, info.fishScore,
+                            #info.fish) .. del_msg
     self:broadcast(msg)
 end
 

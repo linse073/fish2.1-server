@@ -13,6 +13,8 @@ message.c_to_s = {
     use_item = 1007,
     set_cannon = 1008,
     hit_bomb = 1009,
+    hit_trigger = 1001,
+    skill_damage = 1002,
 }
 
 message.c_to_s_i = {}
@@ -37,6 +39,7 @@ message.s_to_c = {
     end_skill = 2014,
     use_item = 2015,
     bomb_fish = 2016,
+    skill_damage = 2017,
 }
 
 message.op_cmd = {

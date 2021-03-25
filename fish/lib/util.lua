@@ -29,6 +29,10 @@ function util.is_boss(fish_id)
     return fish_id >= 1000 and fish_id < 2000
 end
 
+function util.is_trigger_fish(fish_id)
+    return fish_id >= 4000 and fish_id < 4100
+end
+
 function util.ltrim(input)
     return string.gsub(input, "^[ \t\n\r]+", "")
 end
