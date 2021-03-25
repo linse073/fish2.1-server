@@ -113,16 +113,16 @@ skynet_m.init(function()
                 }
                 if sdata then
                     local rand_skill = {}
-                    for i = 1, #sdata.skill - 1 do
+                    for i = 1, #sdata - 1 do
                         rand_skill[#rand_skill+1] = i
                     end
                     util.shuffle(rand_skill)
-                    rand_skill[#rand_skill+1] = #sdata.skill
+                    rand_skill[#rand_skill+1] = #sdata
                     data.rand_skill = rand_skill
                     data.skill_time = 0
                     data.skill_status = skill_status.idle
                     data.skill_index = 1
-                    data.skill_info = sdata.skill[rand_skill[data.skill_index]]
+                    data.skill_info = sdata[rand_skill[data.skill_index]]
                 end
                 for k, v in pairs(self._fish) do
                     if v.fish_id == info.fish_id then
@@ -204,7 +204,7 @@ skynet_m.init(function()
                 skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                 if data.skill_index < #data.rand_skill then
                     data.skill_index = data.skill_index + 1
-                    data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                    data.skill_info = data.skill_data[data.rand_skill[data.skill_index]]
                     data.skill_time = 0
                     -- NOTICE: last skill has not trigger fish
                     if data.skill_index == #data.rand_skill then
@@ -819,7 +819,7 @@ function timestep:delete_fish(info, hit_user)
                     end
                     if data.skill_index < #data.rand_skill then
                         data.skill_index = data.skill_index + 1
-                        data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                        data.skill_info = data.skill_data[data.rand_skill[data.skill_index]]
                         data.skill_time = 0
                         -- NOTICE: last skill has not trigger fish
                         if data.skill_index == #data.rand_skill then
