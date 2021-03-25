@@ -13,8 +13,8 @@ message.c_to_s = {
     use_item = 1007,
     set_cannon = 1008,
     hit_bomb = 1009,
-    hit_trigger = 1001,
-    skill_damage = 1002,
+    hit_trigger = 1010,
+    skill_damage = 1011,
 }
 
 message.c_to_s_i = {}
