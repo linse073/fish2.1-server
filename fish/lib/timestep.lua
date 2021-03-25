@@ -145,7 +145,7 @@ skynet_m.init(function()
                 end
                 event.data = data
             end
-            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, info.total_time - event.time)
+            local msg = string.pack(">I2>I4>f", s_to_c.trigger_event, info.id, info.duration - event.time)
             self:broadcast(msg)
         end,
         [event_type.max_small_fish] = function(self, info)
@@ -218,7 +218,7 @@ skynet_m.init(function()
                     data.skill_info = nil
                     data.skill_status = skill_status.done
                     local event = self._event
-                    event.time = event.info.total_time - BOSS_EVENT_DELAY
+                    event.time = event.info.duration - BOSS_EVENT_DELAY
                     if data.fish then
                         self:delete_fish(data.fish, 0)
                         del_count = del_count + 1
@@ -832,7 +832,7 @@ function timestep:delete_fish(info, hit_user)
                         data.skill_index = nil
                         data.skill_info = nil
                         data.skill_status = skill_status.done
-                        event.time = event.info.total_time - BOSS_EVENT_DELAY
+                        event.time = event.info.duration - BOSS_EVENT_DELAY
                         if data.fish then
                             self:delete_fish(data.fish, 0)
                             del_count = del_count + 1
@@ -908,7 +908,7 @@ function timestep:kill_fish(info, hit_user)
                 end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
-                event.time = event.info.total_time - BOSS_EVENT_DELAY
+                event.time = event.info.duration - BOSS_EVENT_DELAY
                 data.fish = nil
                 data.skill_fish = nil
                 data.skill_damage = nil
@@ -942,7 +942,7 @@ function timestep:kill_fish(info, hit_user)
                 end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
-                event.time = event.info.total_time - BOSS_EVENT_DELAY
+                event.time = event.info.duration - BOSS_EVENT_DELAY
                 data.fish = nil
                 data.skill_fish = nil
                 data.skill_damage = nil
@@ -1000,8 +1000,8 @@ function timestep:update()
         event.time = event.time + etime
         if event.info.type == event_type.fight_boss then
             stop_time = true
-            if event.time >= event.info.total_time then
-                -- self._game_time = event.info.time + (event.time - event.info.total_time)
+            if event.time >= event.info.duration then
+                -- self._game_time = event.info.time + (event.time - event.info.duration)
                 event.info = nil
                 event.time = 0
                 event.data = nil
@@ -1192,7 +1192,7 @@ function timestep:ready(info, data)
         local event = self._event
         if event.info then
             if event.info.type == event_type.fight_boss then
-                msg = msg .. string.pack(">I4>f", event.info.id, event.info.total_time - event.time)
+                msg = msg .. string.pack(">I4>f", event.info.id, event.info.duration - event.time)
                 local edata = event.data
                 if edata and edata.fish then
                     if edata.skill_status == skill_status.cast then
