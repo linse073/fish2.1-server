@@ -40,6 +40,7 @@ message.s_to_c = {
     use_item = 2015,
     bomb_fish = 2016,
     skill_damage = 2017,
+    trigger_dead = 2018,
 }
 
 message.op_cmd = {

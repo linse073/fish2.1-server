@@ -174,7 +174,7 @@ skynet_m.init(function()
             data.skill_time = 0
             data.skill_status = skill_status.cast
             if data.fish then
-                local msg = string.pack(">I2>I4>I2", s_to_c.cast_skill, data.fish.id, fish_skill)
+                local msg = string.pack(">I2>I4>I2>I4", s_to_c.cast_skill, data.fish.id, fish_skill, data.trigger_user)
                 self:broadcast(msg)
             end
             local fish_pool = data.skill_info.fish
@@ -1196,9 +1196,10 @@ function timestep:ready(info, data)
                 local edata = event.data
                 if edata and edata.fish then
                     if edata.skill_status == skill_status.cast then
-                        msg = msg .. string.pack(">I4>I2", edata.fish.id, edata.rand_skill[edata.skill_index])
+                        msg = msg .. string.pack(">I4>I2>I4", edata.fish.id, edata.rand_skill[edata.skill_index],
+                                                    edata.trigger_user)
                     else
-                        msg = msg .. string.pack(">I4>I2", edata.fish.id, 0)
+                        msg = msg .. string.pack(">I4>I2>I4", edata.fish.id, 0, 0)
                     end
                 else
                     msg = msg .. string.pack(">I4", 0)
@@ -1485,8 +1486,8 @@ function timestep:on_dead(info)
                                 fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
     else
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid, 0,
-                                info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
+                                0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
     end
 end
@@ -1536,6 +1537,26 @@ function timestep:on_bomb_fish(info)
     local msg = string.pack(">I2B>I4>I2>I4>I8>I2", s_to_c.bomb_fish, user_info.pos, info.bulletid, info.bulletMulti,
                             info.winGold, info.fishScore, #info.fish) .. del_msg
     self:broadcast(msg)
+end
+
+function timestep:on_trigger_dead(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Dead can't find user %d.", info.userid))
+        return
+    end
+    local fish_info = self._fish[info.fishid]
+    if fish_info then
+        self:kill_fish(fish_info, info.userid)
+        -- NOTICE: no bullet self_id info
+        local msg = string.pack(">I2B>I4>I4>I4>I2", s_to_c.trigger_dead, user_info.pos, info.bulletid, info.fishid,
+                                fish_info.fish_id, info.bulletMulti)
+        self:broadcast(msg)
+    else
+        local msg = string.pack(">I2B>I4>I4>I4>I2", s_to_c.trigger_dead, user_info.pos, info.bulletid, info.fishid,
+                                0, info.bulletMulti)
+        self:broadcast(msg)
+    end
 end
 
 function timestep:on_skill_damage(info)

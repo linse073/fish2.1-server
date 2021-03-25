@@ -211,11 +211,11 @@ local function recv_trigger_fish(tableid, info)
     if math.random(1000) <= 50 then
         info.fishid = string.unpack("<I4", info.fish)
         info.fish = nil
-        info.fishKind, info.multi, info.winGold, info.fishScore, info.code = 1, 1, 10000, 100000, 0
-        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
-                                    info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+        info.fishKind = 1
+        skynet_m.log(string.format("TriggerFish: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                    info.bulletid, info.fishid))
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-        skynet_m.send_lua(room, "on_dead", info)
+        skynet_m.send_lua(room, "on_trigger_dead", info)
     end
 end
 
