@@ -114,7 +114,7 @@ local function pack_trigger_fish(msg)
 end
 
 local function pack_skill_damage(msg)
-    return string.pack("<I2<I4B", msg.seatid, msg.userid, msg.damageindex) .. msg.fish
+    return string.pack("<I2<I4", msg.seatid, msg.userid) .. msg.fish
 end
 
 pack_message[13501] = pack_link

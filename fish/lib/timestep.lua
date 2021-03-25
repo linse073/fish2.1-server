@@ -1429,7 +1429,6 @@ function timestep:skill_damage(info, data)
         tableid = self._room_id,
         seatid = info.pos - 1,
         userid = info.user_id,
-        damageindex = damage_index,
         fish = msg,
     })
 end
