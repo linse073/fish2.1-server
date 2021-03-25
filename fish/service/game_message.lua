@@ -109,6 +109,14 @@ local function pack_clear(msg)
     return string.pack("<I4", msg.flag)
 end
 
+local function pack_trigger_fish(msg)
+    return string.pack("<I2<I4<I4<I2", msg.seatid, msg.userid, msg.bulletid, msg.bulletMulti) .. msg.fish
+end
+
+local function pack_skill_damage(msg)
+    return string.pack("<I2<I4B", msg.seatid, msg.userid, msg.damageindex) .. msg.fish
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -121,6 +129,8 @@ pack_cmd[1406] = pack_catch_fish
 pack_cmd[1407] = pack_kill_fish
 pack_cmd[1408] = pack_bomb_fish
 pack_cmd[1409] = pack_clear
+pack_cmd[1410] = pack_trigger_fish
+pack_cmd[1411] = pack_skill_damage
 
 function CMD.send_link()
     send_msg(13501)
@@ -320,6 +330,50 @@ local function recv_bomb_fish(tableid, msg)
     skynet_m.send_lua(room, "on_bomb_fish", info)
 end
 
+local function recv_trigger_fish(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    info.seatid, info.userid, info.bulletid, info.bulletMulti, info.fishid, info.fishKind
+        = string.unpack("<I2<I4<I4<I2<I4<I2", msg)
+    skynet_m.log(string.format("TriggerFish: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                info.bulletid, info.fishid))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_trigger_dead", info)
+end
+
+local function recv_skill_damage(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    local fish, index = {}, 1
+    info.seatid, info.userid, info.bulletid, info.bulletMulti, info.winGold, info.fishScore, index
+        = string.unpack("<I2<I4<I4<I2<I4<I8", msg, index)
+    for i = 1, 100 do
+        local id
+        id, index = string.unpack("<I4", msg, index)
+        if id > 0 then
+            fish[#fish+1] = {
+                fishid = id,
+            }
+        end
+    end
+    for i = 1, 100 do
+        local score
+        score, index = string.unpack("<I4", msg, index)
+        local fish_info = fish[i]
+        if fish_info then
+            fish_info.score = score
+        else
+            -- NOTICE: have no use for string.unpack
+            break
+        end
+    end
+    info.fish = fish
+    skynet_m.log(string.format("SkillDamage begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                info.winGold, info.fishScore))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_skill_damage", info)
+end
+
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -332,6 +386,8 @@ cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
 cmd_handle[1308] = recv_bomb_fish
+cmd_handle[1309] = recv_trigger_fish
+cmd_handle[1310] = recv_skill_damage
 
 function CMD.recv_msg(msg)
     local len, id, index = string.unpack("<I2<I2", msg)

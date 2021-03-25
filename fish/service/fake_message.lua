@@ -104,8 +104,8 @@ local message_map = {
     [1405] = 1305,
     [1406] = 1306,
     [1408] = 1308,
-    [1410] = 1310,
-    [1411] = 1311,
+    [1410] = 1309,
+    [1411] = 1310,
 }
 
 local function recv_cmd(msg)
@@ -255,8 +255,8 @@ cmd_handle[1305] = recv_fire
 cmd_handle[1306] = recv_catch_fish
 cmd_handle[1307] = recv_set_cannon
 cmd_handle[1308] = recv_bomb_fish
-cmd_handle[1310] = recv_trigger_fish
-cmd_handle[1311] = recv_skill_damage
+cmd_handle[1309] = recv_trigger_fish
+cmd_handle[1310] = recv_skill_damage
 
 function CMD.recv_msg(id, msg)
     assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)
