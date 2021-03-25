@@ -30,7 +30,7 @@ function util.is_boss(fish_id)
 end
 
 function util.is_trigger_fish(fish_id)
-    return fish_id >= 4000 and fish_id < 4100
+    return fish_id >= 3100 and fish_id < 3200
 end
 
 function util.ltrim(input)
