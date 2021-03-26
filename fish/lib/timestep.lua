@@ -174,8 +174,14 @@ skynet_m.init(function()
             data.skill_time = 0
             data.skill_status = skill_status.cast
             if data.fish then
-                local msg = string.pack(">I2>I4>I2>I4", s_to_c.cast_skill, data.fish.id, fish_skill, data.trigger_user)
-                self:broadcast(msg)
+                if data.trigger_user then
+                    local msg = string.pack(">I2>I4>I2>I4", s_to_c.cast_skill, data.fish.id, fish_skill,
+                                            data.trigger_user)
+                    self:broadcast(msg)
+                else
+                    local msg = string.pack(">I2>I4>I2>I4", s_to_c.cast_skill, data.fish.id, fish_skill, 0)
+                    self:broadcast(msg)
+                end
             end
             local fish_pool = data.skill_info.fish
             while data.fish_index <= #fish_pool do
