@@ -424,7 +424,7 @@ local data = {
 	},
 	[3100] = {
 		type = 1,
-		life_time = 0.000000,
+		life_time = 100.000000,
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
@@ -433,7 +433,7 @@ local data = {
 	},
 	[3101] = {
 		type = 1,
-		life_time = 0.000000,
+		life_time = 100.000000,
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
