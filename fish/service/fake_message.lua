@@ -156,20 +156,20 @@ local function recv_build_fish(tableid, msg)
         end
     end
     local code = 0
-    skynet_m.log(string.format("BuildFishs: %d %d.", tableid, code))
+    -- skynet_m.log(string.format("BuildFishs: %d %d.", tableid, code))
 end
 
 local function recv_fire(tableid, info)
     local bullet = info.bullet
     info.code, info.costGold, info.fishScore = 0, 1000, 10000
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
-                                info.code, info.costGold, info.fishScore))
+    -- skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
+    --                             info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_fire", info)
 end
 
 local function recv_catch_fish(tableid, info)
-    if math.random(1000) <= 50 then
+    if math.random(1000) <= 50 and info.fish then
         info.fishKind, info.multi, info.winGold, info.fishScore, info.code = 1, 1, 10000, 100000, 0
         skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
                                     info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
@@ -184,7 +184,7 @@ local function recv_set_cannon(tableid, info)
 end
 
 local function recv_bomb_fish(tableid, info)
-    if math.random(1000) <= 50 then
+    if math.random(1000) <= 50 and info.bomb_fish then
         local fish, index, totalScore = {}, 1, 0
         for i = 1, 100 do
             local id
@@ -208,7 +208,7 @@ local function recv_bomb_fish(tableid, info)
 end
 
 local function recv_trigger_fish(tableid, info)
-    if math.random(1000) <= 50 then
+    if math.random(1000) <= 50 and info.trigger_fish then
         info.fishid = string.unpack("<I4", info.fish)
         info.fish = nil
         info.fishKind = 1

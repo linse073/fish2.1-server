@@ -472,6 +472,7 @@ function timestep:new_skill_trigger_fish(fish_id, time, new_fish)
     }
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
+    skynet_m.log(string.format("new skill trigger fish %d %d.", fish_id, self._fish_id))
     return new_info
 end
 
@@ -761,6 +762,7 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
     pool.fish[info.fish_id] = new_info
+    skynet_m.log(string.format("new boss %d %d.", info.fish_id, self._fish_id))
 end
 
 function timestep:update_boss(pool_info, new_fish)
@@ -1281,6 +1283,7 @@ function timestep:hit(info, data)
         bulletid = bulletid,
         fishid = fishid,
         bulletMulti = multi,
+        fish = self._fish[fishid],
     })
 end
 
@@ -1320,11 +1323,11 @@ function timestep:hit_bomb(info, data)
                                     self_id, info.user_id, fishid))
         return
     end
-    local bomb_fish = self._fish[fishid]
-    if not bomb_fish or not define.bomb_fish[bomb_fish.fish_id] then
-        skynet_m.log(string.format("Illegal bomb fish %d.", fishid))
-        return
-    end
+    -- local bomb_fish = self._fish[fishid]
+    -- if not bomb_fish or not define.bomb_fish[bomb_fish.fish_id] then
+    --     skynet_m.log(string.format("Illegal bomb fish %d.", fishid))
+    --     return
+    -- end
     info.bullet[self_id] = nil
     local num
     num, index = string.unpack(">I2", data, index)
@@ -1349,6 +1352,7 @@ function timestep:hit_bomb(info, data)
         bulletid = bulletid,
         bulletMulti = multi,
         fish = msg,
+        bomb_fish = self._fish[fishid],
     })
 end
 
@@ -1360,11 +1364,16 @@ function timestep:hit_trigger(info, data)
                                     self_id, info.user_id, fishid))
         return
     end
-    local trigger_fish = self._fish[fishid]
-    if not trigger_fish or not util.is_trigger_fish(trigger_fish.fish_id) then
-        skynet_m.log(string.format("Illegal trigger fish %d.", fishid))
-        return
-    end
+    -- local trigger_fish = self._fish[fishid]
+    -- if not trigger_fish or not util.is_trigger_fish(trigger_fish.fish_id) then
+    --     if trigger_fish then
+    --         skynet_m.log(string.format("Illegal trigger fish %d %d.", fishid, trigger_fish.fish_id))
+    --     else
+    --         skynet_m.log(string.format("Illegal trigger fish %d.", fishid))
+    --     end
+    --     return
+    -- end
+    skynet_m.log(string.format("hit trigger %d.", fishid))
     info.bullet[self_id] = nil
     local num
     num, index = string.unpack(">I2", data, index)
@@ -1389,6 +1398,7 @@ function timestep:hit_trigger(info, data)
         bulletid = bulletid,
         bulletMulti = multi,
         fish = msg,
+        trigger_fish = self._fish[fishid],
     })
 end
 

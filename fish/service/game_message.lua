@@ -259,7 +259,7 @@ local function recv_build_fish(tableid, msg)
         end
     end
     local code = string.unpack("<I2", msg, index)
-    skynet_m.log(string.format("BuildFishs: %d %d.", tableid, code))
+    -- skynet_m.log(string.format("BuildFishs: %d %d.", tableid, code))
 end
 
 local function recv_fire(tableid, msg)
@@ -272,8 +272,8 @@ local function recv_fire(tableid, msg)
                                                                                                 index)
     info.bullet = bullet
     info.code, info.costGold, info.fishScore = string.unpack("<I2<I4<I8", msg, index)
-    skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
-                                info.code, info.costGold, info.fishScore))
+    -- skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
+    --                             info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_fire", info)
 end
