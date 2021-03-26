@@ -52,6 +52,10 @@ function CMD.on_skill_damage(info)
     timestep_i:on_skill_damage(info)
 end
 
+function CMD.on_trigger_dead(info)
+    timestep_i:on_trigger_dead(info)
+end
+
 skynet_m.start(function()
     timestep_i = setmetatable({}, timestep)
     timestep_i:init(room_id)

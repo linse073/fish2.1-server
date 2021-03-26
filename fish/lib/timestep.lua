@@ -919,12 +919,12 @@ function timestep:kill_fish(info, hit_user)
                 data.hit_count = nil
             else
                 local del_count, del_msg, kill_msg = 0, "", ""
-                if data.trigger_fish then
-                    self:delete_fish(data.trigger_fish, 0)
+                local trigger_fish = data.trigger_fish
+                if trigger_fish then
+                    self:delete_fish(trigger_fish, 0)
                     del_count = del_count + 1
-                    del_msg = del_msg .. string.pack(">I4>I4", data.trigger_fish.id, data.trigger_fish.fish_id)
-                    kill_msg = kill_msg .. string.pack("<I4", data.trigger_fish.id)
-                    data.trigger_fish = nil
+                    del_msg = del_msg .. string.pack(">I4>I4", trigger_fish.id, trigger_fish.fish_id)
+                    kill_msg = kill_msg .. string.pack("<I4", trigger_fish.id)
                 end
                 if del_count > 0 then
                     if del_count > 100 then
