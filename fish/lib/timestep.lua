@@ -119,10 +119,14 @@ skynet_m.init(function()
                     util.shuffle(rand_skill)
                     rand_skill[#rand_skill+1] = #sdata
                     data.rand_skill = rand_skill
-                    data.skill_time = 0
-                    data.skill_status = skill_status.idle
                     data.skill_index = 1
-                    data.skill_info = sdata[rand_skill[data.skill_index]]
+                    data.skill_info = sdata.skill[rand_skill[data.skill_index]]
+                    data.skill_time = sdata.born_time
+                    if data.skill_info.fish_id > 0 or data.skill_time > 0 then
+                        data.skill_status = skill_status.idle
+                    else
+                        data.skill_status = skill_status.ready
+                    end
                 end
                 for k, v in pairs(self._fish) do
                     if v.fish_id == info.fish_id then
@@ -157,23 +161,29 @@ skynet_m.init(function()
     }
     skill_function = {
         [skill_status.idle] = function(self, data, etime, new_fish)
-            if not data.trigger_fish and data.fish then
+            data.skill_time = data.skill_time - etime
+            if data.skill_time <= 0 then
                 local fish_id = data.skill_info.fish_id
                 if fish_id > 0 then
-                    data.trigger_fish = self:new_skill_trigger_fish(fish_id, 0, new_fish)
+                    if not data.trigger_fish and data.fish then
+                        data.trigger_fish = self:new_skill_trigger_fish(fish_id, 0, new_fish)
+                    end
+                else
+                    data.skill_time = 0
+                    data.skill_status = skill_status.ready
                 end
             end
         end,
         [skill_status.ready] = function(self, data, etime, new_fish)
-            local fish_skill = data.rand_skill[data.skill_index]
-            skynet_m.log(string.format("cast skill %d", fish_skill))
-            data.skill_fish = {}
-            data.skill_damage = 1
-            data.fish_index = 1
-            data.hit_count = 0
-            data.skill_time = 0
-            data.skill_status = skill_status.cast
             if data.fish then
+                local fish_skill = data.rand_skill[data.skill_index]
+                skynet_m.log(string.format("cast skill %d", fish_skill))
+                data.skill_fish = {}
+                data.skill_damage = 1
+                data.fish_index = 1
+                data.hit_count = 0
+                data.skill_time = 0
+                data.skill_status = skill_status.cast
                 if data.trigger_user then
                     local msg = string.pack(">I2>I4>I2>I4", s_to_c.cast_skill, data.fish.id, fish_skill,
                                             data.trigger_user)
@@ -182,75 +192,72 @@ skynet_m.init(function()
                     local msg = string.pack(">I2>I4>I2>I4", s_to_c.cast_skill, data.fish.id, fish_skill, 0)
                     self:broadcast(msg)
                 end
-            end
-            local fish_pool = data.skill_info.fish
-            while data.fish_index <= #fish_pool do
-                local fish_info = fish_pool[data.fish_index]
-                if data.skill_time < fish_info.time then
-                    break
+                local fish_pool = data.skill_info.fish
+                while data.fish_index <= #fish_pool do
+                    local fish_info = fish_pool[data.fish_index]
+                    if data.skill_time < fish_info.time then
+                        break
+                    end
+                    self:new_skill_fish(fish_info, data.skill_time - fish_info.time, data.skill_fish, new_fish)
+                    data.fish_index = data.fish_index + 1
                 end
-                self:new_skill_fish(fish_info, data.skill_time - fish_info.time, data.skill_fish, new_fish)
-                data.fish_index = data.fish_index + 1
             end
         end,
         [skill_status.cast] = function(self, data, etime, new_fish)
             data.skill_time = data.skill_time + etime
             if data.skill_time >= data.skill_info.duration then
-                local del_count, del_msg, kill_msg = 0, "", ""
-                for k, v in pairs(data.skill_fish) do
-                    self:delete_fish(v, 0)
-                    del_count = del_count + 1
-                    del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
-                    kill_msg = kill_msg .. string.pack("<I4", k)
-                end
                 if data.fish then
+                    local del_count, del_msg, kill_msg = 0, "", ""
+                    for k, v in pairs(data.skill_fish) do
+                        self:delete_fish(v, 0)
+                        del_count = del_count + 1
+                        del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+                        kill_msg = kill_msg .. string.pack("<I4", k)
+                    end
                     local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 0)
                     self:broadcast(msg)
-                end
-                skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
-                if data.skill_index < #data.rand_skill then
-                    data.skill_index = data.skill_index + 1
-                    data.skill_info = data.skill_data[data.rand_skill[data.skill_index]]
-                    data.skill_time = 0
-                    -- NOTICE: last skill has not trigger fish
-                    if data.skill_index == #data.rand_skill then
-                        data.skill_status = skill_status.ready
+                    skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
+                    if data.skill_index < #data.rand_skill then
+                        data.skill_time = data.skill_info.delay
+                        data.skill_index = data.skill_index + 1
+                        data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                        if data.skill_info.fish_id > 0 or data.skill_time > 0 then
+                            data.skill_status = skill_status.idle
+                        else
+                            data.skill_status = skill_status.ready
+                        end
                     else
-                        data.skill_status = skill_status.idle
-                    end
-                else
-                    data.skill_time = 0
-                    data.skill_index = nil
-                    data.skill_info = nil
-                    data.skill_status = skill_status.done
-                    local event = self._event
-                    event.time = event.info.duration - BOSS_EVENT_DELAY
-                    if data.fish then
+                        data.skill_time = 0
+                        data.skill_index = nil
+                        data.skill_info = nil
+                        data.skill_status = skill_status.done
+                        local event = self._event
+                        event.time = event.info.duration - BOSS_EVENT_DELAY
                         self:delete_fish(data.fish, 0)
                         del_count = del_count + 1
                         del_msg = del_msg .. string.pack(">I4>I4", data.fish.id, data.fish.fish_id)
                         data.fish = nil
                     end
-                end
-                if del_count > 0 then
-                    if del_count > 100 then
-                        skynet_m.log("Kill fish exceed max count.")
+                    if del_count > 0 then
+                        if del_count > 100 then
+                            skynet_m.log("Kill fish exceed max count.")
+                        end
+                        for i = del_count + 1, 100 do
+                            kill_msg = kill_msg .. string.pack("<I4", 0)
+                        end
+                        skynet_m.send_lua(game_message, "send_kill_fish", {
+                            tableid = self._room_id,
+                            fish = kill_msg,
+                        })
+                        del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
+                        self:broadcast(del_msg)
                     end
-                    for i = del_count + 1, 100 do
-                        kill_msg = kill_msg .. string.pack("<I4", 0)
-                    end
-                    skynet_m.send_lua(game_message, "send_kill_fish", {
-                        tableid = self._room_id,
-                        fish = kill_msg,
-                    })
-                    del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
-                    self:broadcast(del_msg)
+                    data.skill_fish = nil
+                    data.skill_damage = nil
+                    data.trigger_user = nil
+                    data.fish_index = nil
+                    data.hit_count = nil
                 end
-                data.skill_fish = nil
-                data.skill_damage = nil
-                data.trigger_user = nil
-                data.fish_index = nil
-                data.hit_count = nil
             else
                 local fish_pool = data.skill_info.fish
                 while data.fish_index <= #fish_pool do
@@ -826,14 +833,13 @@ function timestep:delete_fish(info, hit_user)
                         self:broadcast(msg)
                     end
                     if data.skill_index < #data.rand_skill then
+                        data.skill_time = data.skill_info.delay
                         data.skill_index = data.skill_index + 1
-                        data.skill_info = data.skill_data[data.rand_skill[data.skill_index]]
-                        data.skill_time = 0
-                        -- NOTICE: last skill has not trigger fish
-                        if data.skill_index == #data.rand_skill then
-                            data.skill_status = skill_status.ready
-                        else
+                        data.skill_info = data.skill_data.skill[data.rand_skill[data.skill_index]]
+                        if data.skill_info.fish_id > 0 or data.skill_time > 0 then
                             data.skill_status = skill_status.idle
+                        else
+                            data.skill_status = skill_status.ready
                         end
                     else
                         data.skill_time = 0
