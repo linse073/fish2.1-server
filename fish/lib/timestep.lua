@@ -113,11 +113,11 @@ skynet_m.init(function()
                 }
                 if sdata then
                     local rand_skill = {}
-                    for i = 1, #sdata - 1 do
+                    for i = 1, #sdata.skill - 1 do
                         rand_skill[#rand_skill+1] = i
                     end
                     util.shuffle(rand_skill)
-                    rand_skill[#rand_skill+1] = #sdata
+                    rand_skill[#rand_skill+1] = #sdata.skill
                     data.rand_skill = rand_skill
                     data.skill_index = 1
                     data.skill_info = sdata.skill[rand_skill[data.skill_index]]
