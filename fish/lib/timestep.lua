@@ -1373,7 +1373,7 @@ function timestep:hit_trigger(info, data)
     --     end
     --     return
     -- end
-    skynet_m.log(string.format("hit trigger %d.", fishid))
+    -- skynet_m.log(string.format("hit trigger %d.", fishid))
     info.bullet[self_id] = nil
     local num
     num, index = string.unpack(">I2", data, index)

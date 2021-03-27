@@ -1,8 +1,5 @@
 #!/bin/bash
 
-pid=`pgrep -f config_02`
-if [ $pid ]; then
-    kill $pid
-fi
+pgrep -f config_02 | xargs kill
 cd ~/fish01/fish-server/shell
 ./run_02.sh
