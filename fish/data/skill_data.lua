@@ -1,6 +1,7 @@
 local data = {
 	[1001] = {
         born_time = 12,      --boss出生到第一个技能开始时间
+		rand_skill = true,
         skill = {
 			{
                 duration = 30,
@@ -253,6 +254,7 @@ local data = {
 	},
 	[1006] = {
 		born_time = 10,
+		rand_skill = false,
 		skill = {
 			{
 				duration = 6, -- 技能持续时间

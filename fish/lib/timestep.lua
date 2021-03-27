@@ -116,7 +116,9 @@ skynet_m.init(function()
                     for i = 1, #sdata.skill - 1 do
                         rand_skill[#rand_skill+1] = i
                     end
-                    util.shuffle(rand_skill)
+                    if sdata.rand_skill then
+                        util.shuffle(rand_skill)
+                    end
                     rand_skill[#rand_skill+1] = #sdata.skill
                     data.rand_skill = rand_skill
                     data.skill_index = 1
