@@ -834,6 +834,7 @@ function timestep:delete_fish(info, hit_user)
                         local msg = string.pack(">I2>I4B", s_to_c.end_skill, data.fish.id, 1)
                         self:broadcast(msg)
                     end
+                    skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                     if data.skill_index < #data.rand_skill then
                         data.skill_time = data.skill_info.delay
                         data.skill_index = data.skill_index + 1
@@ -857,7 +858,6 @@ function timestep:delete_fish(info, hit_user)
                             data.fish = nil
                         end
                     end
-                    skynet_m.log(string.format("End skill %d", data.rand_skill[data.skill_index]))
                     if del_count > 0 then
                         if del_count > 100 then
                             skynet_m.log("Kill fish exceed max count.")
