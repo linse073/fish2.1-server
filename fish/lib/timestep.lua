@@ -771,6 +771,7 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
     new_fish[#new_fish+1] = new_info
     self._fish[self._fish_id] = new_info
     pool.fish[info.fish_id] = new_info
+    util.dump(new_info)
     -- skynet_m.log(string.format("new boss %d %d.", info.fish_id, self._fish_id))
 end
 
