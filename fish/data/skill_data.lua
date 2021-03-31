@@ -285,6 +285,72 @@ local data = {
 			},
 		},
 	},
+	[1005] = {
+		born_time = 6.5,
+		rand_skill = false,
+		skill = {
+			{
+				duration = 6.5, -- 技能持续时间
+				hit_count = 0, -- 被命中几次打断技能
+				fish_id = 3102,
+				damage_count = 0,
+				delay = 0,
+				fish = {
+				},
+			},
+			{
+				duration = 12, -- 技能持续时间
+				hit_count = 0, -- 被命中几次打断技能
+				fish_id = 3103,
+				damage_count = 0,
+				delay = 0,
+				fish = {
+				},
+			},
+			{
+				duration = 20, -- 技能持续时间
+				hit_count = 0, -- 被命中几次打断技能
+				fish_id = 0,
+				damage_count = 0,
+				delay = 0,
+				fish = {
+				},
+			},
+		},
+	},
+	[1010] = {
+		born_time = 6,
+		rand_skill = false,
+		skill = {
+			{
+				duration = 6.5, -- 技能持续时间
+				hit_count = 0, -- 被命中几次打断技能
+				fish_id = 3104,
+				damage_count = 0,
+				delay = 0,
+				fish = {
+				},
+			},
+			{
+				duration = 12, -- 技能持续时间
+				hit_count = 0, -- 被命中几次打断技能
+				fish_id = 3105,
+				damage_count = 0,
+				delay = 0,
+				fish = {
+				},
+			},
+			{
+				duration = 20, -- 技能持续时间
+				hit_count = 0, -- 被命中几次打断技能
+				fish_id = 0,
+				damage_count = 0,
+				delay = 0,
+				fish = {
+				},
+			},
+		},
+	},
 }
 
 return data
