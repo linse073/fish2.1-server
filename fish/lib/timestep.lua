@@ -1431,7 +1431,8 @@ end
 function timestep:skill_damage(info, data)
     local damage_index, index = string.unpack("B", data, 3)
     if not self:update_damage_index(info.user_id, damage_index) then
-        skynet_m.log(string.format("Illegal skill status when user %d call skill damage.", info.user_id))
+        skynet_m.log(string.format("Illegal skill status when user %d call skill damage %d.", info.user_id,
+                                    damage_index))
         return
     end
     local num

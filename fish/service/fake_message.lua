@@ -220,27 +220,25 @@ local function recv_trigger_fish(tableid, info)
 end
 
 local function recv_skill_damage(tableid, info)
-    if math.random(1000) <= 50 then
-        local fish, index, totalScore = {}, 1, 0
-        for i = 1, 100 do
-            local id
-            id, index = string.unpack("<I4", info.fish, index)
-            if id > 0 then
-                fish[#fish+1] = {
-                    fishid = id,
-                    score = 10000,
-                }
-                totalScore = totalScore + 10000
-            else
-                break
-            end
+    local fish, index, totalScore = {}, 1, 0
+    for i = 1, 100 do
+        local id
+        id, index = string.unpack("<I4", info.fish, index)
+        if id > 0 then
+            fish[#fish+1] = {
+                fishid = id,
+                score = 10000,
+            }
+            totalScore = totalScore + 10000
+        else
+            break
         end
-        info.fish, info.winGold, info.fishScore = fish, totalScore, 100000 + totalScore
-        skynet_m.log(string.format("SkillDamage begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
-                                    info.winGold, info.fishScore))
-        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
-        skynet_m.send_lua(room, "on_skill_damage", info)
     end
+    info.fish, info.winGold, info.fishScore = fish, totalScore, 100000 + totalScore
+    skynet_m.log(string.format("SkillDamage begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+                                info.winGold, info.fishScore))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_skill_damage", info)
 end
 
 message_handle[13502] = recv_link
