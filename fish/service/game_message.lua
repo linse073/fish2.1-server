@@ -176,6 +176,14 @@ function CMD.send_clear(msg)
     send_cmd(1409, msg)
 end
 
+function CMD.send_trigger_fish(msg)
+    send_cmd(1410, msg)
+end
+
+function CMD.send_skill_damage(msg)
+    send_cmd(1411, msg)
+end
+
 -- NOTICE: recv message
 
 local function unpack_string(pack, index)
