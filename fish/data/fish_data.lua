@@ -350,22 +350,13 @@ local data = {
 		kind = 53,
 		matrix_radius = 0.000000,
 	},
-	[1001] = {
-		type = 3,
-		life_time = 240.000000,
-		frozen_immune = true,
-		bomb_immune = true,
-		avoid_radius = 0.000000,
-		kind = 60,
-		matrix_radius = 0.000000,
-	},
 	[3000] = {
 		type = 1,
 		life_time = 100.000000,
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3001] = {
@@ -374,7 +365,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3002] = {
@@ -383,7 +374,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3003] = {
@@ -392,7 +383,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3004] = {
@@ -401,7 +392,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3005] = {
@@ -410,7 +401,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3006] = {
@@ -419,7 +410,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 34,
+		kind = 60,
 		matrix_radius = 0.000000,
 	},
 	[3100] = {
@@ -428,7 +419,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 1,
+		kind = 62,
 		matrix_radius = 0.000000,
 	},
 	[3101] = {
@@ -437,7 +428,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 1,
+		kind = 61,
 		matrix_radius = 0.000000,
 	},
 	[3102] = {
@@ -446,7 +437,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 1,
+		kind = 61,
 		matrix_radius = 0.000000,
 	},
 	[3103] = {
@@ -455,7 +446,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 1,
+		kind = 61,
 		matrix_radius = 0.000000,
 	},
 	[3104] = {
@@ -464,7 +455,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 1,
+		kind = 61,
 		matrix_radius = 0.000000,
 	},
 	[3105] = {
@@ -473,7 +464,16 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 1,
+		kind = 61,
+		matrix_radius = 0.000000,
+	},
+	[1001] = {
+		type = 3,
+		life_time = 240.000000,
+		frozen_immune = true,
+		bomb_immune = true,
+		avoid_radius = 0.000000,
+		kind = 80,
 		matrix_radius = 0.000000,
 	},
 	[1005] = {
@@ -482,7 +482,7 @@ local data = {
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 61,
+		kind = 81,
 		matrix_radius = 0.000000,
 	},
 	[1006] = {
@@ -491,7 +491,7 @@ local data = {
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 62,
+		kind = 82,
 		matrix_radius = 0.000000,
 	},
 	[1007] = {
@@ -500,7 +500,7 @@ local data = {
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 63,
+		kind = 83,
 		matrix_radius = 0.000000,
 	},
 	[1008] = {
@@ -509,7 +509,7 @@ local data = {
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 64,
+		kind = 84,
 		matrix_radius = 0.000000,
 	},
 	[1009] = {
@@ -518,7 +518,7 @@ local data = {
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 65,
+		kind = 85,
 		matrix_radius = 0.000000,
 	},
 	[1010] = {
@@ -527,7 +527,7 @@ local data = {
 		frozen_immune = true,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 66,
+		kind = 86,
 		matrix_radius = 0.000000,
 	},
 }
