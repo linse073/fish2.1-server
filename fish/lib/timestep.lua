@@ -1444,7 +1444,7 @@ function timestep:skill_damage(info, data)
         num = 100
     end
     local msg = ""
-    local count = 1
+    local count = 0
     for i = 1, num do
         local fish_id
         fish_id, index = string.unpack(">I4", data, index)
