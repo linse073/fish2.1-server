@@ -1,5 +1,6 @@
 local skynet_m = require "skynet_m"
 local message = require "message"
+local util = require "util"
 local error_code = message.error_code
 
 local string = string
@@ -376,6 +377,7 @@ local function recv_skill_damage(tableid, msg)
         end
     end
     info.fish = fish
+    util.dump(info)
     skynet_m.log(string.format("SkillDamage begin: %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
                                 info.winGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)

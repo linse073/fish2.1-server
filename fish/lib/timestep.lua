@@ -1438,6 +1438,7 @@ function timestep:skill_damage(info, data)
                                     damage_index))
         return
     end
+    skynet_m.log(string.format("skill damage user %d index %d.", info.user_id, damage_index))
     local num
     num, index = string.unpack(">I2", data, index)
     if num > 100 then
