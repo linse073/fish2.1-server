@@ -1421,7 +1421,7 @@ function timestep:update_damage_index(user_id, damage_index)
                 if skill_info and edata.skill_damage <= skill_info.damage_count
                         and edata.skill_damage == damage_index then
                     edata.skill_damage = edata.skill_damage + 1
-                    if edata.skill_damage >= skill_info.damage_count then
+                    if edata.skill_damage > skill_info.damage_count then
                         edata.skill_time = skill_info.duration
                     end
                     return true
