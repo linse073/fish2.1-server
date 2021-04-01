@@ -354,8 +354,7 @@ local function recv_skill_damage(tableid, msg)
     local info = {}
     info.tableid = tableid
     local fish, index = {}, 1
-    info.seatid, info.userid, info.bulletid, info.bulletMulti, info.winGold, info.fishScore, index
-        = string.unpack("<I2<I4<I4<I2<I4<I8", msg, index)
+    info.seatid, info.userid, info.winGold, info.fishScore, index = string.unpack("<I2<I4<I4<I8", msg, index)
     for i = 1, 100 do
         local id
         id, index = string.unpack("<I4", msg, index)
