@@ -257,7 +257,7 @@ local data = {
 		rand_skill = false,
 		skill = {
 			{
-				duration = 10, -- 技能持续时间
+				duration = 6, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3100,
 				damage_count = 2,
@@ -266,7 +266,7 @@ local data = {
 				},
 			},
 			{
-				duration = 15, -- 技能持续时间
+				duration = 8.5, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3101,
 				damage_count = 1,
@@ -290,7 +290,7 @@ local data = {
 		rand_skill = false,
 		skill = {
 			{
-				duration = 10, -- 技能持续时间
+				duration = 6.5, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3102,
 				damage_count = 1,
@@ -299,7 +299,7 @@ local data = {
 				},
 			},
 			{
-				duration = 18, -- 技能持续时间
+				duration = 12, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3103,
 				damage_count = 3,
@@ -323,7 +323,7 @@ local data = {
 		rand_skill = false,
 		skill = {
 			{
-				duration = 10, -- 技能持续时间
+				duration = 4, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3104,
 				damage_count = 2,
@@ -332,7 +332,7 @@ local data = {
 				},
 			},
 			{
-				duration = 10, -- 技能持续时间
+				duration = 4, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3105,
 				damage_count = 2,

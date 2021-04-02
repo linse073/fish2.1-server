@@ -208,7 +208,8 @@ skynet_m.init(function()
         [skill_status.cast] = function(self, data, etime, new_fish)
             data.skill_time = data.skill_time + etime
             if data.skill_time >= data.skill_info.duration then
-                if data.fish then
+                if data.fish and (data.skill_damage > data.skill_info.damage_count
+                        or data.skill_time >= data.skill_info.duration + 3) then
                     local del_count, del_msg, kill_msg = 0, "", ""
                     for k, v in pairs(data.skill_fish) do
                         self:delete_fish(v, 0)
@@ -1421,9 +1422,6 @@ function timestep:update_damage_index(user_id, damage_index)
                 if skill_info and edata.skill_damage <= skill_info.damage_count
                         and edata.skill_damage == damage_index then
                     edata.skill_damage = edata.skill_damage + 1
-                    if edata.skill_damage > skill_info.damage_count then
-                        edata.skill_time = skill_info.duration - 2
-                    end
                     return true
                 end
             end
