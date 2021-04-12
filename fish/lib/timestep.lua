@@ -1165,7 +1165,7 @@ function timestep:ready(info, data)
     if info.ready then
         skynet_m.log(string.format("User %d is ready.", info.user_id))
     else
-        self:broadcast(string.pack(">I2>I4B", s_to_c.join_room, info.user_id, info.pos))
+        self:broadcast(string.pack(">I2>I4B>I2", s_to_c.join_room, info.user_id, info.pos, info.cannon))
         self._ready_count = self._ready_count + 1
         local client_time, start_time = string.unpack(">d>f", data, 3)
         if self._ready_count == 1 then
@@ -1477,6 +1477,7 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire info is different."))
     end
     self._bullet[binfo.id] = nil
+    info.cannon = binfo.kind
     local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind,
                             user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate,
                             bullet.target)
