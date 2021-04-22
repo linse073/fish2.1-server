@@ -16,7 +16,7 @@ local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
 -- local SPLINE_INTERVAL = 25
 local FROZEN_TIME = 15
-local BOSS_EVENT_DELAY = 7
+local BOSS_EVENT_DELAY = 9
 
 local message
 local s_to_c
