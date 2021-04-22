@@ -1019,10 +1019,12 @@ function timestep:update()
         if event.info.type == event_type.fight_boss then
             stop_time = true
             if event.time >= event.info.duration then
-                -- self._game_time = event.info.time + (event.time - event.info.duration)
-                event.info = nil
-                event.time = 0
-                event.data = nil
+                if not event.data.fish then
+                    -- self._game_time = event.info.time + (event.time - event.info.duration)
+                    event.info = nil
+                    event.time = 0
+                    event.data = nil
+                end
             else
                 if event.data and event.data.skill_data then
                     skill_function[event.data.skill_status](self, event.data, etime, new_fish)
