@@ -1123,9 +1123,9 @@ function timestep:kick(user_id, agent)
     if info and (not agent or info.agent == agent) then
         self._user[user_id] = nil
         self._pos[info.pos] = nil
-        self._count = self._count-1
+        self._count = self._count - 1
         if info.ready then
-            self._ready_count = self._ready_count-1
+            self._ready_count = self._ready_count - 1
             self:broadcast(string.pack(">I2>I4", s_to_c.leave_room, user_id))
         end
         if self._count == 0 then
