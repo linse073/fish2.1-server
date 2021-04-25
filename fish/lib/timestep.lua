@@ -1217,7 +1217,7 @@ function timestep:ready(info, data)
                 if edata and edata.fish then
                     if edata.skill_status == skill_status.cast then
                         msg = msg .. string.pack(">I4>I2>I4", edata.fish.id, edata.rand_skill[edata.skill_index],
-                                                    edata.trigger_user)
+                                                    edata.trigger_user or 0)
                     else
                         msg = msg .. string.pack(">I4>I2>I4", edata.fish.id, 0, 0)
                     end
