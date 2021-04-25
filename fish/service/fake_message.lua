@@ -127,7 +127,6 @@ end
 local function recv_enter_game(tableid, info)
     info.sessionid = string.format("%d", info.userid)
     skynet_m.log(string.format("UserEnterGame: %d %d %d %s.", info.tableid, info.seatid, info.userid, info.sessionid))
-    skynet_m.send_lua(agent_mgr, "quit", info.userid, error_code.ok)
     skynet_m.send_lua(room_mgr, "enter_game", info)
 end
 
