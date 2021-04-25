@@ -11,8 +11,10 @@ local logpath = skynet_m.getenv("logpath")
 local f
 
 local function print_file(msg)
-    f:write(msg .. "\n")
-    f:flush()
+	if f then
+		f:write(msg .. "\n")
+		f:flush()
+	end
 	print(msg)
 end
 
@@ -29,12 +31,11 @@ local function change_log()
     if f then
         f:close()
     end
-    local name = logpath .. date("%m_%d_%Y.log", floor(skynet_m.time()))
+    local name = logpath .. "/" .. date("%m_%d_%Y.log", floor(skynet_m.time()))
     f = assert(open(name, "a"), string.format("Can't open log file %s.", name))
     skynet_m.timeout(8640000, change_log) -- one day
 end
 
 skynet_m.start(function()
-	skynet_m.register ".logger"
     change_log()
 end)
