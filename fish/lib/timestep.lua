@@ -400,11 +400,11 @@ function timestep:clear()
         [fish_type.small_fish] = {
             pool = {},
             count = 0,
-            max_count = 40,
+            max_count = 50,
             time = 0,
-            interval = 4,
+            interval = 1,
             rand_min = 5,
-            rand_max = 15,
+            rand_max = 10,
             ready = {},
         },
         [fish_type.big_fish] = {
@@ -412,9 +412,9 @@ function timestep:clear()
             count = 0,
             max_count = 10,
             time = 0,
-            interval = 5,
-            rand_min = 3,
-            rand_max = 5,
+            interval = 1,
+            rand_min = 1,
+            rand_max = 1,
             ready = {},
         },
         [fish_type.boss_fish] = {
