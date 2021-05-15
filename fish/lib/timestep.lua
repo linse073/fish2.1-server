@@ -1167,9 +1167,10 @@ function timestep:ready(info, data)
     if info.ready then
         skynet_m.log(string.format("User %d is ready.", info.user_id))
     else
+        local client_time, start_time, cannon = string.unpack(">d>f>I2", data, 3)
+        info.cannon = cannon
         self:broadcast(string.pack(">I2>I4B>I2", s_to_c.join_room, info.user_id, info.pos, info.cannon))
         self._ready_count = self._ready_count + 1
-        local client_time, start_time = string.unpack(">d>f", data, 3)
         if self._ready_count == 1 then
             if start_time > 0 and self._game_time == 0 then
                 self._game_time = start_time
@@ -1254,6 +1255,9 @@ function timestep:fire(info, data)
     for i = 1, num do
         local self_id, angle, multi, kind, rotate, target
         self_id, angle, multi, kind, rotate, target, index = string.unpack(">I4>f>I4>I4B>I4", data, index)
+        if info.cannon ~= kind then
+            info.cannon = kind
+        end
         self._bullet_id = self._bullet_id + 1
         info.bullet[self_id] = self._bullet_id
         skynet_m.send_lua(game_message, "send_fire", {
