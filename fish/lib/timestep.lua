@@ -434,6 +434,7 @@ function timestep:clear()
     -- self._spline_time = 0
     self._born_time = fish_born.cd
     self._rand_fish = {0, 0, 0}
+    self._delay_msg = {}
     timer.del_all()
 end
 
@@ -800,7 +801,7 @@ function timestep:update_boss(pool_info, new_fish)
     end
 end
 
-function timestep:delete_fish(info, hit_user)
+function timestep:delete_fish(info, hit_user, delay_msg)
     self._fish[info.id] = nil
     local pool_info = self._fish_pool[info.data.type]
     if pool_info.count and info.incount then
@@ -872,7 +873,7 @@ function timestep:delete_fish(info, hit_user)
                             fish = kill_msg,
                         })
                         del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
-                        self:broadcast(del_msg)
+                        self:broadcast(del_msg, delay_msg)
                     end
                     data.skill_damage = nil
                     data.trigger_user = nil
@@ -897,7 +898,7 @@ local normal_status = function(info)
     return true
 end
 
-function timestep:kill_fish(info, hit_user)
+function timestep:kill_fish(info, hit_user, delay_msg)
     local event = self._event
     if event.info and event.info.type == event_type.fight_boss and event.info.fish_id == info.fish_id then
         local data = event.data
@@ -922,7 +923,7 @@ function timestep:kill_fish(info, hit_user)
                         fish = kill_msg,
                     })
                     del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
-                    self:broadcast(del_msg)
+                    self:broadcast(del_msg, delay_msg)
                 end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
@@ -956,7 +957,7 @@ function timestep:kill_fish(info, hit_user)
                         fish = kill_msg,
                     })
                     del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
-                    self:broadcast(del_msg)
+                    self:broadcast(del_msg, delay_msg)
                 end
                 data.skill_time = 0
                 data.skill_status = skill_status.done
@@ -972,7 +973,7 @@ function timestep:kill_fish(info, hit_user)
             end
         end
     end
-    self:delete_fish(info, hit_user)
+    self:delete_fish(info, hit_user, delay_msg)
 end
 
 function timestep:update()
@@ -1155,11 +1156,28 @@ function timestep:process(user_id, data)
     end
 end
 
-function timestep:broadcast(msg)
-    for _, v in pairs(self._user) do
-        if v.ready then
-            skynet_m.send_lua(v.agent, "send", msg)
+function timestep:broadcast(msg, delay_msg)
+    if delay_msg then
+        self._delay_msg[#self._delay_msg+1] = msg
+    else
+        for _, v in pairs(self._user) do
+            if v.ready then
+                skynet_m.send_lua(v.agent, "send", msg)
+            end
         end
+    end
+end
+
+function timestep:delay_broadcast()
+    if #self._delay_msg > 0 then
+        for _, msg in ipairs(self._delay_msg) do
+            for _, v in pairs(self._user) do
+                if v.ready then
+                    skynet_m.send_lua(v.agent, "send", msg)
+                end
+            end
+        end
+        self._delay_msg = {}
     end
 end
 
@@ -1498,7 +1516,7 @@ function timestep:on_dead(info)
     end
     local fish_info = self._fish[info.fishid]
     if fish_info then
-        self:kill_fish(fish_info, info.userid)
+        self:kill_fish(fish_info, info.userid, true)
         if fish_info.fish_id == define.frozen_fish then
             skynet_m.log("kill frozen fish.")
             local item_info = {
@@ -1519,6 +1537,7 @@ function timestep:on_dead(info)
         local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
                                 fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
         self:broadcast(msg)
+        self:delay_broadcast()
     else
         local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
                                 0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
