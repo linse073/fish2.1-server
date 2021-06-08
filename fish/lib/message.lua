@@ -58,6 +58,7 @@ message.error_code = {
     unknown_error = 3003,
     login_conflict = 3004,
     low_activity = 3005,
+    reset_agent = 3006,
 }
 
 return message

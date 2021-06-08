@@ -2,6 +2,8 @@ local skynet_m = require "skynet_m"
 local channel = require "channel"
 local util = require "util"
 local timer = require "timer"
+local message = require "message"
+local error_code = message.error_code
 
 local setmetatable = setmetatable
 
@@ -15,7 +17,7 @@ CMD.routine = timer.call_routine
 function CMD.start(gate, from)
     if channel_i then
         skynet_m.log(string.format("Restart agent %s.", util.udp_address(from)))
-        CMD.stop()
+        CMD.stop(error_code.reset_agent)
     end
     channel_i = setmetatable({}, channel)
     channel_i:init(session, from, function(data)
