@@ -11,6 +11,8 @@ local string = string
 local floor = math.floor
 
 local game_mode = skynet_m.getenv("game_mode")
+local UDP_HELLO_ACK = "1432ad7c829170a76dd31982c3501eca"
+local version = skynet_m.getenv("version")
 
 local room_mgr
 local agent_mgr
@@ -24,6 +26,8 @@ local channel = {}
 
 function channel:init(session, from, func)
     self._from = from
+    self._send_func = func
+    self._session = session
     local kcp = lkcp.lkcp_create(session, func)
     kcp:lkcp_nodelay(1, 10, 2, 1)
     kcp:lkcp_wndsize(128, 128)
@@ -39,6 +43,10 @@ function channel:init(session, from, func)
             timer.del_routine("check_activity")
         end, 3000)
     end
+    timer.add_routine("check_join", function()
+        self:checkJoin()
+        timer.done_routine("check_join")
+    end, 200)
 end
 
 function channel:process(data)
@@ -72,6 +80,7 @@ function channel:processPack(data)
                         skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
                         self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
                         timer.del_routine("check_activity")
+                        timer.del_routine("check_join")
                         skynet_m.log(string.format("User %d join room %d successfully.", user_id, room_id))
                     else
                         skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
@@ -97,6 +106,7 @@ function channel:processPack(data)
                             skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
                             self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
                             timer.del_routine("check_activity")
+                            timer.del_routine("check_join")
                             skynet_m.log(string.format("User %d join room %d successfully.", user_id, info.tableid))
                         else
                             skynet_m.log(string.format("User %d join room %d fail.", user_id, info.tableid))
@@ -121,6 +131,7 @@ function channel:processPack(data)
 end
 
 function channel:joinFail(code)
+    timer.del_routine("check_join")
     self:send(string.pack(">I2>I2", s_to_c.join_resp, code))
     -- skynet_m.send_lua(agent_mgr, "kick", self._from, code)
 end
@@ -139,6 +150,7 @@ function channel:kick(code)
     end
     self:send(string.pack(">I2>I2", s_to_c.kick, code))
     self._kcp:lkcp_flush()
+    timer.del_routine("check_join")
 end
 
 function channel:update()
@@ -162,6 +174,13 @@ end
 function channel:checkActivity()
     if not self._room then
         skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
+    end
+end
+
+function channel:checkJoin()
+    if not self._room then
+        local ack = string.pack("zz>I4", UDP_HELLO_ACK, version, self._session)
+        self._send_func(ack)
     end
 end
 

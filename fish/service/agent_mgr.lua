@@ -26,7 +26,7 @@ function CMD.new(gate, from)
         info = {agent=agent, gate=gate}
         agent_list[from] = info
     end
-    return skynet_m.call_lua(agent, "start", gate, from), agent
+    return skynet_m.call_lua(agent, "start", gate, from)
 end
 
 function CMD.get(from)
