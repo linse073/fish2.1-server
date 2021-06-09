@@ -80,7 +80,6 @@ function channel:processPack(data)
                         skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
                         self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
                         timer.del_routine("check_activity")
-                        timer.del_routine("check_join")
                         skynet_m.log(string.format("User %d join room %d successfully.", user_id, room_id))
                     else
                         skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
@@ -106,7 +105,6 @@ function channel:processPack(data)
                             skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
                             self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
                             timer.del_routine("check_activity")
-                            timer.del_routine("check_join")
                             skynet_m.log(string.format("User %d join room %d successfully.", user_id, info.tableid))
                         else
                             skynet_m.log(string.format("User %d join room %d fail.", user_id, info.tableid))
@@ -127,11 +125,11 @@ function channel:processPack(data)
                 self:joinFail(error_code.unknown_error)
             end
         end
+        timer.del_routine("check_join")
     end
 end
 
 function channel:joinFail(code)
-    timer.del_routine("check_join")
     self:send(string.pack(">I2>I2", s_to_c.join_resp, code))
     -- skynet_m.send_lua(agent_mgr, "kick", self._from, code)
 end
@@ -150,7 +148,6 @@ function channel:kick(code)
     end
     self:send(string.pack(">I2>I2", s_to_c.kick, code))
     self._kcp:lkcp_flush()
-    timer.del_routine("check_join")
 end
 
 function channel:update()
