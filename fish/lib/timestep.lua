@@ -1182,6 +1182,7 @@ function timestep:delay_broadcast()
 end
 
 function timestep:ready(info, data)
+    skynet_m.log(string.format("User %d ready.", info.user_id))
     if info.ready then
         skynet_m.log(string.format("User %d is ready.", info.user_id))
     else

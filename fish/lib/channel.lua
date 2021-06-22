@@ -73,7 +73,7 @@ function channel:processPack(data)
             local room = skynet_m.call_lua(room_mgr, "get", room_id)
             if room then
                 if self._room then
-                    skynet_m.log(string.format("User old:%d new:%d rejoin romm.", self._user_id, user_id))
+                    skynet_m.log(string.format("User old:%d new:%d rejoin room.", self._user_id, user_id))
                     skynet_m.send_lua(agent_mgr, "conflict", self._user_id, error_code.login_conflict, skynet_m.self())
                 end
                 if skynet_m.call_lua(room, "join_01", user_id, skynet_m.self()) then
@@ -97,7 +97,7 @@ function channel:processPack(data)
             if info then
                 if info.room then
                     if self._room then
-                        skynet_m.log(string.format("User old:%d new:%d rejoin romm.", self._user_id, user_id))
+                        skynet_m.log(string.format("User old:%d new:%d rejoin room.", self._user_id, user_id))
                         skynet_m.send_lua(agent_mgr, "conflict", self._user_id, error_code.login_conflict,
                                             skynet_m.self())
                     end
