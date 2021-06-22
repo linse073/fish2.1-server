@@ -139,6 +139,7 @@ function channel:joinFail(code)
 end
 
 function channel:send(data)
+    skynet_m.log(string.format("Kcp send msg to %s.", util.udp_address(self._from)))
     if self._kcp:lkcp_send(data) < 0 then
         skynet_m.log(string.format("Kcp send error from %s.", util.udp_address(self._from)))
     end

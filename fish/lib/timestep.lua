@@ -1262,7 +1262,7 @@ function timestep:ready(info, data)
         end
         msg = msg .. string.pack(">I2", item_count) .. item_msg
         skynet_m.send_lua(info.agent, "send", msg)
-        skynet_m.log(string.format("User %d is ready response.", info.user_id))
+        skynet_m.log(string.format("Response user %d ready.", info.user_id))
     end
 end
 
