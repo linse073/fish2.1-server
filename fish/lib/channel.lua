@@ -73,8 +73,7 @@ function channel:processPack(data)
             local room = skynet_m.call_lua(room_mgr, "get", room_id)
             if room then
                 if self._room then
-                    skynet_m.send_lua(self._room, "kick", self._user_id, skynet_m.self())
-                    skynet_m.log(string.format("Kick user %d.", self._user_id))
+                    skynet_m.send_lua(agent_mgr, "quit", self._user_id, error_code.login_conflict)
                 end
                 if skynet_m.call_lua(room, "join_01", user_id, skynet_m.self()) then
                     self._user_id = user_id
@@ -97,8 +96,7 @@ function channel:processPack(data)
             if info then
                 if info.room then
                     if self._room then
-                        skynet_m.send_lua(self._room, "kick", self._user_id, skynet_m.self())
-                        skynet_m.log(string.format("Kick user %d.", self._user_id))
+                        skynet_m.send_lua(agent_mgr, "quit", self._user_id, error_code.login_conflict)
                     end
                     if skynet_m.call_lua(info.room, "join", user_id, info.seatid, skynet_m.self()) then
                         self._user_id = user_id
