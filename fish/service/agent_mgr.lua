@@ -38,9 +38,9 @@ end
 
 function CMD.bind(user_id, from)
     local info = agent_list[from]
-    assert(info and not info.user_id, string.format("Bind agent error from %s.", util.udp_address(from)))
+    assert(info, string.format("Bind agent error from %s.", util.udp_address(from)))
     local user_from = user_list[user_id]
-    if user_from then
+    if user_from and user_from ~= from then
         local old_info = agent_list[user_from]
         assert(old_info and old_info.user_id==user_id and info.agent~=old_info.agent,
             string.format("Unbind agent error from %s.", util.udp_address(user_from)))
@@ -69,6 +69,16 @@ function CMD.quit(user_id, code)
     local from = user_list[user_id]
     if from then
         CMD.kick(from, code)
+    end
+end
+
+function CMD.conflict(user_id, code, agent)
+    local from = user_list[user_id]
+    if from then
+        local info = agent_list[from]
+        if info.agent ~= agent then
+            CMD.kick(from, code)
+        end
     end
 end
 
