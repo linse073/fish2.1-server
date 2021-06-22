@@ -38,12 +38,6 @@ end
 
 function CMD.bind(user_id, from)
     local info = agent_list[from]
-    if not info then
-        skynet_m.error(string.format("can find agent from %s.", util.udp_address(from)))
-    end
-    if info.user_id then
-        skynet_m.error(string.format("bind user %d from %s.", info.user_id, util.udp_address(from)))
-    end
     assert(info and not info.user_id, string.format("Bind agent error from %s.", util.udp_address(from)))
     local user_from = user_list[user_id]
     if user_from then
