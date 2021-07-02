@@ -117,6 +117,10 @@ local function pack_skill_damage(msg)
     return string.pack("<I2<I4", msg.seatid, msg.userid) .. msg.fish
 end
 
+local function pack_skill_timeout(msg)
+    return string.pack("<I2<I4", msg.seatid, msg.userid)
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -131,6 +135,7 @@ pack_cmd[1408] = pack_bomb_fish
 pack_cmd[1409] = pack_clear
 pack_cmd[1410] = pack_trigger_fish
 pack_cmd[1411] = pack_skill_damage
+pack_cmd[1411] = pack_skill_timeout
 
 function CMD.send_link()
     send_msg(13501)
@@ -182,6 +187,10 @@ end
 
 function CMD.send_skill_damage(msg)
     send_cmd(1411, msg)
+end
+
+function CMD.send_skill_timeout(msg)
+    send_cmd(1412, msg)
 end
 
 -- NOTICE: recv message
