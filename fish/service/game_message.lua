@@ -135,7 +135,7 @@ pack_cmd[1408] = pack_bomb_fish
 pack_cmd[1409] = pack_clear
 pack_cmd[1410] = pack_trigger_fish
 pack_cmd[1411] = pack_skill_damage
-pack_cmd[1411] = pack_skill_timeout
+pack_cmd[1412] = pack_skill_timeout
 
 function CMD.send_link()
     send_msg(13501)
