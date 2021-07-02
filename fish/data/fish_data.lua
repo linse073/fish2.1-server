@@ -258,7 +258,7 @@ local data = {
 		bomb_immune = false,
 		avoid_radius = 500.000000,
 		kind = 34,
-		matrix_radius = 0.000000,
+		matrix_radius = 220.000000,
 	},
 	[2000] = {
 		type = 3,
@@ -446,7 +446,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 61,
+		kind = 62,
 		matrix_radius = 0.000000,
 	},
 	[3104] = {
@@ -455,7 +455,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 61,
+		kind = 62,
 		matrix_radius = 0.000000,
 	},
 	[3105] = {
@@ -464,7 +464,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = false,
 		avoid_radius = 0.000000,
-		kind = 61,
+		kind = 62,
 		matrix_radius = 0.000000,
 	},
 	[1001] = {

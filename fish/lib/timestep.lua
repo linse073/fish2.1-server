@@ -210,6 +210,22 @@ skynet_m.init(function()
             if data.skill_time >= data.skill_info.duration then
                 if data.fish and (data.skill_damage > data.skill_info.damage_count
                         or data.skill_time >= data.skill_info.duration + 3) then
+                    if data.skill_damage <= data.skill_info.damage_count then
+                        if data.trigger_user then
+                            local tuser = self._user[data.trigger_user]
+                            if tuser then
+                                skynet_m.send_lua(game_message, "send_skill_timeout", {
+                                    tableid = self._room_id,
+                                    seatid = tuser.pos - 1,
+                                    userid = tuser.user_id,
+                                })
+                            else
+                                skynet_m.log(string.format("Can't find trigger user %d.", data.trigger_user))
+                            end
+                        else
+                            skynet_m.log("Can't find trigger user.")
+                        end
+                    end
                     local del_count, del_msg, kill_msg = 0, "", ""
                     for k, v in pairs(data.skill_fish) do
                         self:delete_fish(v, 0)

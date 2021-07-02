@@ -91,6 +91,10 @@ function CMD.send_skill_damage(msg)
     send_cmd(1411, msg)
 end
 
+function CMD.send_skill_timeout(msg)
+    -- NOTICE: cmd(1412) do nothing
+end
+
 -- NOTICE: recv message
 
 local message_map = {

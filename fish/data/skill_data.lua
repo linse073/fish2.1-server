@@ -302,7 +302,7 @@ local data = {
 				duration = 12, -- 技能持续时间
 				hit_count = 0, -- 被命中几次打断技能
 				fish_id = 3103,
-				damage_count = 3,
+				damage_count = 2,
 				delay = 0,
 				fish = {
 				},
