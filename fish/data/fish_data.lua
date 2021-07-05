@@ -356,7 +356,7 @@ local data = {
 		frozen_immune = false,
 		bomb_immune = true,
 		avoid_radius = 0.000000,
-		kind = 60,
+		kind = 63,
 		matrix_radius = 0.000000,
 	},
 	[3001] = {
