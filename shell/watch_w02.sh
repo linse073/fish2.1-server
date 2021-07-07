@@ -11,7 +11,7 @@ do
 	    :
 	else
 	    echo "program has crashed, restarting..."
-	    shell/run_02.sh
+	    shell/run_w02.sh
 	fi
 	
 	sleep 10
