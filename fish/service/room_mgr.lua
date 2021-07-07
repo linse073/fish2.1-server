@@ -22,7 +22,7 @@ function CMD.enter_game(info)
     end
     local room = room_list[info.tableid]
     if not room then
-        skynet_m.log(string.format("No room %d.", info.talbeid))
+        skynet_m.log(string.format("No room %d.", info.tableid))
     end
     info.room = room
     user_list[info.userid] = info
@@ -30,7 +30,7 @@ end
 
 function CMD.leave_game(info)
     local old = user_list[info.userid]
-    if not old or old.talbeid ~= info.tableid or old.seatid ~= info.seatid then
+    if not old or old.tableid ~= info.tableid or old.seatid ~= info.seatid then
         skynet_m.log("Leave game info differ from enter info.")
     end
     user_list[info.userid] = nil
