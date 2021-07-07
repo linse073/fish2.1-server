@@ -5,7 +5,7 @@ cd $basepath
 
 while true
 do
-	count=`ps -ef | grep config_02 | grep -v "grep" | wc -l`
+	count=`ps -ef | grep config_w02 | grep -v "grep" | wc -l`
 
 	if [ $count -gt 0 ]; then
 	    :
