@@ -1,6 +1,7 @@
 local skynet_m = require "skynet_m"
 local message = require "message"
 local error_code = message.error_code
+local util = require "util"
 
 local string = string
 local ipairs = ipairs
@@ -233,6 +234,7 @@ local function recv_enter_game(tableid, msg)
     skynet_m.log(string.format("UserEnterGame: %d %d %d %s %d.", info.tableid, info.seatid, info.userid, info.sessionid,
                                 #info.sessionid))
     skynet_m.send_lua(room_mgr, "enter_game", info)
+    util.dump(info)
     CMD.send_enter_game(info)
 end
 
