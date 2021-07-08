@@ -454,6 +454,14 @@ function timestep:clear()
     timer.del_all()
 end
 
+function timestep:new_fish_id()
+    if self._fish_id >= 2147483648 then -- INT32_MAX: 2147483648
+        self._fish_id = 1000
+    end
+    self._fish_id = self._fish_id + 1
+    return self._fish_id
+end
+
 function timestep:loop()
     self._event.index = 1
     local small_pool = self._fish_pool[fish_type.small_fish]
@@ -482,9 +490,9 @@ function timestep:new_skill_trigger_fish(fish_id, time, new_fish)
     local spline_id = 0
     local life_time = data.life_time
     local matrix_id = 0
-    self._fish_id = self._fish_id + 1
+    local fid = self:new_fish_id()
     local new_info = {
-        id = self._fish_id,
+        id = fid,
         fish_id = fish_id,
         spline_id = spline_id,
         group_id = self._group_id,
@@ -498,8 +506,8 @@ function timestep:new_skill_trigger_fish(fish_id, time, new_fish)
         rand_fish = 0,
     }
     new_fish[#new_fish+1] = new_info
-    self._fish[self._fish_id] = new_info
-    -- skynet_m.log(string.format("new skill trigger fish %d %d.", fish_id, self._fish_id))
+    self._fish[fid] = new_info
+    -- skynet_m.log(string.format("new skill trigger fish %d %d.", fish_id, fid))
     return new_info
 end
 
@@ -519,9 +527,9 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
     for i = 1, info.num do
-        self._fish_id = self._fish_id + 1
+        local fid = self:new_fish_id()
         local new_info = {
-            id = self._fish_id,
+            id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
             group_id = self._group_id,
@@ -535,9 +543,9 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
-        self._fish[self._fish_id] = new_info
+        self._fish[fid] = new_info
         if info.in_count then
-            skill_fish[self._fish_id] = new_info
+            skill_fish[fid] = new_info
         end
     end
 end
@@ -556,9 +564,9 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
     for i = 1, num do
-        self._fish_id = self._fish_id + 1
+        local fid = self:new_fish_id()
         local new_info = {
-            id = self._fish_id,
+            id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
             group_id = self._group_id,
@@ -572,7 +580,7 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
-        self._fish[self._fish_id] = new_info
+        self._fish[fid] = new_info
     end
 end
 
@@ -604,9 +612,9 @@ function timestep:new_born_fish(info, data, num, new_fish)
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
     for i = 1, num do
-        self._fish_id = self._fish_id + 1
+        local fid = self:new_fish_id()
         local new_info = {
-            id = self._fish_id,
+            id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
             group_id = self._group_id,
@@ -621,7 +629,7 @@ function timestep:new_born_fish(info, data, num, new_fish)
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
-        self._fish[self._fish_id] = new_info
+        self._fish[fid] = new_info
     end
 end
 
@@ -682,9 +690,9 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
     for i = 1, num do
-        self._fish_id = self._fish_id + 1
+        local fid = self:new_fish_id()
         local new_info = {
-            id = self._fish_id,
+            id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
             group_id = self._group_id,
@@ -699,7 +707,7 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
-        self._fish[self._fish_id] = new_info
+        self._fish[fid] = new_info
     end
 end
 
@@ -770,9 +778,9 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
     if matrix_id == 0 and #matrix_data > 0 then
         matrix_id = matrix_data[math.random(#matrix_data)]
     end
-    self._fish_id = self._fish_id + 1
+    local fid = self:new_fish_id()
     local new_info = {
-        id = self._fish_id,
+        id = fid,
         fish_id = info.fish_id,
         spline_id = spline_id,
         group_id = self._group_id,
@@ -787,10 +795,10 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
         incount = incount,
     }
     new_fish[#new_fish+1] = new_info
-    self._fish[self._fish_id] = new_info
+    self._fish[fid] = new_info
     pool.fish[info.fish_id] = new_info
     -- util.dump(new_info)
-    -- skynet_m.log(string.format("new boss %d %d.", info.fish_id, self._fish_id))
+    -- skynet_m.log(string.format("new boss %d %d.", info.fish_id, fid))
 end
 
 function timestep:update_boss(pool_info, new_fish)
