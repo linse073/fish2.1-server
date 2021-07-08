@@ -1116,9 +1116,10 @@ function timestep:update()
             end
             -- NOTICE: define fish type with game server
             if v.rand_fish > 0 then
-                new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, define.rand_fish_kind, v.life_time - v.time + 10)
+                new_msg = new_msg .. string.pack("<I4<I2<I2",
+                                                    v.id, define.rand_fish_kind, math.ceil(v.life_time - v.time + 10))
             else
-                new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, v.data.kind, v.life_time - v.time + 10)
+                new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, v.data.kind, math.ceil(v.life_time - v.time + 10))
             end
             client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id,
                                                     v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset,
