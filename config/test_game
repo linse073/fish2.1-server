@@ -15,7 +15,7 @@ lualoader = skynetroot.."lualib/loader.lua"
 cpath = skynetroot.."cservice/?.so"
 lua_path = testroot.."lib/?.lua;"..testroot.."lib/?/init.lua;"..fishroot.."lib/?.lua;"..fishroot.."lib/?/init.lua;"..skynetroot.."lualib/?.lua;"..skynetroot.."lualib/?/init.lua"
 lua_cpath = root.."lib/?.so;"..skynetroot.."luaclib/?.so"
--- daemon = "./skynet.pid"
+-- daemon = "./skynet_test_game.pid"
 debug_port = 8102
 
 include "fish_test_game.conf"
