@@ -124,7 +124,7 @@ local function recv_link(msg)
 end
 
 local function recv_heart_beat(msg)
-    skynet_m.log(string.format("HeartBeat: %d.", msg.active))
+    -- skynet_m.log(string.format("HeartBeat: %d.", msg.active))
     skynet_m.send_lua(game_client, "on_heart_beat")
 end
 
@@ -175,8 +175,8 @@ end
 local function recv_catch_fish(tableid, info)
     if math.random(1000) <= 50 and info.fish then
         info.fishKind, info.multi, info.winGold, info.fishScore, info.code = 1, 1, 10000, 100000, 0
-        skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
-                                    info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+        -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+        --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
         skynet_m.send_lua(room, "on_dead", info)
     end
