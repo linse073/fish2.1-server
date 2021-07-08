@@ -222,7 +222,7 @@ end
 
 local function recv_heart_beat(msg)
     local active = string.unpack("<i2", msg)
-    skynet_m.log(string.format("HeartBeat: %d.", active))
+    -- skynet_m.log(string.format("HeartBeat: %d.", active))
     skynet_m.send_lua(game_client, "on_heart_beat")
 end
 
@@ -300,8 +300,8 @@ local function recv_catch_fish(tableid, msg)
     info.tableid = tableid
     info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulletMulti, info.winGold,
         info.fishScore, info.code = string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I8<I2", msg)
-    skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
-                                info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+    -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+    --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_dead", info)
 end
