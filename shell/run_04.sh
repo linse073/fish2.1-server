@@ -6,4 +6,6 @@ cd $basepath
 log_dir="log"
 [ ! -d "$log_dir" ] && mkdir -p "$log_dir"
 
+ulimit -c unlimited
+
 ./skynet/skynet config/config_04
