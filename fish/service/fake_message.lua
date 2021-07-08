@@ -152,7 +152,7 @@ local function recv_build_fish(tableid, msg)
     local fish = {}
     for i = 1, 100 do
         local info = {}
-        info.id, info.kind, index = string.unpack("<I4<I2", msg.fish, index)
+        info.id, info.kind, info.time, index = string.unpack("<I4<I2<I2", msg.fish, index)
         if info.id > 0 then
             fish[#fish+1] = info
         else
