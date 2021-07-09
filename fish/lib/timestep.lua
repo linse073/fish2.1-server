@@ -462,6 +462,14 @@ function timestep:new_fish_id()
     return self._fish_id
 end
 
+function timestep:new_bullet_id()
+    if self._bullet_id >= 2147483648 then -- INT32_MAX: 2147483648
+        self._bullet_id = 0
+    end
+    self._bullet_id = self._bullet_id + 1
+    return self._bullet_id
+end
+
 function timestep:loop()
     self._event.index = 1
     local small_pool = self._fish_pool[fish_type.small_fish]
@@ -1303,22 +1311,22 @@ function timestep:fire(info, data)
         if info.cannon ~= kind then
             info.cannon = kind
         end
-        self._bullet_id = self._bullet_id + 1
-        info.bullet[self_id] = self._bullet_id
+        local bullet_id = self:new_bullet_id()
+        info.bullet[self_id] = bullet_id
         skynet_m.send_lua(game_message, "send_fire", {
             tableid = self._room_id,
             seatid = info.pos - 1,
             userid = info.user_id,
             bullet = {
-                id = self._bullet_id,
+                id = bullet_id,
                 kind = kind,
                 multi = multi,
                 power = 1,
                 expTime = 0,
             },
         })
-        self._bullet[self._bullet_id] = {
-            id = self._bullet_id,
+        self._bullet[bullet_id] = {
+            id = bullet_id,
             self_id = self_id,
             kind = kind,
             angle = angle,
