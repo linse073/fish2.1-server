@@ -53,9 +53,11 @@ function CMD.stop(code)
 end
 
 function CMD.exit()
+    skynet_m.log(string.format("Agent %d exit.", session))
 	skynet_m.exit()
 end
 
 skynet_m.start(function()
+    skynet_m.log(string.format("Agent %d start.", session))
     skynet_m.dispatch_lua_queue(CMD)
 end)

@@ -33,7 +33,7 @@ local function change_log()
     end
     local name = logpath .. "/" .. date("%m_%d_%Y.log", floor(skynet_m.time()))
     f = assert(open(name, "a"), string.format("Can't open log file %s.", name))
-    skynet_m.timeout(8640000, change_log) -- one day
+    skynet_m.timeout(360000, change_log) -- one hour
 end
 
 skynet_m.start(function()

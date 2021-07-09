@@ -1,6 +1,7 @@
 local skynet_m = require "skynet_m"
 
 local ipairs = ipairs
+local table = table
 
 local free_list = {}
 local agent_list = {}
@@ -29,7 +30,7 @@ local function del_agent(num)
     for i = 1, num do
         local agent = free_list[l]
         t[i] = agent
-        free_list[l] = nil
+        table.remove(free_list, l)
         agent_list[agent] = nil
         l = l - 1
     end
@@ -45,10 +46,10 @@ function CMD.get()
     local agent
     if l > 0 then
         agent = free_list[l]
-        free_list[l] = nil
+        table.remove(free_list, l)
         agent_list[agent] = 0
-        if l <= 10 then
-            skynet_m.fork(new_agent, 10)
+        if l < 3 then
+            skynet_m.fork(new_agent, 2)
         end
     else
         session = session + 1
@@ -63,14 +64,14 @@ function CMD.free(agent)
         local l = #free_list + 1
         free_list[l] = agent
         agent_list[agent] = l
-        if l >= 150 then
-            skynet_m.fork(del_agent, 50)
+        if l >= 5 then
+            skynet_m.fork(del_agent, 2)
         end
     end
 end
 
 function CMD.start()
-    new_agent(100)
+    new_agent(3)
 end
 
 skynet_m.start(function()
