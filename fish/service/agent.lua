@@ -43,6 +43,7 @@ function CMD.send(data)
 end
 
 function CMD.stop(code)
+    skynet_m.log(string.format("Stop agent %d.", session))
     if channel_i then
         channel_i:kick(code)
     else
@@ -53,11 +54,12 @@ function CMD.stop(code)
 end
 
 function CMD.exit()
+    CMD.stop(error_code.unknown_error)
     skynet_m.log(string.format("Agent %d exit.", session))
 	skynet_m.exit()
 end
 
 skynet_m.start(function()
-    skynet_m.log(string.format("Agent %d start.", session))
+    skynet_m.log(string.format("Start agent %d.", session))
     skynet_m.dispatch_lua_queue(CMD)
 end)
