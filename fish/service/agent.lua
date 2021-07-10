@@ -6,6 +6,7 @@ local message = require "message"
 local error_code = message.error_code
 
 local setmetatable = setmetatable
+local string = string
 
 local session = tonumber(...)
 local channel_i

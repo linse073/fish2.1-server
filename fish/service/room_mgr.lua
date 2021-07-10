@@ -1,5 +1,7 @@
 local skynet_m = require "skynet_m"
 
+local string = string
+
 local room_count = skynet_m.getenv_num("room_count")
 local room_list = {}
 local user_list = {}
@@ -32,8 +34,8 @@ function CMD.leave_game(info)
     local old = user_list[info.userid]
     if old then
         if old.tableid ~= info.tableid or old.seatid ~= info.seatid then
-            skynet_m.log("Leave game info differ from enter info, old(%d, %d) new(%d, %d).", old.tableid, old.seatid,
-                            info.tableid, info.seatid)
+            skynet_m.log(string.format("Leave game info differ from enter info, old(%d, %d) new(%d, %d).", old.tableid,
+                                        old.seatid, info.tableid, info.seatid))
         end
     else
         skynet_m.log(string.format("Can't find info when user %d leave game.", info.userid))

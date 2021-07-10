@@ -1,3 +1,5 @@
+local pairs = pairs
+local ipairs = ipairs
 
 local define = {}
 
