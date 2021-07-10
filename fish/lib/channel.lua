@@ -13,6 +13,7 @@ local floor = math.floor
 local game_mode = skynet_m.getenv("game_mode")
 local UDP_HELLO_ACK = "1432ad7c829170a76dd31982c3501eca"
 local version = skynet_m.getenv("version")
+local ACTIVITY_TIMEOUT = 60 * 100 * 30
 
 local room_mgr
 local agent_mgr
@@ -172,7 +173,7 @@ end
 -- NOTICE: must use send_lua
 function channel:checkActivity()
     local now = skynet_m.now()
-    if now - self._check_activity_time >= 10000 then
+    if now - self._check_activity_time >= ACTIVITY_TIMEOUT then
         skynet_m.log(string.format("checkActivity kick user %s.", util.udp_address(self._from)))
         skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
     end
