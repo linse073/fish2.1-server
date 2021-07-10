@@ -173,6 +173,7 @@ end
 function channel:checkActivity()
     local now = skynet_m.now()
     if now - self._check_activity_time >= 10000 then
+        skynet_m.log(string.format("checkActivity kick user %s.", util.udp_address(self._from)))
         skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
     end
 end
@@ -181,10 +182,12 @@ function channel:checkJoin()
     self._check_join_count = self._check_join_count + 1
     if self._check_join_count <= 3 then
         if not self._room then
+            skynet_m.log(string.format("checkJoin send join to user %s.", util.udp_address(self._from)))
             local ack = string.pack("zz>I4", UDP_HELLO_ACK, version, self._session)
             self._send_func(ack)
         end
     else
+        skynet_m.log(string.format("checkJoin kick user %s.", util.udp_address(self._from)))
         skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
     end
 end
