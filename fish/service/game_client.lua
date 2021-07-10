@@ -8,6 +8,7 @@ local game_port = skynet_m.getenv_num("game_port")
 local pcall = pcall
 local string = string
 local ipairs = ipairs
+local error = error
 
 local game_message
 local game_fd

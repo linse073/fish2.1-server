@@ -1,5 +1,7 @@
 local skynet_m = require "skynet_m"
 
+local pairs = pairs
+
 local timer = {}
 
 local routine

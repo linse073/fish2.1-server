@@ -2,10 +2,13 @@ local skynet_m = require "skynet_m"
 
 local ipairs = ipairs
 local table = table
+local pcall = pcall
 
 local free_list = {}
 local agent_list = {}
 local session = 0
+local new_fork = nil
+local del_fork = nil
 
 local function new_agent(num)
     local t = {}
@@ -48,8 +51,11 @@ function CMD.get()
         agent = free_list[l]
         table.remove(free_list, l)
         agent_list[agent] = 0
-        if l <= 50 then
-            skynet_m.fork(new_agent, 50)
+        if l <= 50 and not new_fork then
+            new_fork = skynet_m.fork(function()
+                pcall(new_agent, 50)
+                new_fork = nil
+            end)
         end
     else
         session = session + 1
@@ -64,8 +70,11 @@ function CMD.free(agent)
         local l = #free_list + 1
         free_list[l] = agent
         agent_list[agent] = l
-        if l >= 150 then
-            skynet_m.fork(del_agent, 50)
+        if l >= 150 and not del_fork then
+            del_fork = skynet_m.fork(function()
+                pcall(del_agent, 50)
+                del_fork = nil
+            end)
         end
     end
 end
