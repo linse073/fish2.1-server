@@ -30,8 +30,13 @@ end
 
 function CMD.leave_game(info)
     local old = user_list[info.userid]
-    if not old or old.tableid ~= info.tableid or old.seatid ~= info.seatid then
-        skynet_m.log("Leave game info differ from enter info.")
+    if old then
+        if old.tableid ~= info.tableid or old.seatid ~= info.seatid then
+            skynet_m.log("Leave game info differ from enter info, old(%d, %d) new(%d, %d).", old.tableid, old.seatid,
+                            info.tableid, info.seatid)
+        end
+    else
+        skynet_m.log(string.format("Can't find info when user %d leave game.", info.userid))
     end
     user_list[info.userid] = nil
 end
