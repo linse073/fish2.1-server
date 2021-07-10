@@ -48,8 +48,8 @@ function CMD.get()
         agent = free_list[l]
         table.remove(free_list, l)
         agent_list[agent] = 0
-        if l < 3 then
-            skynet_m.fork(new_agent, 2)
+        if l <= 50 then
+            skynet_m.fork(new_agent, 50)
         end
     else
         session = session + 1
@@ -64,14 +64,14 @@ function CMD.free(agent)
         local l = #free_list + 1
         free_list[l] = agent
         agent_list[agent] = l
-        if l >= 5 then
-            skynet_m.fork(del_agent, 2)
+        if l >= 150 then
+            skynet_m.fork(del_agent, 50)
         end
     end
 end
 
 function CMD.start()
-    new_agent(3)
+    new_agent(100)
 end
 
 skynet_m.start(function()
