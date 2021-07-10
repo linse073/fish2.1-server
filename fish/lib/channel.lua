@@ -46,7 +46,7 @@ function channel:init(session, from, func)
     timer.add_routine("check_join", function()
         self:checkJoin()
         timer.done_routine("check_join")
-    end, 200)
+    end, 50)
 end
 
 function channel:process(data)
@@ -182,7 +182,6 @@ function channel:checkJoin()
     self._check_join_count = self._check_join_count + 1
     if self._check_join_count <= 3 then
         if not self._room then
-            skynet_m.log(string.format("checkJoin send join to user %s.", util.udp_address(self._from)))
             local ack = string.pack("zz>I4", UDP_HELLO_ACK, version, self._session)
             self._send_func(ack)
         end
