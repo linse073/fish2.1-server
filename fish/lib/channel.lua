@@ -51,20 +51,22 @@ function channel:init(session, from, func)
 end
 
 function channel:process(data)
-    if self._kcp:lkcp_input(data) < 0 then
-        skynet_m.log(string.format("Kcp input error from %s.", util.udp_address(self._from)))
-        return
-    end
-    while true do
-        local len, buff = self._kcp:lkcp_recv()
-        if len > 0 then
-            self:processPack(buff)
-        else
-            break
+    if self._kcp then
+        if self._kcp:lkcp_input(data) < 0 then
+            skynet_m.log(string.format("Kcp input error from %s.", util.udp_address(self._from)))
+            return
         end
+        while true do
+            local len, buff = self._kcp:lkcp_recv()
+            if len > 0 then
+                self:processPack(buff)
+            else
+                break
+            end
+        end
+        self:addUpdate()
+        self._check_activity_time = skynet_m.now()
     end
-    self:addUpdate()
-    self._check_activity_time = skynet_m.now()
 end
 
 function channel:processPack(data)
@@ -138,29 +140,38 @@ function channel:joinFail(code)
 end
 
 function channel:send(data)
-    if self._kcp:lkcp_send(data) < 0 then
-        skynet_m.log(string.format("Kcp send error from %s.", util.udp_address(self._from)))
+    if self._kcp then
+        if self._kcp:lkcp_send(data) < 0 then
+            skynet_m.log(string.format("Kcp send error from %s.", util.udp_address(self._from)))
+        end
+        self:addUpdate()
     end
-    self:addUpdate()
 end
 
 function channel:kick(code)
     if self._room then
         skynet_m.send_lua(self._room, "kick", self._user_id, skynet_m.self())
         skynet_m.log(string.format("Kick user %d, code %d.", self._user_id, code))
+        self._room = nil
+        self._user_id = nil
     end
-    self:send(string.pack(">I2>I2", s_to_c.kick, code))
-    self._kcp:lkcp_flush()
+    if self._kcp then
+        self:send(string.pack(">I2>I2", s_to_c.kick, code))
+        self._kcp:lkcp_flush()
+        self._kcp = nil
+    end
 end
 
 function channel:update()
-    local now = floor(skynet_m.now() * 10)
-    self._kcp:lkcp_update(now)
-    local nt = self._kcp:lkcp_check(now) - now
-    if nt > 0 then
-        timer.add_routine("kcp_update", self._update_func, nt / 10)
+    if self._kcp then
+        local now = floor(skynet_m.now() * 10)
+        self._kcp:lkcp_update(now)
+        local nt = self._kcp:lkcp_check(now) - now
+        if nt > 0 then
+            timer.add_routine("kcp_update", self._update_func, nt / 10)
+        end
+        self._next_update = false
     end
-    self._next_update = false
 end
 
 function channel:addUpdate()

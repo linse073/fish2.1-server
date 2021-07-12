@@ -24,6 +24,7 @@ function CMD.start(gate, from)
     channel_i:init(session, from, function(data)
         skynet_m.send_lua(gate, "send", from, data)
     end)
+    skynet_m.log(string.format("Start agent %d.", session))
     return session
 end
 
@@ -61,6 +62,6 @@ function CMD.exit()
 end
 
 skynet_m.start(function()
-    skynet_m.log(string.format("Start agent %d.", session))
+    skynet_m.log(string.format("Launch agent %d.", session))
     skynet_m.dispatch_lua_queue(CMD)
 end)

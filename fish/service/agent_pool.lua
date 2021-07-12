@@ -51,9 +51,9 @@ function CMD.get()
         agent = free_list[l]
         table.remove(free_list, l)
         agent_list[agent] = 0
-        if l <= 50 and not new_fork then
+        if l <= 25 and not new_fork then
             new_fork = skynet_m.fork(function()
-                pcall(new_agent, 50)
+                pcall(new_agent, 25)
                 new_fork = nil
             end)
         end
@@ -70,9 +70,9 @@ function CMD.free(agent)
         local l = #free_list + 1
         free_list[l] = agent
         agent_list[agent] = l
-        if l >= 150 and not del_fork then
+        if l >= 75 and not del_fork then
             del_fork = skynet_m.fork(function()
-                pcall(del_agent, 50)
+                pcall(del_agent, 25)
                 del_fork = nil
             end)
         end
@@ -80,7 +80,7 @@ function CMD.free(agent)
 end
 
 function CMD.start()
-    new_agent(100)
+    new_agent(50)
 end
 
 skynet_m.start(function()
