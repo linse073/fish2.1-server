@@ -165,7 +165,7 @@ end
 function channel:update()
     if self._kcp then
         local now = floor(skynet_m.now() * 10)
-        self._kcp:lkcp_update(now, self._session)
+        self._kcp:lkcp_update(now)
         local nt = self._kcp:lkcp_check(now) - now
         if nt > 0 then
             timer.add_routine("kcp_update", self._update_func, nt / 10)
