@@ -63,5 +63,8 @@ end
 
 skynet_m.start(function()
     skynet_m.log(string.format("Launch agent %d.", session))
+    _G["skynet_log"] = function(info)
+        skynet_m.log(info)
+    end
     skynet_m.dispatch_lua_queue(CMD)
 end)
