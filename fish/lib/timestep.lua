@@ -1537,9 +1537,9 @@ function timestep:on_fire(info)
     end
     self._bullet[binfo.id] = nil
     info.cannon = binfo.kind
-    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind,
+    local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4>I8", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind,
                             user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate,
-                            bullet.target)
+                            bullet.target, info.awardPool)
     self:broadcast(msg)
 end
 
@@ -1569,13 +1569,15 @@ function timestep:on_dead(info)
             end
         end
         -- NOTICE: no bullet self_id info
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
-                                fish_info.fish_id, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4", s_to_c.dead, user_info.pos, info.bulletid,
+                                info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold,
+                                info.fishScore, info.awardPool, info.rpt)
         self:broadcast(msg)
         self:delay_broadcast()
     else
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8", s_to_c.dead, user_info.pos, info.bulletid, info.fishid,
-                                0, info.multi, info.bulletMulti, info.winGold, info.fishScore)
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4", s_to_c.dead, user_info.pos, info.bulletid,
+                                info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore,
+                                info.awardPool, info.rpt)
         self:broadcast(msg)
     end
 end
@@ -1666,6 +1668,16 @@ function timestep:on_skill_damage(info)
     local msg = string.pack(">I2B>I4>I8>I2", s_to_c.skill_damage, user_info.pos, info.winGold, info.fishScore,
                             #info.fish) .. del_msg
     self:broadcast(msg)
+end
+
+function timestep:on_init_info(info)
+    self._info = info
+end
+
+function timestep:on_koi_info(info)
+    local sinfo = self._info
+    sinfo.koi_type, sinfo.koi_life, sinfo.koi_wait, sinfo.koi_create
+        = info.koi_type, info.koi_life, info.koi_wait, info.koi_create
 end
 
 return {__index=timestep}
