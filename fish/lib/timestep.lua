@@ -1635,6 +1635,10 @@ function timestep:skill_damage(info, data)
 end
 
 function timestep:set_koi_info(info, data)
+    self._info = {
+        tableid = self._room_id,
+        rpt_mode = 1,
+    }
     local koi_info = {}
     koi_info.koi_type, koi_info.koi_life, koi_info.koi_wait, koi_info.koi_create = string.unpack("<i4<i4<i4b", data, 3)
     skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", self._room_id, koi_info.koi_type, koi_info.koi_life,
