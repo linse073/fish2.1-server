@@ -699,6 +699,7 @@ function timestep:new_koi_fish(info, data, num, new_fish)
         new_fish[#new_fish+1] = new_info
         self._fish[fid] = new_info
         self._koi_fish[fid] = new_info
+        util.dump(new_info)
     end
 end
 
