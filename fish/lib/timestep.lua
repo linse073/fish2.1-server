@@ -36,6 +36,7 @@ local skill_data
 local item_type
 local item_id_map
 local fish_born
+local fish_koi
 
 local agent_mgr
 local game_message
@@ -68,6 +69,7 @@ skynet_m.init(function()
     matrix_data = share.matrix_data
     skill_data = share.skill_data
     fish_born = share.fish_born
+    fish_koi = share.fish_koi
     event_function = {
         [event_type.active_scene_spline] = function(self, info)
             self._spline[info.spline_id] = info
@@ -451,6 +453,7 @@ function timestep:clear()
     self._born_time = fish_born.cd
     self._rand_fish = {0, 0, 0}
     self._delay_msg = {}
+    self._koi_fish = {}
     timer.del_all()
 end
 
@@ -468,6 +471,14 @@ function timestep:new_bullet_id()
     end
     self._bullet_id = self._bullet_id + 1
     return self._bullet_id
+end
+
+function timestep:new_group_id()
+    if self._group_id >= 2147483648 then -- INT32_MAX: 2147483648
+        self._group_id = 0
+    end
+    self._group_id = self._group_id + 1
+    return self._group_id
 end
 
 function timestep:loop()
@@ -494,7 +505,7 @@ end
 
 function timestep:new_skill_trigger_fish(fish_id, time, new_fish)
     local data = fish_data[fish_id]
-    self._group_id = self._group_id + 1
+    local gid = self:new_group_id()
     local spline_id = 0
     local life_time = data.life_time
     local matrix_id = 0
@@ -503,7 +514,7 @@ function timestep:new_skill_trigger_fish(fish_id, time, new_fish)
         id = fid,
         fish_id = fish_id,
         spline_id = spline_id,
-        group_id = self._group_id,
+        group_id = gid,
         speed = 0,
         life_time = life_time,
         time = time,
@@ -521,7 +532,7 @@ end
 
 function timestep:new_skill_fish(info, time, skill_fish, new_fish)
     local data = fish_data[info.fish_id]
-    self._group_id = self._group_id + 1
+    local gid = self:new_group_id()
     local spline_id = info.spline_id
     if spline_id > 0 then
         self._spline_cd[spline_id] = { cd = 10 }
@@ -540,7 +551,7 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
             id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
-            group_id = self._group_id,
+            group_id = gid,
             speed = info.speed,
             life_time = life_time,
             time = time,
@@ -559,7 +570,7 @@ function timestep:new_skill_fish(info, time, skill_fish, new_fish)
 end
 
 function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
-    self._group_id = self._group_id + 1
+    local gid = self:new_group_id()
     if spline_id > 0 then
         self._spline_cd[spline_id] = { cd = 15 }
     end
@@ -577,7 +588,7 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
             id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
-            group_id = self._group_id,
+            group_id = gid,
             speed = info.speed,
             life_time = life_time,
             time = 0,
@@ -593,7 +604,7 @@ function timestep:new_spline_fish(info, data, num, spline_id, new_fish)
 end
 
 function timestep:new_born_fish(info, data, num, new_fish)
-    self._group_id = self._group_id + 1
+    local gid = self:new_group_id()
     local spline_id = 0
     local rand_spline, all_spline = {}, {}
     for k, v in pairs(camera_boss_spline) do
@@ -625,7 +636,7 @@ function timestep:new_born_fish(info, data, num, new_fish)
             id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
-            group_id = self._group_id,
+            group_id = gid,
             speed = speed,
             life_time = life_time,
             time = 0,
@@ -638,6 +649,56 @@ function timestep:new_born_fish(info, data, num, new_fish)
         }
         new_fish[#new_fish+1] = new_info
         self._fish[fid] = new_info
+    end
+end
+
+function timestep:new_koi_fish(info, data, num, new_fish)
+    local gid = self:new_group_id()
+    local spline_id = 0
+    local rand_spline, all_spline = {}, {}
+    for k, v in pairs(camera_boss_spline) do
+        if not self._spline_cd[k] then
+            rand_spline[#rand_spline+1] = k
+        end
+        all_spline[#all_spline+1] = k
+    end
+    if #rand_spline > 0 then
+        spline_id = rand_spline[math.random(#rand_spline)]
+    elseif #all_spline > 0 then
+        spline_id = all_spline[math.random(#all_spline)]
+    end
+    if spline_id > 0 then
+        self._spline_cd[spline_id] = { cd = 15 }
+    end
+    local life_time = data.life_time
+    local speed = 0
+    if life_time > 0 and spline_id > 0 then
+        speed = spline_data[spline_id].length / life_time
+    end
+    local matrix_id = info.matrix_id
+    if matrix_id == 0 and #matrix_data > 0 then
+        matrix_id = matrix_data[math.random(#matrix_data)]
+    end
+    for i = 1, num do
+        local fid = self:new_fish_id()
+        local new_info = {
+            id = fid,
+            fish_id = info.fish_id,
+            spline_id = spline_id,
+            group_id = gid,
+            speed = speed,
+            life_time = life_time,
+            time = 0,
+            data = data,
+            matrix_id = matrix_id,
+            group_index = i - 1,
+            offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
+            born_fish = true,
+            rand_fish = 0,
+        }
+        new_fish[#new_fish+1] = new_info
+        self._fish[fid] = new_info
+        self._koi_fish[fid] = new_info
     end
 end
 
@@ -670,7 +731,7 @@ function timestep:update_spline(new_fish)
 end
 
 function timestep:new_fish(info, data, num, time, new_fish, incount)
-    self._group_id = self._group_id + 1
+    local gid = self:new_group_id()
     local spline_id = info.spline_id
     local life_time = data.life_time
     if spline_id == 0 and life_time == 0 then
@@ -703,7 +764,7 @@ function timestep:new_fish(info, data, num, time, new_fish, incount)
             id = fid,
             fish_id = info.fish_id,
             spline_id = spline_id,
-            group_id = self._group_id,
+            group_id = gid,
             speed = info.speed,
             life_time = life_time,
             time = time,
@@ -759,7 +820,7 @@ function timestep:update_fish(etime, pool_info, new_fish, rand_fish)
 end
 
 function timestep:new_boss(info, data, time, new_fish, pool, incount)
-    self._group_id = self._group_id + 1
+    local gid = self:new_group_id()
     local spline_id = info.spline_id
     local life_time = data.life_time
     if spline_id == 0 and life_time == 0 then
@@ -791,7 +852,7 @@ function timestep:new_boss(info, data, time, new_fish, pool, incount)
         id = fid,
         fish_id = info.fish_id,
         spline_id = spline_id,
-        group_id = self._group_id,
+        group_id = gid,
         speed = info.speed,
         life_time = life_time,
         time = time,
@@ -835,6 +896,7 @@ end
 
 function timestep:delete_fish(info, hit_user, delay_msg)
     self._fish[info.id] = nil
+    self._koi_fish[info.id] = nil
     local pool_info = self._fish_pool[info.data.type]
     if pool_info.count and info.incount then
         pool_info.count = pool_info.count - 1
@@ -1030,20 +1092,6 @@ function timestep:update()
             end
         end
     end
-    if del_count > 0 then
-        if del_count > 100 then
-            skynet_m.log("Kill fish exceed max count.")
-        end
-        for i = del_count + 1, 100 do
-            kill_msg = kill_msg .. string.pack("<I4", 0)
-        end
-        skynet_m.send_lua(game_message, "send_kill_fish", {
-            tableid = self._room_id,
-            fish = kill_msg,
-        })
-        del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
-        self:broadcast(del_msg)
-    end
     local new_fish = {}
     local event = self._event
     local stop_time = false
@@ -1116,6 +1164,51 @@ function timestep:update()
             end
             self._born_time = 0
         end
+    end
+    local koi_info = self._info
+    if koi_info and koi_info.rpt_mode == 1 then
+        if koi_info.koi_create == 1 then
+            koi_info.koi_life = koi_info.koi_life - etime
+            if koi_info.koi_life > 0 then
+                if util.empty(self._koi_fish) then
+                    for i = 1, 2 do
+                        local info = fish_koi[math.random(#fish_koi)]
+                        self:new_koi_fish(info, fish_data[info.fish_id], 1, new_fish)
+                    end
+                end
+            else
+                koi_info.koi_create = 0
+                koi_info.koi_wait = koi_info.koi_wait + koi_info.koi_life
+                koi_info.koi_life = 0
+                for k, v in pairs(self._koi_fish) do
+                    self:kill_fish(v, 0)
+                    del_count = del_count + 1
+                    del_msg = del_msg .. string.pack(">I4>I4", k, v.fish_id)
+                    kill_msg = kill_msg .. string.pack("<I4", k)
+                end
+            end
+        else
+            if koi_info.koi_wait > 0 then
+                koi_info.koi_wait = koi_info.koi_wait - etime
+                if koi_info.koi_wait < 0 then
+                    koi_info.koi_wait = 0
+                end
+            end
+        end
+    end
+    if del_count > 0 then
+        if del_count > 100 then
+            skynet_m.log("Kill fish exceed max count.")
+        end
+        for i = del_count + 1, 100 do
+            kill_msg = kill_msg .. string.pack("<I4", 0)
+        end
+        skynet_m.send_lua(game_message, "send_kill_fish", {
+            tableid = self._room_id,
+            fish = kill_msg,
+        })
+        del_msg = string.pack(">I2>I2", s_to_c.delete_fish, del_count) .. del_msg
+        self:broadcast(del_msg)
     end
     local new_num = #new_fish
     if new_num > 0 then
@@ -1294,6 +1387,14 @@ function timestep:ready(info, data)
             end
         end
         msg = msg .. string.pack(">I2", item_count) .. item_msg
+        local koi_info = self._info
+        if koi_info and koi_info.rpt_mode == 1 then
+            msg = msg .. string.pack("B", 1)
+            msg = msg .. string.pack(">i4>i4>i4B", koi_info.koi_type, math.ceil(koi_info.koi_life),
+                                        math.ceil(koi_info.koi_wait), koi_info.koi_create)
+        else
+            msg = msg .. string.pack("B", 0)
+        end
         skynet_m.send_lua(info.agent, "send", msg)
         skynet_m.log(string.format("Response user %d ready.", info.user_id))
     end
@@ -1678,6 +1779,9 @@ function timestep:on_koi_info(info)
     local sinfo = self._info
     sinfo.koi_type, sinfo.koi_life, sinfo.koi_wait, sinfo.koi_create
         = info.koi_type, info.koi_life, info.koi_wait, info.koi_create
+    local msg = string.pack(">I2>i4>i4>i4B", s_to_c.koi_info, sinfo.koi_type, math.ceil(sinfo.koi_life),
+                            math.ceil(sinfo.koi_wait), sinfo.koi_create)
+    self:broadcast(msg)
 end
 
 return {__index=timestep}

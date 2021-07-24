@@ -41,6 +41,7 @@ message.s_to_c = {
     bomb_fish = 2016,
     trigger_dead = 2017,
     skill_damage = 2018,
+    koi_info = 2019,
 }
 
 message.op_cmd = {
