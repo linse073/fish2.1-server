@@ -1406,8 +1406,7 @@ function timestep:ready(info, data)
         msg = msg .. string.pack(">I2", item_count) .. item_msg
         local koi_info = self._info
         if koi_info and koi_info.rpt_mode == 1 then
-            msg = msg .. string.pack("b", 1)
-            msg = msg .. string.pack(">i4>i4>i4b", koi_info.koi_type, math.ceil(koi_info.koi_life),
+            msg = msg .. string.pack("b>i4>i4>i4b", koi_info.rpt_mode, koi_info.koi_type, math.ceil(koi_info.koi_life),
                                         math.ceil(koi_info.koi_wait), koi_info.koi_create)
         else
             msg = msg .. string.pack("b", 0)
