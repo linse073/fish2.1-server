@@ -1805,8 +1805,8 @@ function timestep:on_koi_info(info)
     local sinfo = self._info
     sinfo.koi_type, sinfo.koi_life, sinfo.koi_wait, sinfo.koi_create
         = info.koi_type, info.koi_life, info.koi_wait, info.koi_create
-    local msg = string.pack(">I2>i4>i4>i4b", s_to_c.koi_info, sinfo.koi_type, math.ceil(sinfo.koi_life),
-                            math.ceil(sinfo.koi_wait), sinfo.koi_create)
+    local msg = string.pack(">I2>i4>i4>i4bb", s_to_c.koi_info, sinfo.koi_type, math.ceil(sinfo.koi_life),
+                            math.ceil(sinfo.koi_wait), sinfo.koi_create, sinfo.rpt_mode)
     self:broadcast(msg)
 end
 
