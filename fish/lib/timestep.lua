@@ -1276,6 +1276,9 @@ function timestep:kick(user_id, agent)
                 tableid = self._room_id,
                 flag = 0,
             })
+            if game_mode == "fake_game" then
+                self._info = nil
+            end
         end
     end
 end
