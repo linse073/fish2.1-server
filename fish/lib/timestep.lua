@@ -1224,12 +1224,8 @@ function timestep:update()
                 event.data.fish = v
             end
             -- NOTICE: define fish type with game server
-            if v.rand_fish > 0 then
-                new_msg = new_msg .. string.pack("<I4<I2<I2",
-                                                    v.id, define.rand_fish_kind, math.ceil(v.life_time - v.time + 10))
-            else
-                new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, v.data.kind, math.ceil(v.life_time - v.time + 10))
-            end
+            new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, self:get_fish_kind(v),
+                                                math.ceil(v.life_time - v.time + 10))
             client_msg = client_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id,
                                                     v.group_id, v.speed, v.time, v.matrix_id, v.group_index, v.offset,
                                                     v.rand_fish)
@@ -1242,6 +1238,23 @@ function timestep:update()
             tableid = self._room_id,
             fish = new_msg,
         })
+    end
+end
+
+function timestep:get_fish_kind(info)
+    if info.rand_fish > 0 then
+        return define.rand_fish_kind
+    else
+        local koi_info = self._info
+        if koi_info and koi_info.rpt_mode == 1 then
+            if info.data.koi_kind > 0 then
+                return info.data.koi_kind
+            else
+                return info.data.kind
+            end
+        else
+            return info.data.kind
+        end
     end
 end
 
