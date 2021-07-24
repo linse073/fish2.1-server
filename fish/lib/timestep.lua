@@ -1634,6 +1634,14 @@ function timestep:skill_damage(info, data)
     })
 end
 
+function timestep:set_koi_info(info, data)
+    local koi_info = {}
+    koi_info.koi_type, koi_info.koi_life, koi_info.koi_wait, koi_info.koi_create = string.unpack("<i4<i4<i4b", data, 3)
+    skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", self._room_id, koi_info.koi_type, koi_info.koi_life,
+                                koi_info.koi_wait, koi_info.koi_create))
+    self:on_koi_info(koi_info)
+end
+
 function timestep:on_fire(info)
     local binfo = info.bullet
     if info.code ~= 0 then

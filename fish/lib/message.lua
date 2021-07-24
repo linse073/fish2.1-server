@@ -15,6 +15,7 @@ message.c_to_s = {
     hit_bomb = 1009,
     hit_trigger = 1010,
     skill_damage = 1011,
+    set_koi_info = 1012,
 }
 
 message.c_to_s_i = {}
