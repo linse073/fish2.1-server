@@ -1389,11 +1389,11 @@ function timestep:ready(info, data)
         msg = msg .. string.pack(">I2", item_count) .. item_msg
         local koi_info = self._info
         if koi_info and koi_info.rpt_mode == 1 then
-            msg = msg .. string.pack("B", 1)
-            msg = msg .. string.pack(">i4>i4>i4B", koi_info.koi_type, math.ceil(koi_info.koi_life),
+            msg = msg .. string.pack("b", 1)
+            msg = msg .. string.pack(">i4>i4>i4b", koi_info.koi_type, math.ceil(koi_info.koi_life),
                                         math.ceil(koi_info.koi_wait), koi_info.koi_create)
         else
-            msg = msg .. string.pack("B", 0)
+            msg = msg .. string.pack("b", 0)
         end
         skynet_m.send_lua(info.agent, "send", msg)
         skynet_m.log(string.format("Response user %d ready.", info.user_id))
@@ -1779,7 +1779,7 @@ function timestep:on_koi_info(info)
     local sinfo = self._info
     sinfo.koi_type, sinfo.koi_life, sinfo.koi_wait, sinfo.koi_create
         = info.koi_type, info.koi_life, info.koi_wait, info.koi_create
-    local msg = string.pack(">I2>i4>i4>i4B", s_to_c.koi_info, sinfo.koi_type, math.ceil(sinfo.koi_life),
+    local msg = string.pack(">I2>i4>i4>i4b", s_to_c.koi_info, sinfo.koi_type, math.ceil(sinfo.koi_life),
                             math.ceil(sinfo.koi_wait), sinfo.koi_create)
     self:broadcast(msg)
 end
