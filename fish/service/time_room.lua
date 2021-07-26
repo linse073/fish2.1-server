@@ -64,6 +64,10 @@ function CMD.on_koi_info(info)
     timestep_i:on_koi_info(info)
 end
 
+function CMD.on_king_dead(info)
+    timestep_i:on_king_dead(info)
+end
+
 skynet_m.start(function()
     timestep_i = setmetatable({}, timestep)
     timestep_i:init(room_id)

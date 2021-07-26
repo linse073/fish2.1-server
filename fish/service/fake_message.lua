@@ -106,14 +106,24 @@ local message_map = {
     [1403] = 1303,
     [1404] = 1304,
     [1405] = 1305,
-    [1406] = 1306,
+    -- [1406] = 1306,
     [1408] = 1308,
     [1410] = 1309,
     [1411] = 1310,
 }
 
 local function recv_cmd(msg)
-    assert(cmd_handle[message_map[msg.id]], string.format("No cmd %d handle.", msg.id))(msg.tableid, msg)
+    local recv_id
+    if msg.id == 1406 then
+        if msg.fish and msg.king then
+            recv_id = 1313  -- NOTICE: recv_catch_king
+        else
+            recv_id = 1306  -- NOTICE: recv_catch_fish
+        end
+    else
+        recv_id = message_map[msg.id]
+    end
+    assert(cmd_handle[recv_id], string.format("No cmd %d handle.", msg.id))(msg.tableid, msg)
 end
 
 local function recv_link(msg)
@@ -175,7 +185,7 @@ end
 local function recv_catch_fish(tableid, info)
     if math.random(1000) <= 50 and info.fish then
         info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt
-            = 1, 1, 10000, 100000, 100000, 10
+            = math.random(4), 1, 10000, 100000, 100000, 10
         -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
         --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
@@ -246,12 +256,24 @@ local function recv_skill_damage(tableid, info)
     skynet_m.send_lua(room, "on_skill_damage", info)
 end
 
-local function recv_init_info(tableid, msg)
+local function recv_init_info(tableid, info)
     -- NOTICE: do nothing
 end
 
-local function recv_koi_start(tableid, msg)
+local function recv_koi_start(tableid, info)
     -- NOTICE: do nothing
+end
+
+local function recv_catch_king(tableid, info)
+    if math.random(1000) <= 50 and info.fish then
+        info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt
+            = math.random(4), 1, 10000, 100000, 100000, 10
+        info.fishMultis = {10, 20, 30, 40}
+        -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+        --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+        local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+        skynet_m.send_lua(room, "on_dead", info)
+    end
 end
 
 message_handle[13502] = recv_link
@@ -270,6 +292,7 @@ cmd_handle[1309] = recv_trigger_fish
 cmd_handle[1310] = recv_skill_damage
 cmd_handle[1311] = recv_init_info
 cmd_handle[1312] = recv_koi_start
+cmd_handle[1313] = recv_catch_king
 
 function CMD.recv_msg(id, msg)
     assert(message_handle[message_map[id]], string.format("No message %d handle.", id))(msg)

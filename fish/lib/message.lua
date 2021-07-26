@@ -43,6 +43,7 @@ message.s_to_c = {
     trigger_dead = 2017,
     skill_damage = 2018,
     koi_info = 2019,
+    king_dead = 2020,
 }
 
 message.op_cmd = {

@@ -1454,6 +1454,13 @@ function timestep:fire(info, data)
     end
 end
 
+function timestep:is_king_fish(info)
+    if info then
+        local koi_info = self._info
+        return koi_info and koi_info.rpt_mode == 1 and info.data.koi_kind > 0
+    end
+end
+
 function timestep:hit(info, data)
     local self_id, fishid, multi = string.unpack(">I4>I4>I4", data, 3)
     local bulletid = info.bullet[self_id]
@@ -1462,6 +1469,7 @@ function timestep:hit(info, data)
         return
     end
     info.bullet[self_id] = nil
+    local fish_info = self._fish[fishid]
     skynet_m.send_lua(game_message, "send_catch_fish", {
         tableid = self._room_id,
         seatid = info.pos - 1,
@@ -1469,7 +1477,8 @@ function timestep:hit(info, data)
         bulletid = bulletid,
         fishid = fishid,
         bulletMulti = multi,
-        fish = self._fish[fishid],
+        fish = fish_info,
+        king = self:is_king_fish(fish_info),
     })
 end
 
@@ -1810,6 +1819,51 @@ function timestep:on_koi_info(info)
     local msg = string.pack(">I2b>i4>i4>i4b", s_to_c.koi_info, sinfo.rpt_mode, sinfo.koi_type,
                             math.ceil(sinfo.koi_life), math.ceil(sinfo.koi_wait), sinfo.koi_create)
     self:broadcast(msg)
+end
+
+function timestep:on_king_dead(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("King dead can't find user %d.", info.userid))
+        return
+    end
+    local fish_info = self._fish[info.fishid]
+    if fish_info then
+        self:kill_fish(fish_info, info.userid, true)
+        if fish_info.fish_id == define.frozen_fish then
+            skynet_m.log("kill frozen fish.")
+            local item_info = {
+                item_id = info.fishid,
+                num = 0,
+                time = 0,
+                user_id = info.userid,
+            }
+            self._item[#self._item+1] = item_info
+            local frozen_msg = string.pack(">I2>I4>I4>I4>f", s_to_c.use_item, info.userid, info.fishid, 0,
+                                            FROZEN_TIME)
+            self:broadcast(frozen_msg)
+            for k, v in pairs(self._fish) do
+                v.frozen = true;
+            end
+        end
+        -- NOTICE: no bullet self_id info
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4", s_to_c.king_dead, user_info.pos, info.bulletid,
+                                info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold,
+                                info.fishScore, info.awardPool, info.rpt)
+        for i = 1, 4 do
+            msg = msg .. string.pack(">i4", info.fishMultis[i])
+        end
+        self:broadcast(msg)
+        self:delay_broadcast()
+    else
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4", s_to_c.king_dead, user_info.pos, info.bulletid,
+                                info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore,
+                                info.awardPool, info.rpt)
+        for i = 1, 4 do
+            msg = msg .. string.pack(">i4", info.fishMultis[i])
+        end
+        self:broadcast(msg)
+    end
 end
 
 return {__index=timestep}

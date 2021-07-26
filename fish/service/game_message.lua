@@ -440,6 +440,23 @@ local function recv_koi_start(tableid, msg)
     skynet_m.send_lua(room, "on_koi_info", info)
 end
 
+local function recv_catch_king(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    local index, fishMultis = 1, {}
+    info.seatid, info.userid, info.bulletid, info.fishid, index = string.unpack("<I2<I4<I4<I4", msg, index)
+    for i = 1, 4 do
+        fishMultis[i], index = string.unpack("<i4", msg, index)
+    end
+    info.fishMultis = fishMultis
+    info.fishKind, info.multi, info.bulletMulti, info.winGold,
+        info.fishScore, info.awardPool, info.rpt = string.unpack("<I2<I2<I2<I4<I8<I8<i4", msg, index)
+    -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+    --                             info.bulletid, info.fishid, info.winGold, info.fishScore))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_king_dead", info)
+end
+
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -456,6 +473,7 @@ cmd_handle[1309] = recv_trigger_fish
 cmd_handle[1310] = recv_skill_damage
 cmd_handle[1311] = recv_init_info
 cmd_handle[1312] = recv_koi_start
+cmd_handle[1313] = recv_catch_king
 
 function CMD.recv_msg(msg)
     local len, id, index = string.unpack("<I2<I2", msg)
