@@ -184,8 +184,9 @@ end
 
 local function recv_catch_fish(tableid, info)
     if math.random(1000) <= 50 and info.fish then
+        local fishMultis = {10, 20, 30, 40}
         info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt
-            = math.random(4), 1, 10000, 100000, 100000, 10
+            = fishMultis[math.random(4)], 1, 10000, 100000, 100000, 10
         -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
         --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
@@ -266,11 +267,12 @@ end
 
 local function recv_catch_king(tableid, info)
     if math.random(1000) <= 50 and info.fish then
+        local fishMultis = {10, 20, 30, 40}
         info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt
-            = math.random(4), 1, 10000, 100000, 100000, 10
-        info.fishMultis = {10, 20, 30, 40}
+            = fishMultis[math.random(4)], 1, 10000, 100000, 100000, 10
         -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
         --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+        info.fishMultis = fishMultis
         local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
         skynet_m.send_lua(room, "on_king_dead", info)
     end
