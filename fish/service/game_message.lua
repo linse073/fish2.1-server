@@ -127,7 +127,7 @@ local function pack_skill_timeout(msg)
 end
 
 local function pack_init_info(msg)
-    return ""
+    return string.pack("<i4", msg.flag)
 end
 
 pack_message[13501] = pack_link
@@ -235,6 +235,7 @@ local function recv_link(msg)
     for i = 1, room_count do
         CMD.send_init_info({
             tableid = i,
+            flag = 1,
         })
     end
 end
