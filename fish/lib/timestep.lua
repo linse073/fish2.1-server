@@ -1847,18 +1847,18 @@ function timestep:on_king_dead(info)
             end
         end
         -- NOTICE: no bullet self_id info
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4", s_to_c.king_dead, user_info.pos, info.bulletid,
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4>i4", s_to_c.king_dead, user_info.pos, info.bulletid,
                                 info.fishid, fish_info.fish_id, info.multi, info.bulletMulti, info.winGold,
-                                info.fishScore, info.awardPool, info.rpt)
+                                info.fishScore, info.awardPool, info.rpt, info.rpt_ratio)
         for i = 1, 4 do
             msg = msg .. string.pack(">i4", info.fishMultis[i])
         end
         self:broadcast(msg)
         self:delay_broadcast()
     else
-        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4", s_to_c.king_dead, user_info.pos, info.bulletid,
+        local msg = string.pack(">I2B>I4>I4>I4>I2>I2>I4>I8>I8>i4>i4", s_to_c.king_dead, user_info.pos, info.bulletid,
                                 info.fishid, 0, info.multi, info.bulletMulti, info.winGold, info.fishScore,
-                                info.awardPool, info.rpt)
+                                info.awardPool, info.rpt, info.rpt_ratio)
         for i = 1, 4 do
             msg = msg .. string.pack(">i4", info.fishMultis[i])
         end

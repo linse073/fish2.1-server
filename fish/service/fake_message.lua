@@ -95,6 +95,10 @@ function CMD.send_skill_timeout(msg)
     -- NOTICE: cmd(1412) do nothing
 end
 
+function CMD.send_init_info(msg)
+    -- NOTICE: cmd(1413) do nothing
+end
+
 -- NOTICE: recv message
 
 local message_map = {
@@ -268,8 +272,8 @@ end
 local function recv_catch_king(tableid, info)
     if math.random(1000) <= 50 and info.fish then
         local fishMultis = {10, 20, 30, 40}
-        info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt
-            = fishMultis[math.random(4)], 1, 10000, 100000, 100000, 10
+        info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt, info.rpt_ratio
+            = fishMultis[math.random(4)], 1, 10000, 100000, 100000, 10, 30
         -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
         --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
         info.fishMultis = fishMultis

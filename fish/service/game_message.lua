@@ -10,6 +10,7 @@ local assert = assert
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
 local udp_send_address = skynet_m.getenv("udp_send_address")
+local room_count = skynet_m.getenv_num("room_count")
 
 local message_handle = {}
 local cmd_handle = {}
@@ -125,6 +126,10 @@ local function pack_skill_timeout(msg)
     return string.pack("<I2<I4", msg.seatid, msg.userid)
 end
 
+local function pack_init_info(msg)
+    return ""
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -140,6 +145,7 @@ pack_cmd[1409] = pack_clear
 pack_cmd[1410] = pack_trigger_fish
 pack_cmd[1411] = pack_skill_damage
 pack_cmd[1412] = pack_skill_timeout
+pack_cmd[1413] = pack_init_info
 
 function CMD.send_link()
     send_msg(13501)
@@ -197,6 +203,10 @@ function CMD.send_skill_timeout(msg)
     send_cmd(1412, msg)
 end
 
+function CMD.send_init_info(msg)
+    send_cmd(1413, msg)
+end
+
 -- NOTICE: recv message
 
 local function unpack_string(pack, index)
@@ -222,6 +232,11 @@ local function recv_link(msg)
     local msg_info = unpack_string(msg, next_index)
     skynet_m.log(string.format("RespLink: %d %s.", code, msg_info))
     skynet_m.send_lua(game_client, "on_link")
+    for i = 1, room_count do
+        CMD.send_init_info({
+            tableid = i,
+        })
+    end
 end
 
 local function recv_heart_beat(msg)
@@ -450,7 +465,7 @@ local function recv_catch_king(tableid, msg)
     end
     info.fishMultis = fishMultis
     info.fishKind, info.multi, info.bulletMulti, info.winGold,
-        info.fishScore, info.awardPool, info.rpt = string.unpack("<I2<I2<I2<I4<I8<I8<i4", msg, index)
+        info.fishScore, info.awardPool, info.rpt, info.rpt_ratio = string.unpack("<I2<I2<I2<I4<I8<I8<i4<i4", msg, index)
     -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
     --                             info.bulletid, info.fishid, info.winGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
