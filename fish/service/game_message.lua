@@ -440,6 +440,7 @@ local function recv_init_info(tableid, msg)
     end
     info.koi_type, info.koi_life, info.koi_wait, info.koi_create, info.rpt_mode, index
         = string.unpack("<i4<i4<i4bb", msg, index)
+    info.rpt_mode = 1 - info.rpt_mode
     skynet_m.log(string.format("Table %d init info: %d %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
                                 info.koi_wait, info.koi_create, info.rpt_mode))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
