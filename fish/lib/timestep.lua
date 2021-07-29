@@ -1311,6 +1311,14 @@ function timestep:broadcast(msg, delay_msg)
     end
 end
 
+function timestep:broadcast_exclude(msg, id)
+    for _, v in pairs(self._user) do
+        if v.ready and v.user_id ~= id then
+            skynet_m.send_lua(v.agent, "send", msg)
+        end
+    end
+end
+
 function timestep:delay_broadcast()
     if #self._delay_msg > 0 then
         for _, msg in ipairs(self._delay_msg) do
@@ -1656,6 +1664,11 @@ function timestep:set_koi_info(info, data)
     skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", self._room_id, koi_info.koi_type, koi_info.koi_life,
                                 koi_info.koi_wait, koi_info.koi_create))
     self:on_koi_info(koi_info)
+end
+
+function timestep:open_chest(info, data)
+    local msg = string.pack(">I2B", s_to_c.open_chest, info.pos)
+    self:broadcast_exclude(msg, info.user_id)
 end
 
 function timestep:on_fire(info)
