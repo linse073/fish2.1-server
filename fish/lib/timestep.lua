@@ -1167,7 +1167,7 @@ function timestep:update()
         end
     end
     local koi_info = self._info
-    if koi_info and koi_info.rpt_mode == 1 then
+    if koi_info then
         if koi_info.koi_create == 1 then
             koi_info.koi_life = koi_info.koi_life - etime
             if koi_info.koi_life > 0 then
@@ -1413,7 +1413,7 @@ function timestep:ready(info, data)
         end
         msg = msg .. string.pack(">I2", item_count) .. item_msg
         local koi_info = self._info
-        if koi_info and koi_info.rpt_mode == 1 then
+        if koi_info then
             msg = msg .. string.pack("b>i4>i4>i4b", koi_info.rpt_mode, koi_info.koi_type, math.ceil(koi_info.koi_life),
                                         math.ceil(koi_info.koi_wait), koi_info.koi_create)
         else
