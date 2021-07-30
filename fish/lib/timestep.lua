@@ -450,7 +450,7 @@ function timestep:clear()
     self._item = {}
     self._use_follow_spline = true
     -- self._spline_time = 0
-    self._born_time = true
+    self._born_time = fish_born.cd
     self._rand_fish = {0, 0, 0}
     self._delay_msg = {}
     self._koi_fish = {}
@@ -906,7 +906,7 @@ function timestep:delete_fish(info, hit_user, delay_msg)
         pool_info.fish[info.fish_id] = nil
     end
     if info.born_fish then
-        self._born_time = true
+        self._born_time = fish_born.cd
     end
     if info.rand_fish > 0 then
         self._rand_fish[info.rand_fish] = self._rand_fish[info.rand_fish] - 1
@@ -1154,14 +1154,17 @@ function timestep:update()
     self:update_fish(etime, self._fish_pool[fish_type.big_fish], new_fish, true)
     self:update_boss(self._fish_pool[fish_type.boss_fish], new_fish)
     self:update_spline(new_fish)
-    if self._born_time then
-        local born_fish = fish_born.fish
-        if #born_fish > 0 then
-            local info = born_fish[math.random(#born_fish)]
-            local num = math.random(info.rand_min, info.rand_max)
-            self:new_born_fish(info, fish_data[info.fish_id], num, new_fish)
+    if self._born_time > 0 then
+        self._born_time = self._born_time - etime
+        if self._born_time <= 0 then
+            local born_fish = fish_born.fish
+            if #born_fish > 0 then
+                local info = born_fish[math.random(#born_fish)]
+                local num = math.random(info.rand_min, info.rand_max)
+                self:new_born_fish(info, fish_data[info.fish_id], num, new_fish)
+            end
+            self._born_time = 0
         end
-        self._born_time = false
     end
     local koi_info = self._info
     if koi_info then
