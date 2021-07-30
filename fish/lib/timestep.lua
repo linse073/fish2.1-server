@@ -1372,6 +1372,13 @@ function timestep:ready(info, data)
                 msg = msg .. string.pack(">I4B>I2", v.user_id, v.pos, v.cannon)
             end
         end
+        local koi_info = self._info
+        if koi_info then
+            msg = msg .. string.pack("b>i4>i4>i4b", koi_info.rpt_mode, koi_info.koi_type, math.ceil(koi_info.koi_life),
+                                        math.ceil(koi_info.koi_wait), koi_info.koi_create)
+        else
+            msg = msg .. string.pack("b", 0)
+        end
         local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
             fish_msg = fish_msg .. string.pack(">I4>I4>I4>I4>f>f>I4>I2>fB", v.id, v.fish_id, v.spline_id, v.group_id,
@@ -1411,13 +1418,6 @@ function timestep:ready(info, data)
             end
         end
         msg = msg .. string.pack(">I2", item_count) .. item_msg
-        local koi_info = self._info
-        if koi_info then
-            msg = msg .. string.pack("b>i4>i4>i4b", koi_info.rpt_mode, koi_info.koi_type, math.ceil(koi_info.koi_life),
-                                        math.ceil(koi_info.koi_wait), koi_info.koi_create)
-        else
-            msg = msg .. string.pack("b", 0)
-        end
         skynet_m.send_lua(info.agent, "send", msg)
         skynet_m.log(string.format("Response user %d ready.", info.user_id))
     end
