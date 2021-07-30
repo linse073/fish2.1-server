@@ -1377,7 +1377,7 @@ function timestep:ready(info, data)
             msg = msg .. string.pack("b>i4>i4>i4b", koi_info.rpt_mode, koi_info.koi_type, math.ceil(koi_info.koi_life),
                                         math.ceil(koi_info.koi_wait), koi_info.koi_create)
         else
-            msg = msg .. string.pack("b", 0)
+            msg = msg .. string.pack("b>i4>i4>i4b", 0, 0, 0, 0, 0)
         end
         local fish_msg, fish_count = "", 0
         for k, v in pairs(self._fish) do
