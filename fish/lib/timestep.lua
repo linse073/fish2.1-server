@@ -693,7 +693,6 @@ function timestep:new_koi_fish(info, data, num, new_fish)
             matrix_id = matrix_id,
             group_index = i - 1,
             offset = util.rand_offset(-data.matrix_radius, data.matrix_radius),
-            born_fish = true,
             rand_fish = 0,
         }
         new_fish[#new_fish+1] = new_info
