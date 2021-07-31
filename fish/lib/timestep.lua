@@ -1261,6 +1261,9 @@ end
 function timestep:kick(user_id, agent)
     local info = self._user[user_id]
     if info and (not agent or info.agent == agent) then
+        for k, v in ipairs(info.bullet) do
+            self._bullet[v] = nil
+        end
         self._user[user_id] = nil
         self._pos[info.pos] = nil
         self._count = self._count - 1
@@ -1672,6 +1675,15 @@ end
 
 function timestep:on_fire(info)
     local binfo = info.bullet
+    local bullet = self._bullet[binfo.id]
+    if not bullet then
+        skynet_m.log(string.format("Fire can't find bullet %d.", binfo.id))
+        return
+    end
+    if binfo.kind ~= bullet.kind or binfo.multi ~= bullet.multi then
+        skynet_m.log(string.format("Fire info is different."))
+    end
+    self._bullet[binfo.id] = nil
     if info.code ~= 0 then
         skynet_m.log(string.format("User %d fire bullet %d fail.", info.userid, binfo.id))
         return
@@ -1681,11 +1693,6 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire can't find user %d.", info.userid))
         return
     end
-    local bullet = self._bullet[binfo.id]
-    if binfo.kind ~= bullet.kind or binfo.multi ~= bullet.multi then
-        skynet_m.log(string.format("Fire info is different."))
-    end
-    self._bullet[binfo.id] = nil
     info.cannon = binfo.kind
     local msg = string.pack(">I2>I4>I4>I4B>f>I4>I4>I8B>I4>I8", s_to_c.fire, bullet.id, bullet.self_id, binfo.kind,
                             user_info.pos, bullet.angle, binfo.multi, info.costGold, info.fishScore, bullet.rotate,
