@@ -15,6 +15,7 @@ skynet_m.init(function()
     share.matrix_data = sharedata.query("matrix_data")
     share.skill_data = sharedata.query("skill_data")
     share.fish_born = sharedata.query("fish_born")
+    share.fish_koi = sharedata.query("fish_koi")
 end)
 
 return share

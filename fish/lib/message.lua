@@ -15,6 +15,8 @@ message.c_to_s = {
     hit_bomb = 1009,
     hit_trigger = 1010,
     skill_damage = 1011,
+    set_koi_info = 1012,
+    open_chest = 1013,
 }
 
 message.c_to_s_i = {}
@@ -41,6 +43,9 @@ message.s_to_c = {
     bomb_fish = 2016,
     trigger_dead = 2017,
     skill_damage = 2018,
+    koi_info = 2019,
+    king_dead = 2020,
+    open_chest = 2021,
 }
 
 message.op_cmd = {

@@ -1,5 +1,5 @@
 local data = {
-    cd = 5,
+    cd = 2,
     fish = {
         {
             fish_id = 5555,

@@ -22,6 +22,8 @@ skynet_m.start(function()
     sharedata.new("skill_data", skill_data)
     local fish_born = require("fish_born")
     sharedata.new("fish_born", fish_born)
+    local fish_koi = require("fish_koi")
+    sharedata.new("fish_koi", fish_koi)
 
     local camera_spline = {}
     local camera_boss_spline = {}

@@ -1,0 +1,20 @@
+root = "./"
+skynetroot = "./skynet/"
+fishroot = "./fish/"
+
+thread = 8
+logger = "userlog"
+logservice = "snlua"
+logpath = "./log_wc03"
+harbor = 0
+start = "main"	-- main script
+bootstrap = "snlua bootstrap"	-- The service for bootstrap
+luaservice = fishroot.."service/?.lua;"..skynetroot.."service/?.lua"
+lualoader = skynetroot.."lualib/loader.lua"
+cpath = skynetroot.."cservice/?.so"
+lua_path = fishroot.."lib/?.lua;"..fishroot.."lib/?/init.lua;"..fishroot.."data/?.lua;"..fishroot.."data/?/init.lua;"..skynetroot.."lualib/?.lua;"..skynetroot.."lualib/?/init.lua"
+lua_cpath = root.."lib/?.so;"..skynetroot.."luaclib/?.so"
+-- daemon = "./skynet_wc03.pid"
+debug_port = 8107
+
+include "fish_wc03.conf"

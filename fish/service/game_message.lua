@@ -4,11 +4,13 @@ local error_code = message.error_code
 
 local string = string
 local ipairs = ipairs
+local pairs = pairs
 local assert = assert
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
 local udp_send_address = skynet_m.getenv("udp_send_address")
+local room_count = skynet_m.getenv_num("room_count")
 
 local message_handle = {}
 local cmd_handle = {}
@@ -19,6 +21,9 @@ local game_client
 local room_mgr
 local gate_mgr
 local agent_mgr
+
+local MAX_USER = 4
+local MAX_FISH = 100
 
 local CMD = {}
 
@@ -80,7 +85,7 @@ local function pack_build_fish(msg)
     -- for _, v in ipairs(fish) do
     --     pack = pack .. string.pack("<I4<I2", v.id, v.kind)
     -- end
-    -- for i = #fish+1, 100 do
+    -- for i = #fish+1, MAX_FISH do
     --     pack = pack .. string.pack("<I4<I2", 0, 0)
     -- end
     return msg.fish
@@ -121,6 +126,10 @@ local function pack_skill_timeout(msg)
     return string.pack("<I2<I4", msg.seatid, msg.userid)
 end
 
+local function pack_init_info(msg)
+    return string.pack("<i4", msg.flag)
+end
+
 pack_message[13501] = pack_link
 pack_message[1] = pack_heart_beat
 
@@ -136,6 +145,7 @@ pack_cmd[1409] = pack_clear
 pack_cmd[1410] = pack_trigger_fish
 pack_cmd[1411] = pack_skill_damage
 pack_cmd[1412] = pack_skill_timeout
+pack_cmd[1413] = pack_init_info
 
 function CMD.send_link()
     send_msg(13501)
@@ -193,6 +203,10 @@ function CMD.send_skill_timeout(msg)
     send_cmd(1412, msg)
 end
 
+function CMD.send_init_info(msg)
+    send_cmd(1413, msg)
+end
+
 -- NOTICE: recv message
 
 local function unpack_string(pack, index)
@@ -218,6 +232,12 @@ local function recv_link(msg)
     local msg_info = unpack_string(msg, next_index)
     skynet_m.log(string.format("RespLink: %d %s.", code, msg_info))
     skynet_m.send_lua(game_client, "on_link")
+    for i = 1, room_count do
+        CMD.send_init_info({
+            tableid = i,
+            flag = 1,
+        })
+    end
 end
 
 local function recv_heart_beat(msg)
@@ -266,7 +286,7 @@ local function recv_build_fish(tableid, msg)
     -- end
     local index = 1
     local fish = {}
-    for i = 1, 100 do
+    for i = 1, MAX_FISH do
         local info = {}
         info.id, info.kind, index = string.unpack("<I4<I2", msg, index)
         if info.id > 0 then
@@ -288,7 +308,7 @@ local function recv_fire(tableid, msg)
     bullet.id, bullet.kind, bullet.multi, bullet.power, bullet.expTime, index = string.unpack("<I4<I4<I4<I4<I8", msg,
                                                                                                 index)
     info.bullet = bullet
-    info.code, info.costGold, info.fishScore = string.unpack("<I2<I4<I8", msg, index)
+    info.code, info.costGold, info.fishScore, info.awardPool = string.unpack("<I2<I4<I8<I8", msg, index)
     -- skynet_m.log(string.format("UserFire: %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid, bullet.id,
     --                             info.code, info.costGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
@@ -299,9 +319,9 @@ local function recv_catch_fish(tableid, msg)
     local info = {}
     info.tableid = tableid
     info.seatid, info.userid, info.bulletid, info.fishid, info.fishKind, info.multi, info.bulletMulti, info.winGold,
-        info.fishScore, info.code = string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I8<I2", msg)
+        info.fishScore, info.awardPool, info.rpt = string.unpack("<I2<I4<I4<I4<I2<I2<I2<I4<I8<I8<i4", msg)
     -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
-    --                             info.bulletid, info.fishid, info.winGold, info.fishScore, info.code))
+    --                             info.bulletid, info.fishid, info.winGold, info.fishScore))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_dead", info)
 end
@@ -320,7 +340,7 @@ local function recv_bomb_fish(tableid, msg)
     local fish, index = {}, 1
     info.seatid, info.userid, info.bulletid, info.bulletMulti, info.winGold, info.fishScore, index
         = string.unpack("<I2<I4<I4<I2<I4<I8", msg, index)
-    for i = 1, 100 do
+    for i = 1, MAX_FISH do
         local id
         id, index = string.unpack("<I4", msg, index)
         if id > 0 then
@@ -329,7 +349,7 @@ local function recv_bomb_fish(tableid, msg)
             }
         end
     end
-    for i = 1, 100 do
+    for i = 1, MAX_FISH do
         local score
         score, index = string.unpack("<I4", msg, index)
         local fish_info = fish[i]
@@ -363,7 +383,7 @@ local function recv_skill_damage(tableid, msg)
     info.tableid = tableid
     local fish, index = {}, 1
     info.seatid, info.userid, info.winGold, info.fishScore, index = string.unpack("<I2<I4<I4<I8", msg, index)
-    for i = 1, 100 do
+    for i = 1, MAX_FISH do
         local id
         id, index = string.unpack("<I4", msg, index)
         if id > 0 then
@@ -372,7 +392,7 @@ local function recv_skill_damage(tableid, msg)
             }
         end
     end
-    for i = 1, 100 do
+    for i = 1, MAX_FISH do
         local score
         score, index = string.unpack("<I4", msg, index)
         local fish_info = fish[i]
@@ -390,6 +410,70 @@ local function recv_skill_damage(tableid, msg)
     skynet_m.send_lua(room, "on_skill_damage", info)
 end
 
+local function recv_init_info(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    local index, user = 1, {}
+    for i = 1, MAX_USER do
+        local user_id
+        user_id, index = string.unpack("<I4", msg, index)
+        if user_id > 0 then
+            user[i] = {
+                tableid = tableid,
+                seatid = i - 1,
+                userid = user_id,
+            }
+        end
+    end
+    for i = 1, MAX_USER do
+        local sessionid
+        sessionid, index = string.unpack("c32", msg, index)
+        local user_info = user[i]
+        if user_info then
+            user_info.sessionid = sessionid
+        end
+    end
+    for k, v in pairs(user) do
+        skynet_m.log(string.format("UserEnterGame: %d %d %d %s %d.", v.tableid, v.seatid, v.userid, v.sessionid,
+                                    #v.sessionid))
+        skynet_m.send_lua(room_mgr, "enter_game", v)
+    end
+    info.koi_type, info.koi_life, info.koi_wait, info.koi_create, info.rpt_mode, index
+        = string.unpack("<i4<i4<i4bb", msg, index)
+    info.rpt_mode = 1 - info.rpt_mode
+    skynet_m.log(string.format("Table %d init info: %d %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
+                                info.koi_wait, info.koi_create, info.rpt_mode))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_init_info", info)
+end
+
+local function recv_koi_start(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    info.koi_type, info.koi_life, info.koi_wait, info.koi_create = string.unpack("<i4<i4<i4b", msg)
+    skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
+                                info.koi_wait, info.koi_create))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_koi_info", info)
+end
+
+local function recv_catch_king(tableid, msg)
+    local info = {}
+    info.tableid = tableid
+    local index, fishMultis = 1, {}
+    info.seatid, info.userid, info.bulletid, info.fishid, index = string.unpack("<I2<I4<I4<I4", msg, index)
+    for i = 1, 4 do
+        fishMultis[i], index = string.unpack("<i4", msg, index)
+    end
+    info.fishMultis = fishMultis
+    info.fishKind, info.multi, info.bulletMulti, info.winGold,
+        info.fishScore, info.awardPool, info.rpt, info.rpt_ratio = string.unpack("<I2<I2<I2<I4<I8<I8<i4<i4", msg, index)
+    -- skynet_m.log(string.format("CatchFish: %d %d %d %d %d %d %d %d.", info.tableid, info.seatid, info.userid,
+    --                             info.bulletid, info.fishid, info.winGold, info.fishScore))
+    local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
+    skynet_m.send_lua(room, "on_king_dead", info)
+end
+
 message_handle[13502] = recv_link
 message_handle[13504] = recv_cmd
 message_handle[1] = recv_heart_beat
@@ -404,6 +488,9 @@ cmd_handle[1307] = recv_set_cannon
 cmd_handle[1308] = recv_bomb_fish
 cmd_handle[1309] = recv_trigger_fish
 cmd_handle[1310] = recv_skill_damage
+cmd_handle[1311] = recv_init_info
+cmd_handle[1312] = recv_koi_start
+cmd_handle[1313] = recv_catch_king
 
 function CMD.recv_msg(msg)
     local len, id, index = string.unpack("<I2<I2", msg)
