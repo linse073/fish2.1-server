@@ -13,7 +13,7 @@ local floor = math.floor
 local game_mode = skynet_m.getenv("game_mode")
 local UDP_HELLO_ACK = "1432ad7c829170a76dd31982c3501eca"
 local version = skynet_m.getenv("version")
-local ACTIVITY_TIMEOUT = 60 * 100 * 30
+local ACTIVITY_TIMEOUT = 60 * 100 * 3
 
 local room_mgr
 local agent_mgr
@@ -136,7 +136,7 @@ end
 
 function channel:joinFail(code)
     self:send(string.pack(">I2>I2", s_to_c.join_resp, code))
-    -- skynet_m.send_lua(agent_mgr, "kick", self._from, code)
+    skynet_m.send_lua(agent_mgr, "kick", self._from, code)
 end
 
 function channel:send(data)
