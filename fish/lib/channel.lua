@@ -156,7 +156,9 @@ function channel:kick(code)
         self._user_id = nil
     end
     if self._kcp then
-        self:send(string.pack(">I2>I2", s_to_c.kick, code))
+        if code == error_code.ok then
+            self:send(string.pack(">I2>I2", s_to_c.kick, code))
+        end
         self._kcp:lkcp_flush()
         self._kcp = nil
     end
