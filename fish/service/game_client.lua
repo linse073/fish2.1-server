@@ -93,6 +93,10 @@ start = function()
         timer.add_routine("process_update", process, 1)
         -- TODO: send link message
         skynet_m.send_lua(game_message, "send_link")
+        for _, v in ipairs(msg_queue) do
+            send_package(v[1], v[2])
+        end
+        msg_queue = {}
     else
         game_fd = nil
         timer.add_routine("start_update", start, 300)
@@ -115,10 +119,10 @@ end
 
 function CMD.on_link()
     timer.add_routine("heart_beat", heart_beat, 3000)
-    for _, v in ipairs(msg_queue) do
-        send_package(v[1], v[2])
-    end
-    msg_queue = {}
+    -- for _, v in ipairs(msg_queue) do
+    --     send_package(v[1], v[2])
+    -- end
+    -- msg_queue = {}
 end
 
 function CMD.on_heart_beat()
