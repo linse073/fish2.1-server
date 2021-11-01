@@ -4,28 +4,33 @@ local tonumber = tonumber
 local pairs = pairs
 local table = table
 
+local max_client = 2048
+
 local gate_list = {}
 
-local function new_gate(addr, port)
+local function new_gate(port)
     if not gate_list[port] then
-        local gate = skynet_m.newservice("gate")
-        skynet_m.send_lua(gate, "start", addr, port)
-        gate_list[port] = gate
+        local watchdog = skynet_m.newservice("watchdog")
+        skynet_m.call_lua(watchdog, "start", {
+            port = port,
+            maxclient = max_client,
+            nodelay = true,
+        })
+        gate_list[port] = watchdog
     end
 end
 
 local function create_gate()
-    local udp_address = skynet_m.getenv("udp_address")
-    local udp_port = skynet_m.getenv("udp_port")
-    for port_str in udp_port:gmatch("([^,]+)") do
+    local gate_port = skynet_m.getenv("gate_port")
+    for port_str in gate_port:gmatch("([^,]+)") do
         local port = tonumber(port_str)
         if port then
-            new_gate(udp_address, port)
+            new_gate(port)
         else
             local port_begin, port_end = port_str:match("(%d+)-(%d+)")
             if port_begin and port_end then
                 for i = tonumber(port_begin), tonumber(port_end) do
-                    new_gate(udp_address, i)
+                    new_gate(i)
                 end
             end
         end

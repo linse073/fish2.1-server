@@ -1,6 +1,5 @@
 local skynet_m = require "skynet_m"
-local message = require "message"
-local error_code = message.error_code
+local share = require "share"
 
 local string = string
 local ipairs = ipairs
@@ -9,7 +8,7 @@ local assert = assert
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
-local udp_send_address = skynet_m.getenv("udp_send_address")
+local gate_address = skynet_m.getenv("gate_address")
 local room_count = skynet_m.getenv_num("room_count")
 
 local message_handle = {}
@@ -17,6 +16,7 @@ local cmd_handle = {}
 local pack_message = {}
 local pack_cmd = {}
 
+local error_code
 local game_client
 local room_mgr
 local gate_mgr
@@ -52,9 +52,9 @@ local function send_cmd(id, msg)
 end
 
 local function pack_link(msg)
-    skynet_m.log(string.format("pack_link %d %s.", server_id, udp_send_address))
+    skynet_m.log(string.format("pack_link %d %s.", server_id, gate_address))
     local pack = string.pack("<I4", server_id)
-    pack = pack .. pack_string(udp_send_address)
+    pack = pack .. pack_string(gate_address)
     local port = skynet_m.call_lua(gate_mgr, "get_port")
     pack = pack .. string.pack("<I4", #port)
     for _, v in ipairs(port) do
@@ -498,6 +498,7 @@ function CMD.recv_msg(msg)
 end
 
 function CMD.start()
+    error_code = share.error_code
     game_client = skynet_m.queryservice("game_client")
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")

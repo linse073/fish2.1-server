@@ -1,79 +1,39 @@
 local skynet_m = require "skynet_m"
-local lkcp = require "lkcp"
 local timer = require "timer"
-local util = require "util"
-local message = require "message"
-local s_to_c = message.s_to_c
-local c_to_s = message.c_to_s
-local error_code = message.error_code
+local share = require "share"
 
 local string = string
-local floor = math.floor
 
 local game_mode = skynet_m.getenv("game_mode")
-local UDP_HELLO_ACK = "1432ad7c829170a76dd31982c3501eca"
-local version = skynet_m.getenv("version")
 local ACTIVITY_TIMEOUT = 60 * 100 * 3
 
 local room_mgr
 local agent_mgr
+local error_code
 
 skynet_m.init(function()
+    error_code = share.error_code
     room_mgr = skynet_m.queryservice("room_mgr")
     agent_mgr = skynet_m.queryservice("agent_mgr")
 end)
 
 local channel = {}
 
-function channel:init(session, from, func)
-    self._from = from
-    self._send_func = func
-    self._session = session
-    local kcp = lkcp.lkcp_create(session, func)
-    kcp:lkcp_nodelay(1, 10, 2, 1)
-    kcp:lkcp_wndsize(128, 128)
-    self._kcp = kcp
-    self._update_func = function()
-        self:update()
-    end
-    self._next_update = false
-    self:addUpdate()
+function channel:init(fd, func)
+    self._fd = fd
+    self._send = func
     self._check_activity_time = skynet_m.now()
     timer.add_routine("check_activity", function()
         self:checkActivity()
         timer.done_routine("check_activity")
     end, 3000)
-    self._check_join_count = 0
-    timer.add_routine("check_join", function()
-        self:checkJoin()
-        timer.done_routine("check_join")
-    end, 50)
 end
 
-function channel:process(data)
-    if self._kcp then
-        if self._kcp:lkcp_input(data) < 0 then
-            skynet_m.log(string.format("Kcp input error from %s.", util.udp_address(self._from)))
-            return
-        end
-        while true do
-            local len, buff = self._kcp:lkcp_recv()
-            if len > 0 then
-                self:processPack(buff)
-            else
-                break
-            end
-        end
-        self:addUpdate()
-        self._check_activity_time = skynet_m.now()
-    end
-end
-
-function channel:processPack(data)
-    local msg_id, index = string.unpack(">I2", data)
-    if msg_id == c_to_s.join then
+function channel:process(msg_name, content)
+    self._check_activity_time = skynet_m.now()
+    if msg_name == "join_room" then
         if game_mode == "fake_game" then
-            local user_id, room_id = string.unpack(">I4>I2", data, index)
+            local user_id, room_id = content.user_id, content.room_id
             local room = skynet_m.call_lua(room_mgr, "get", room_id)
             if room then
                 if self._room then
@@ -82,8 +42,8 @@ function channel:processPack(data)
                     if skynet_m.call_lua(room, "join_01", user_id, skynet_m.self()) then
                         self._user_id = user_id
                         self._room = room
-                        skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
-                        self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
+                        skynet_m.send_lua(agent_mgr, "bind", user_id, self._fd)
+                        self._send("join_resp", {code = error_code.ok})
                         skynet_m.log(string.format("User %d join room %d successfully.", user_id, room_id))
                     else
                         skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
@@ -91,43 +51,46 @@ function channel:processPack(data)
                     end
                 end
             else
-                skynet_m.log(string.format("Illegal room %d from %s.", room_id, util.udp_address(self._from)))
+                skynet_m.log(string.format("Illegal room %d.", room_id))
                 self:joinFail(error_code.room_not_exist)
             end
         else
-            local user_id = string.unpack(">I4", data, index)
+            local user_id = content.user_id
             local info = skynet_m.call_lua(room_mgr, "get_user", user_id)
             if info then
                 if info.room then
                     if self._room then
                         skynet_m.log(string.format("User old:%d new:%d rejoin room.", self._user_id, user_id))
                     else
-                        if skynet_m.call_lua(info.room, "join", user_id, info.seatid, skynet_m.self()) then
-                            self._user_id = user_id
-                            self._room = info.room
-                            skynet_m.send_lua(agent_mgr, "bind", user_id, self._from)
-                            self:send(string.pack(">I2>I2", s_to_c.join_resp, error_code.ok))
-                            skynet_m.log(string.format("User %d join room %d successfully.", user_id, info.tableid))
+                        if content.session == info.sessionid then
+                            if skynet_m.call_lua(info.room, "join", user_id, info.seatid, skynet_m.self()) then
+                                self._user_id = user_id
+                                self._room = info.room
+                                skynet_m.send_lua(agent_mgr, "bind", user_id, self._fd)
+                                self._send("join_resp", {code = error_code.ok})
+                                skynet_m.log(string.format("User %d join room %d successfully.", user_id, info.tableid))
+                            else
+                                skynet_m.log(string.format("User %d join room %d fail.", user_id, info.tableid))
+                                self:joinFail(error_code.room_full)
+                            end
                         else
-                            skynet_m.log(string.format("User %d join room %d fail.", user_id, info.tableid))
-                            self:joinFail(error_code.room_full)
+                            skynet_m.log(string.format("Join room session error, %s, %s.",
+                                                        content.session, info.sessionid))
+                            self:joinFail(error_code.session_error)
                         end
                     end
                 else
-                    skynet_m.log(string.format("Illegal room %d from %s.", info.tableid,
-                                                util.udp_address(self._from)))
+                    skynet_m.log(string.format("Illegal room %d.", info.tableid))
                     self:joinFail(error_code.room_not_exist)
                 end
             else
-                skynet_m.log(string.format("Not receive enter game message from %s %d.",
-                                            util.udp_address(self._from), user_id))
+                skynet_m.log(string.format("Not receive enter game message from %d.", user_id))
                 self:joinFail(error_code.unknown_error)
             end
         end
-        timer.del_routine("check_join")
     else
         if self._room then
-            skynet_m.send_lua(self._room, "process", self._user_id, data)
+            skynet_m.send_lua(self._room, "process", self._user_id, msg_name, content)
         else
             skynet_m.log(string.format("User %d don't join room.", self._user_id))
         end
@@ -135,17 +98,8 @@ function channel:processPack(data)
 end
 
 function channel:joinFail(code)
-    self:send(string.pack(">I2>I2", s_to_c.join_resp, code))
-    skynet_m.send_lua(agent_mgr, "kick", self._from, code)
-end
-
-function channel:send(data)
-    if self._kcp then
-        if self._kcp:lkcp_send(data) < 0 then
-            skynet_m.log(string.format("Kcp send error from %s.", util.udp_address(self._from)))
-        end
-        self:addUpdate()
-    end
+    self._send("join_resp", {code = code})
+    skynet_m.send_lua(agent_mgr, "kick", self._fd, code)
 end
 
 function channel:kick(code)
@@ -155,31 +109,8 @@ function channel:kick(code)
         self._room = nil
         self._user_id = nil
     end
-    if self._kcp then
-        if code == error_code.ok then
-            self:send(string.pack(">I2>I2", s_to_c.kick, code))
-        end
-        self._kcp:lkcp_flush()
-        self._kcp = nil
-    end
-end
-
-function channel:update()
-    if self._kcp then
-        local now = floor(skynet_m.now() * 10)
-        self._kcp:lkcp_update(now)
-        local nt = self._kcp:lkcp_check(now) - now
-        if nt > 0 then
-            timer.add_routine("kcp_update", self._update_func, nt / 10)
-        end
-        self._next_update = false
-    end
-end
-
-function channel:addUpdate()
-    if not self._next_update then
-        self._next_update = true
-        timer.add_routine("kcp_update", self._update_func, 0)
+    if code == error_code.ok then
+        self._send("kick", {code = code})
     end
 end
 
@@ -187,21 +118,7 @@ end
 function channel:checkActivity()
     local now = skynet_m.now()
     if now - self._check_activity_time >= ACTIVITY_TIMEOUT then
-        skynet_m.log(string.format("checkActivity kick user %s.", util.udp_address(self._from)))
-        skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
-    end
-end
-
-function channel:checkJoin()
-    self._check_join_count = self._check_join_count + 1
-    if self._check_join_count <= 3 then
-        if not self._room then
-            local ack = string.pack("zz>I4", UDP_HELLO_ACK, version, self._session)
-            self._send_func(ack)
-        end
-    else
-        skynet_m.log(string.format("checkJoin kick user %s.", util.udp_address(self._from)))
-        skynet_m.send_lua(agent_mgr, "kick", self._from, error_code.low_activity)
+        skynet_m.send_lua(agent_mgr, "kick", self._fd, error_code.low_activity)
     end
 end
 

@@ -1,40 +1,34 @@
 local skynet_m = require "skynet_m"
 local sharedata = require "skynet.sharedata"
-local util = require "util"
+local sprotoloader = require "sprotoloader"
 
-local pairs = pairs
+local ipairs = ipairs
+
+local function proto_map(pre, sp)
+    local all_proto = sp:allproto()
+    local i2n, n2i = {}, {}
+    for k, v in ipairs(all_proto) do
+        i2n[k] = v
+        n2i[v] = k
+    end
+    sharedata.new(pre .. "_i2n", i2n)
+    sharedata.new(pre .. "_n2i", n2i)
+end
 
 skynet_m.start(function()
     -- share data
-    local event_data = require("event_data")
-    sharedata.new("event_data", event_data)
     local fish_data = require("fish_data")
     sharedata.new("fish_data", fish_data)
     local spline_data = require("spline_data")
     sharedata.new("spline_data", spline_data)
-    local message = require("message")
-    sharedata.new("message", message)
-    local define = require("define")
-    sharedata.new("define", define)
-    local matrix_data = require("matrix_data")
-    sharedata.new("matrix_data", matrix_data)
-    local skill_data = require("skill_data")
-    sharedata.new("skill_data", skill_data)
-    local fish_born = require("fish_born")
-    sharedata.new("fish_born", fish_born)
-    local fish_koi = require("fish_koi")
-    sharedata.new("fish_koi", fish_koi)
+    local rule_data = require("rule_data")
+    sharedata.new("rule_data", rule_data)
+    local map_data = require("map_data")
+    sharedata.new("map_data", map_data)
 
-    local camera_spline = {}
-    local camera_boss_spline = {}
-    for k, v in pairs(spline_data) do
-        if util.is_camera_spline(k) then
-            camera_spline[k] = v
-        end
-        if util.is_camera_boss_spline(k) then
-            camera_boss_spline[k] = v
-        end
-    end
-    sharedata.new("camera_spline", camera_spline)
-    sharedata.new("camera_boss_spline", camera_boss_spline)
+    proto_map("c2s", sprotoloader.load(1))
+    proto_map("s2c", sprotoloader.load(2))
+
+    local error_code = require("error_code")
+    sharedata.new("error_code", error_code)
 end)

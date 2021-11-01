@@ -11,7 +11,7 @@ local string = string
 local mail = skynet.getenv("mail")
 
 local skynet_m = {}
-setmetatable(skynet_m, {__index=skynet})
+setmetatable(skynet_m, {__index = skynet})
 
 function skynet_m.dispatch_lua_f(func)
     return skynet.dispatch("lua", function(session, _, ...)

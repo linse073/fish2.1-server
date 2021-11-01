@@ -1,6 +1,5 @@
 local skynet_m = require "skynet_m"
-local message = require "message"
-local error_code = message.error_code
+local share = require "share"
 
 local string = string
 -- local ipairs = ipairs
@@ -9,11 +8,11 @@ local math = math
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
-local udp_address = skynet_m.getenv("udp_address")
 
 local message_handle = {}
 local cmd_handle = {}
 
+local error_code
 local game_client
 local room_mgr
 local gate_mgr
@@ -35,7 +34,6 @@ end
 function CMD.send_link()
     send_msg(13501, {
         serverid = server_id,
-        ip = udp_address,
         port = skynet_m.call_lua(gate_mgr, "get_port"),
         session = server_session,
     })
@@ -305,6 +303,7 @@ function CMD.recv_msg(id, msg)
 end
 
 function CMD.start()
+    error_code = share.error_code
     game_client = skynet_m.queryservice("fake_game")
     room_mgr = skynet_m.queryservice("room_mgr")
     gate_mgr = skynet_m.queryservice("gate_mgr")

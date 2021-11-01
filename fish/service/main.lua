@@ -10,6 +10,7 @@ skynet_m.start(function()
     skynet_m.newservice("debug_console", skynet_m.getenv("debug_port"))
 
     -- service
+    skynet_m.uniqueservice("protoloader")
     skynet_m.uniqueservice("cache")
     skynet_m.uniqueservice("routine")
     local agent_pool = skynet_m.uniqueservice("agent_pool")

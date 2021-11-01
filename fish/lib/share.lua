@@ -5,17 +5,17 @@ local share = {}
 
 skynet_m.init(function()
     -- share with all agent
-    share.event_data = sharedata.query("event_data")
     share.fish_data = sharedata.query("fish_data")
     share.spline_data = sharedata.query("spline_data")
-    share.message = sharedata.query("message")
-    share.define = sharedata.query("define")
-    share.camera_spline = sharedata.query("camera_spline")
-    share.camera_boss_spline = sharedata.query("camera_boss_spline")
-    share.matrix_data = sharedata.query("matrix_data")
-    share.skill_data = sharedata.query("skill_data")
-    share.fish_born = sharedata.query("fish_born")
-    share.fish_koi = sharedata.query("fish_koi")
+    share.rule_data = sharedata.query("rule_data")
+    share.map_data = sharedata.query("map_data")
+
+    share.c2s_i2n = sharedata.query("c2s_i2n")
+    share.c2s_n2i = sharedata.query("c2s_n2i")
+    share.s2c_i2n = sharedata.query("s2c_i2n")
+    share.s2c_n2i = sharedata.query("s2c_n2i")
+
+    share.error_code = sharedata.query("error_code")
 end)
 
 return share

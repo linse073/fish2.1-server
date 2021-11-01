@@ -9,29 +9,10 @@ local table = table
 local type = type
 local traceback = debug.traceback
 local math = math
+local assert = assert
+local setmetatable = setmetatable
 
 local util = {}
-
-function util.udp_address(from)
-    local addr, port = socket.udp_address(from)
-    return addr .. ":" .. port
-end
-
-function util.is_camera_spline(spline)
-    return spline >= 3000 and spline < 5000
-end
-
-function util.is_camera_boss_spline(spline)
-    return spline >= 4000 and spline < 5000
-end
-
-function util.is_boss(fish_id)
-    return fish_id >= 1000 and fish_id < 2000
-end
-
-function util.is_trigger_fish(fish_id)
-    return fish_id >= 3100 and fish_id < 3200
-end
 
 function util.ltrim(input)
     return string.gsub(input, "^[ \t\n\r]+", "")
@@ -148,6 +129,26 @@ function util.rand_offset(min, max)
         r = max
     end
     return r
+end
+
+function util.create_enum(list)
+    local function get_name(k)
+        return list[k]
+    end
+    local enum = {}
+    for k, v in ipairs(list) do
+        assert(enum[v] == nil, string.format("Repeat to add enum[%s].", v))
+        enum[v] = k
+    end
+    return setmetatable(enum, {
+        __index = function(t, k)
+            if k == "get_name" then
+                return get_name
+            else
+                assert(false, string.format("No enum[%s].", k))
+            end
+        end,
+    })
 end
 
 return util
