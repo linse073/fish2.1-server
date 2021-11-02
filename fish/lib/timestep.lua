@@ -56,7 +56,7 @@ skynet_m.init(function()
                 user_id = info.userid,
             }
             table.insert(self._prop, prop_info)
-            self:broadcast("use_prop", prop_info)
+            self:broadcast("prop_info", prop_info)
             for k, v in pairs(self._fish) do
                 v.frozen = true;
             end
@@ -302,7 +302,7 @@ function timestep:update()
                 end
                 self._next_mapid = rand_map[math.random(#rand_map)]
             end
-            self:broadcast("next_event", {
+            self:broadcast("event_info", {
                 eventid = old_event.event_id,
                 event_time = self._event_time,
                 event_phase = self._event_phase,
@@ -333,7 +333,7 @@ function timestep:update()
                     end
                     self._next_mapid = rand_map[math.random(#rand_map)]
                 end
-                self:broadcast("next_event", {
+                self:broadcast("event_info", {
                     eventid = new_event.event_id,
                     event_time = self._event_time,
                     event_phase = self._event_phase,
@@ -355,7 +355,7 @@ function timestep:update()
                 else
                     self._event_phase = 2
                 end
-                self:broadcast("next_event", {
+                self:broadcast("event_info", {
                     mapid = self._mapid,
                     eventid = new_event.event_id,
                     event_time = self._event_time,
@@ -380,7 +380,9 @@ function timestep:update()
             tableid = self._room_id,
             fish = kill_msg,
         })
-        self:broadcast("del_fish", del_fish)
+        self:broadcast("del_fish", {
+            fish = del_fish,
+        })
     end
     local new_num = #new_fish
     if new_num > 0 then
@@ -400,7 +402,9 @@ function timestep:update()
             tableid = self._room_id,
             fish = new_msg,
         })
-        self:broadcast("new_fish", new_fish)
+        self:broadcast("new_fish", {
+            fish = new_fish,
+        })
     end
 end
 
@@ -603,7 +607,7 @@ function timestep:client_ready(info, data)
     else
         local cannon = data.cannon
         info.cannon = cannon
-        self:broadcast("join_room", {
+        self:broadcast("user_info", {
             user_id = info.user_id,
             pos = info.pos,
             cannon = info.cannon,

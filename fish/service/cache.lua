@@ -5,9 +5,11 @@ local util = require "util"
 
 local ipairs = ipairs
 local pairs = pairs
+local table = table
 
 local function proto_map(pre, sp)
     local all_proto = sp:all_type_name()
+    table.sort(all_proto)
     local i2n, n2i = {}, {}
     for k, v in ipairs(all_proto) do
         i2n[k] = v
