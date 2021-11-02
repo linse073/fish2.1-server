@@ -1,6 +1,6 @@
 [submodule "skynet"]
 	path = skynet
-	url = https://github.com/cloudwu/skynet.git
+	url = https://github.com/linse073/skynet.git
 [submodule "3rd/lua-kcp"]
 	path = 3rd/lua-kcp
 	url = https://github.com/linse073/lua-kcp.git
