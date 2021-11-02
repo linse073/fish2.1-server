@@ -1,8 +1,10 @@
 local skynet_m = require "skynet_m"
 local sharedata = require "skynet.sharedata"
 local sprotoloader = require "sprotoloader"
+local util = require "util"
 
 local ipairs = ipairs
+local pairs = pairs
 
 local function proto_map(pre, sp)
     local all_proto = sp:allproto()
@@ -29,6 +31,35 @@ skynet_m.start(function()
     proto_map("c2s", sprotoloader.load(1))
     proto_map("s2c", sprotoloader.load(2))
 
-    local error_code = require("error_code")
+    local prop_type = {
+        frozen = 132,
+    }
+    sharedata.new("prop_type", prop_type)
+    local prop_id_map = {}
+    for k, v in pairs(prop_type) do
+        prop_id_map[v] = k
+    end
+    sharedata.new("prop_id_map", prop_id_map)
+
+    local error_code = util.create_enum {
+        "ok",
+        "room_full",
+        "room_not_exist",
+        "unknown_error",
+        "login_conflict",
+        "low_activity",
+        "reset_agent",
+        "disconnect",
+        "session_error",
+        "wrong_arg",
+    }
     sharedata.new("error_code", error_code)
+
+    local fish_type = util.create_enum {
+        "normal",
+        "special",
+        "koi",
+        "boss",
+    }
+    sharedata.new("fish_type", fish_type)
 end)

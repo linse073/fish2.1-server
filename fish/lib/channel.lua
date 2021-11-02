@@ -39,15 +39,16 @@ function channel:process(msg_name, content)
                 if self._room then
                     skynet_m.log(string.format("User old:%d new:%d rejoin room.", self._user_id, user_id))
                 else
-                    if skynet_m.call_lua(room, "join_01", user_id, skynet_m.self()) then
+                    local ret_info = skynet_m.call_lua(room, "join_01", user_id, skynet_m.self())
+                    if ret_info.code == error_code.ok then
                         self._user_id = user_id
                         self._room = room
                         skynet_m.send_lua(agent_mgr, "bind", user_id, self._fd)
-                        self._send("join_resp", {code = error_code.ok})
+                        self._send("join_resp", ret_info)
                         skynet_m.log(string.format("User %d join room %d successfully.", user_id, room_id))
                     else
                         skynet_m.log(string.format("User %d join room %d fail.", user_id, room_id))
-                        self:joinFail(error_code.room_full)
+                        self:joinFail(ret_info.code)
                     end
                 end
             else
@@ -63,15 +64,16 @@ function channel:process(msg_name, content)
                         skynet_m.log(string.format("User old:%d new:%d rejoin room.", self._user_id, user_id))
                     else
                         if content.session == info.sessionid then
-                            if skynet_m.call_lua(info.room, "join", user_id, info.seatid, skynet_m.self()) then
+                            local ret_info = skynet_m.call_lua(info.room, "join", user_id, info.seatid, skynet_m.self())
+                            if ret_info.code == error_code.ok then
                                 self._user_id = user_id
                                 self._room = info.room
                                 skynet_m.send_lua(agent_mgr, "bind", user_id, self._fd)
-                                self._send("join_resp", {code = error_code.ok})
+                                self._send("join_resp", ret_info)
                                 skynet_m.log(string.format("User %d join room %d successfully.", user_id, info.tableid))
                             else
                                 skynet_m.log(string.format("User %d join room %d fail.", user_id, info.tableid))
-                                self:joinFail(error_code.room_full)
+                                self:joinFail(ret_info.code)
                             end
                         else
                             skynet_m.log(string.format("Join room session error, %s, %s.",

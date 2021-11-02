@@ -77,6 +77,15 @@ function CMD.send(msg, info)
     end
 end
 
+function CMD.send_pack(msg)
+    if channel_i then
+        local package = string.pack(">s2", msg)
+        socket.write(client_fd, package)
+    else
+        skynet_m.log(string.format("Agent %d has stop, but send package %s.", session, msg))
+    end
+end
+
 function CMD.stop(code)
     clear_agent(code)
     if client_fd then
