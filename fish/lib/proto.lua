@@ -30,7 +30,15 @@ set 3 {
 	}
 }
 
-quit 4 {}
+quit 4 {
+	response {
+		msg 0  : string
+	}
+}
+
+.fire {
+	pos 0 : integer
+}
 
 ]]
 
@@ -40,7 +48,11 @@ proto.s2c = sprotoparser.parse [[
 	session 1 : integer
 }
 
-heartbeat 1 {}
+heartbeat 1 {
+	response {
+		msg 0  : string
+	}
+}
 ]]
 
 return proto
