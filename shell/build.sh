@@ -18,21 +18,6 @@ function build() {
     [ ! -d "$lib_dir" ] && mkdir -p "$lib_dir"
 
     echo "====================="
-    echo "start build lua-kcp..."
-    cd $basepath/3rd/lua-kcp
-    make -f ../kcp.mk
-
-    echo "====================="
-    echo "start build lua-flock..."
-    cd $basepath/3rd/flock
-    make -f ../flock.mk
-
-    echo "====================="
-    echo "start build lua-clientsocket..."
-    cd $basepath/3rd/clientsocket
-    make -f ../clientsocket.mk
-
-    echo "====================="
     echo "clean..."
     cd $basepath
     find . -name "*.o"  | xargs rm -f
