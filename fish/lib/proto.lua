@@ -40,6 +40,9 @@ quit 4 {
 	pos 0 : integer
 }
 
+.hit {
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[
