@@ -15,7 +15,12 @@ skynet_m.init(function()
     share.s2c_i2n = sharedata.query("s2c_i2n")
     share.s2c_n2i = sharedata.query("s2c_n2i")
 
+    share.prop_type = sharedata.query("prop_type")
+    share.prop_id_map = sharedata.query("prop_id_map")
+
     share.error_code = sharedata.query("error_code")
+
+    share.fish_type = sharedata.query("fish_type")
 end)
 
 return share
