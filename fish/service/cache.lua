@@ -7,9 +7,7 @@ local ipairs = ipairs
 local pairs = pairs
 
 local function proto_map(pre, sp)
-    sp:dump()
     local all_proto = sp:all_type_name()
-    util.dump(all_proto)
     local i2n, n2i = {}, {}
     for k, v in ipairs(all_proto) do
         i2n[k] = v
