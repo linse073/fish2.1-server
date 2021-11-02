@@ -1,10 +1,11 @@
 local skynet_m = require "skynet_m"
-local error_code = require "error_code"
+local share = require "share"
 
 local assert = assert
 local string = string
 
 local agent_mgr
+local error_code
 
 local CMD = {}
 local SOCKET = {}
@@ -59,6 +60,7 @@ function CMD.close(fd)
 end
 
 skynet_m.start(function()
+	error_code = share.error_code
 	agent_mgr = skynet_m.queryservice("agent_mgr")
 
 	skynet_m.dispatch("lua", function(session, source, cmd, subcmd, ...)
