@@ -4,7 +4,6 @@ local queue = require "skynet.queue"
 
 local assert = assert
 local tonumber = tonumber
--- local print = print
 local os = os
 local string = string
 
@@ -64,7 +63,6 @@ end
 
 function skynet_m.log(...)
     skynet.error(...)
-    -- print(...)
 end
 
 function skynet_m.warn(err)
