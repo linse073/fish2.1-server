@@ -30,7 +30,7 @@ local function unpack_package(text)
 	if size < 4 then
 		return nil, text
 	end
-    local s = text:byte(2) * 256 + text:byte(1)
+    local s = string.unpack("<I2", text)
 	if size < s+4 then
 		return nil, text
 	end
