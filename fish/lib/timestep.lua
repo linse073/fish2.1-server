@@ -660,7 +660,7 @@ function timestep:client_quit(info, data)
 end
 
 function timestep:client_fire(info, data)
-    -- self_id, angle, multi, kind, rotate, target
+    -- my_id, angle, multi, kind, rotate, target
     for k, v in ipairs(data) do
         local kind = v.kind
         if info.cannon ~= kind then
@@ -680,7 +680,7 @@ function timestep:client_fire(info, data)
                 expTime = 0,
             },
         })
-        info.bullet[v.self_id] = v
+        info.bullet[v.my_id] = v
         self._bullet[bullet_id] = v
     end
 end
@@ -691,13 +691,13 @@ end
 
 function timestep:client_hit(info, data)
     for k, v in ipairs(data) do
-        local self_id, fishid, multi = v.self_id, v.fishid, v.multi
-        local bullet = info.bullet[self_id]
+        local my_id, fishid, multi = v.my_id, v.fishid, v.multi
+        local bullet = info.bullet[my_id]
         if not bullet then
-            skynet_m.log(string.format("Can't find bullet %d when user %d hit fish %d.", self_id, info.user_id, fishid))
+            skynet_m.log(string.format("Can't find bullet %d when user %d hit fish %d.", my_id, info.user_id, fishid))
             return
         end
-        info.bullet[self_id] = nil
+        info.bullet[my_id] = nil
         local fish_info = self._fish[fishid]
         skynet_m.send_lua(game_message, "send_catch_fish", {
             tableid = self._room_id,
@@ -775,7 +775,7 @@ function timestep:on_dead(info)
     local fish_info = self._fish[info.fishid]
     if fish_info then
         self:kill_fish(fish_info, info.userid, true)
-        -- NOTICE: no bullet self_id info
+        -- NOTICE: no bullet my_id info
         self:broadcast("catch_fish", {
             pos = user_info.pos,
             fishid = info.fishid,

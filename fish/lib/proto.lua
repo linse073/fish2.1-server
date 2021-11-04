@@ -17,7 +17,7 @@ proto.c2s = sprotoparser.parse [[
 }
 
 .fire {
-	self_id 0 : integer
+	my_id 0 : integer
 	angle 1 : double
 	multi 2 : integer
 	kind 3 : integer(2)
@@ -26,7 +26,7 @@ proto.c2s = sprotoparser.parse [[
 }
 
 .hit {
-	self_id 0 : integer
+	my_id 0 : integer
 	fishid 1 : integer
 	multi 2 : integer
 }
@@ -115,7 +115,7 @@ proto.s2c = sprotoparser.parse [[
 
 .bullet_info {
 	id 0 : integer
-	self_id 1 : integer
+	my_id 1 : integer
 	kind 2 : integer(2)
 	angle 3 : double
 	rotate 4 : integer(1)
