@@ -20,6 +20,8 @@ local function proto_map(pre, sp)
     end
     sharedata.new(pre .. "_i2n", i2n)
     sharedata.new(pre .. "_n2i", n2i)
+    util.dump(i2n)
+    util.dump(n2i)
 end
 
 skynet_m.start(function()
