@@ -18,7 +18,7 @@ proto.c2s = sprotoparser.parse [[
 
 .fire {
 	self_id 0 : integer
-	angle 1 : integer
+	angle 1 : double
 	multi 2 : integer
 	kind 3 : integer(2)
 	rotate 4 : integer(1)
@@ -50,7 +50,7 @@ proto.s2c = sprotoparser.parse [[
 .event_info {
 	mapid 0 : integer
 	eventid 1 : integer
-	event_time 2 : integer
+	event_time 2 : double
 	event_phase 3 : integer(1)
 }
 
@@ -76,8 +76,7 @@ proto.s2c = sprotoparser.parse [[
 	fish_id 3 : integer
 	spline_id 4 : integer
 	group_id 5 : integer
-	life_time 6 : integer
-	time 7 : integer
+	time 7 : double
 	group_index 8 : integer(2)
 }
 
@@ -85,13 +84,15 @@ proto.s2c = sprotoparser.parse [[
 	prop_id 0 : integer
 	num 1 : integer(2)
 	user_id 2 : integer
+	time 3 : double
 }
 
 .room_date {
 	user 0 : *user_info
-	fish 1 : *fish_info
-	prop 2 : *prop_info
-	event 3 : event_info
+	pos 1 : integer(1)
+	fish 2 : *fish_info
+	prop 3 : *prop_info
+	event 4 : event_info
 }
 
 .set_cannon {
@@ -116,7 +117,7 @@ proto.s2c = sprotoparser.parse [[
 	id 0 : integer
 	self_id 1 : integer
 	kind 2 : integer(2)
-	angle 3 : integer
+	angle 3 : double
 	rotate 4 : integer(1)
 	target 5 : integer
 }

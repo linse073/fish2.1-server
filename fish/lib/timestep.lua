@@ -633,6 +633,7 @@ function timestep:client_ready(info, data)
         end
         skynet_m.send_lua(info.agent, "send", "room_data", {
             user = user_info,
+            pos = info.pos,
             fish = fish_info,
             prop = prop_info,
             event = {
