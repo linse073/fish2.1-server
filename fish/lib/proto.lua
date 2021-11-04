@@ -7,6 +7,7 @@ proto.c2s = sprotoparser.parse [[
 .join_room {
 	user_id 0 : integer
 	room_id 1 : integer
+	session 2 : string
 }
 
 .ready {
