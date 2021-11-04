@@ -278,8 +278,7 @@ function timestep:update()
     for i = #prop, 1, -1 do
         local v = prop[i]
         v.time = v.time + etime
-        -- NOTICE: frozen fish (v.num == 0)
-        if v.prop_id == prop_type.frozen or v.num == 0 then
+        if v.prop_id == prop_type.frozen then
             stop_time = true
             if v.time >= FROZEN_TIME then
                 table.remove(prop, i)
