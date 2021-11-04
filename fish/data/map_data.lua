@@ -1,5 +1,5 @@
 local data = {
-	[1001] = {
+	[1002] = {
 		{
 			event_id = 10001,
 			stay_time = 0.000000,
@@ -13,6 +13,22 @@ local data = {
 			switch_time = 5.000000,
 			spline = {
 				20001,
+			},
+		},
+	},
+	[1001] = {
+		{
+			event_id = 10003,
+			stay_time = 0.000000,
+			switch_time = 3.000000,
+			spline = {
+			},
+		},
+		{
+			event_id = 10004,
+			stay_time = 100.000000,
+			switch_time = 5.000000,
+			spline = {
 				20002,
 				20003,
 				20004,
@@ -65,22 +81,6 @@ local data = {
 				20051,
 				20052,
 				20053,
-			},
-		},
-	},
-	[1002] = {
-		{
-			event_id = 10003,
-			stay_time = 0.000000,
-			switch_time = 3.000000,
-			spline = {
-			},
-		},
-		{
-			event_id = 10004,
-			stay_time = 100.000000,
-			switch_time = 5.000000,
-			spline = {
 				20054,
 			},
 		},
