@@ -133,7 +133,7 @@ skynet_m.start(function()
             if not msg then
                 break
             end
-            local id = string.unpack(msg, ">I2")
+            local id = string.unpack(">I2", msg)
             local arg = msg:sub(3)
             local msg_name = assert(c2s_i2n[id], string.format("No c2s message %d.", id))
             if c2s:exist_type(msg_name) then
