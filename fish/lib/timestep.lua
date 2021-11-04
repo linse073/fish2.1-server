@@ -249,6 +249,15 @@ function timestep:update()
     local now = skynet_m.now()
     local etime = (now - self._last_time) * 0.01
     self._last_time = now
+    if self._delay_time then
+        self._delay_time = self._delay_time + etime
+        if self._delay_time >= 2 then
+            etime = self._delay_time - 2
+            self._delay_time = nil
+        else
+            return
+        end
+    end
     local del_fish = {}
     for k, v in pairs(self._fish) do
         if normal_status(v) then
