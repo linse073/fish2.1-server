@@ -268,6 +268,7 @@ function timestep:update()
                     id = k,
                     fish_id = v.fish_id,
                 })
+                self._fish_count = self._fish_count - 1
             end
         end
     end
