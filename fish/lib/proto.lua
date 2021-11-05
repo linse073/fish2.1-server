@@ -88,7 +88,7 @@ proto.s2c = sprotoparser.parse [[
 	time 3 : double
 }
 
-.room_date {
+.room_data {
 	user 0 : *user_info
 	pos 1 : integer(1)
 	fish 2 : *fish_info
