@@ -10,9 +10,11 @@ local ACTIVITY_TIMEOUT = 60 * 100 * 3
 local room_mgr
 local agent_mgr
 local error_code
+local error_code_str
 
 skynet_m.init(function()
     error_code = share.error_code
+    error_code_str = share.error_code_str
     room_mgr = skynet_m.queryservice("room_mgr")
     agent_mgr = skynet_m.queryservice("agent_mgr")
 end)
@@ -107,7 +109,7 @@ end
 function channel:kick(code)
     if self._room then
         skynet_m.send_lua(self._room, "kick", self._user_id, skynet_m.self())
-        skynet_m.log(string.format("Kick user %d, code %d.", self._user_id, code))
+        skynet_m.log(string.format("Kick user %d, code %s.", self._user_id, error_code_str[code]))
         self._room = nil
         self._user_id = nil
     end

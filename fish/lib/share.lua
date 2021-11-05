@@ -19,8 +19,10 @@ skynet_m.init(function()
     share.prop_id_map = sharedata.query("prop_id_map")
 
     share.error_code = sharedata.query("error_code")
+    share.error_code_str = sharedata.query("error_code_str")
 
     share.fish_type = sharedata.query("fish_type")
+    share.fish_type_str = sharedata.query("fish_type_str")
 end)
 
 return share

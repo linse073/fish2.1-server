@@ -16,6 +16,7 @@ local c2s_i2n
 local s2c
 local s2c_n2i
 local error_code
+local error_code_str
 
 local WATCHDOG
 local channel_i
@@ -38,7 +39,7 @@ local function send_package(msg, info)
 end
 
 local function clear_agent(code)
-    skynet_m.log(string.format("Clear agent %d, code %d.", session, code))
+    skynet_m.log(string.format("Clear agent %d, code %s.", session, error_code_str[code]))
     if channel_i then
         channel_i:kick(code)
     end
@@ -105,6 +106,7 @@ skynet_m.start(function()
     s2c = sprotoloader.load(2)
     s2c_n2i = share.s2c_n2i
     error_code = share.error_code
+    error_code_str = share.error_code_str
 
 	skynet_m.dispatch_lua_queue(CMD)
 

@@ -46,7 +46,7 @@ skynet_m.start(function()
     end
     sharedata.new("prop_id_map", prop_id_map)
 
-    local error_code = util.create_enum {
+    local error_code, error_code_str = util.create_enum {
         "ok",
         "room_full",
         "room_not_exist",
@@ -59,12 +59,14 @@ skynet_m.start(function()
         "wrong_arg",
     }
     sharedata.new("error_code", error_code)
+    sharedata.new("error_code_str", error_code_str)
 
-    local fish_type = util.create_enum {
+    local fish_type, fish_type_str = util.create_enum {
         "normal",
         "special",
         "koi",
         "boss",
     }
     sharedata.new("fish_type", fish_type)
+    sharedata.new("fish_type_str", fish_type_str)
 end)

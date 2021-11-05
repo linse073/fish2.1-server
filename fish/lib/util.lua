@@ -132,23 +132,12 @@ function util.rand_offset(min, max)
 end
 
 function util.create_enum(list)
-    local function get_name(k)
-        return list[k]
-    end
     local enum = {}
     for k, v in ipairs(list) do
         assert(enum[v] == nil, string.format("Repeat to add enum[%s].", v))
         enum[v] = k
     end
-    return setmetatable(enum, {
-        __index = function(t, k)
-            if k == "get_name" then
-                return get_name
-            else
-                assert(false, string.format("No enum[%s].", k))
-            end
-        end,
-    })
+    return enum, list
 end
 
 return util
