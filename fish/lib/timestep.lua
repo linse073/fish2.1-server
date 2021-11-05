@@ -1,6 +1,7 @@
 local skynet_m = require "skynet_m"
 local timer = require "timer"
 local share = require "share"
+local sprotoloader = require "sprotoloader"
 local util = require "util"
 
 local string = string
@@ -46,7 +47,7 @@ skynet_m.init(function()
     prop_type = share.prop_type
     prop_id_map = share.prop_id_map
     s2c_n2i = share.s2c_n2i
-    s2c = share.s2c
+    s2c = sprotoloader.load(2)
     prop_function = {
         [prop_type.frozen] = function(self, info)
             local prop_info = {
