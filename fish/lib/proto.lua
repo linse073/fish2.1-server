@@ -6,12 +6,12 @@ proto.c2s = sprotoparser.parse [[
 
 .join_room {
 	user_id 0 : integer
-	room_id 1 : integer(3)
+	room_id 1 : integer
 	session 2 : string
 }
 
 .ready {
-	cannon 0 : integer(2)
+	cannon 0 : integer
 }
 
 .quit {
@@ -21,8 +21,8 @@ proto.c2s = sprotoparser.parse [[
 	my_id 0 : integer
 	angle 1 : double
 	multi 2 : integer
-	kind 3 : integer(2)
-	rotate 4 : integer(1)
+	kind 3 : integer
+	rotate 4 : integer
 	target 5 : integer
 }
 
@@ -45,11 +45,11 @@ proto.c2s = sprotoparser.parse [[
 
 .use_prop {
 	prop_id 0 : integer
-	prop_num 1 : integer(2)
+	prop_num 1 : integer
 }
 
 .set_cannon {
-	cannon 0 : integer(2)
+	cannon 0 : integer
 }
 
 ]]
@@ -60,53 +60,53 @@ proto.s2c = sprotoparser.parse [[
 	mapid 0 : integer
 	eventid 1 : integer
 	event_time 2 : double
-	event_phase 3 : integer(1)
+	event_phase 3 : integer
 }
 
 .join_resp {
-	code 0 : integer(2)
+	code 0 : integer
 	info 1 : event_info
 }
 
 .kick {
-	code 0 : integer(2)
+	code 0 : integer
 }
 
 .user_info {
 	user_id 0 : integer
-	pos 1 : integer(1)
-	cannon 2 : integer(2)
+	pos 1 : integer
+	cannon 2 : integer
 }
 
 .fish_info {
 	id 0 : integer
 	rule_id 1 : integer
-	rule_index 2 : integer(2)
+	rule_index 2 : integer
 	fish_id 3 : integer
 	spline_id 4 : integer
 	group_id 5 : integer
 	time 7 : double
-	group_index 8 : integer(2)
+	group_index 8 : integer
 }
 
 .prop_info {
 	prop_id 0 : integer
-	num 1 : integer(2)
+	num 1 : integer
 	user_id 2 : integer
 	time 3 : double
 }
 
 .room_data {
 	user 0 : *user_info
-	pos 1 : integer(1)
+	pos 1 : integer
 	fish 2 : *fish_info
 	prop 3 : *prop_info
 	event 4 : event_info
 }
 
 .set_cannon {
-	pos 0 : integer(1)
-	cannon 1 : integer(2)
+	pos 0 : integer
+	cannon 1 : integer
 }
 
 .simp_bullet {
@@ -115,7 +115,7 @@ proto.s2c = sprotoparser.parse [[
 }
 
 .catch_fish {
-	pos 0 : integer(1)
+	pos 0 : integer
 	fishid 1 : integer
 	fish_id 2 : integer
 	multi 3 : integer
@@ -125,14 +125,14 @@ proto.s2c = sprotoparser.parse [[
 .bullet_info {
 	id 0 : integer
 	my_id 1 : integer
-	kind 2 : integer(2)
+	kind 2 : integer
 	angle 3 : double
-	rotate 4 : integer(1)
+	rotate 4 : integer
 	target 5 : integer
 }
 
 .fire {
-	pos 0 : integer(1)
+	pos 0 : integer
 	bullet 1 : bullet_info
 }
 
