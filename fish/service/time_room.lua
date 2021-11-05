@@ -24,8 +24,8 @@ function CMD.kick(user_id, agent)
     timestep_i:kick(user_id, agent)
 end
 
-function CMD.process(user_id, data)
-    timestep_i:process(user_id, data)
+function CMD.process(user_id, msg_name, data)
+    timestep_i:process(user_id, msg_name, data)
 end
 
 function CMD.on_fire(info)
