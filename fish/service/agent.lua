@@ -20,7 +20,6 @@ local error_code
 local WATCHDOG
 local channel_i
 local client_fd
-local last = ""
 
 skynet_m.register_protocol {
 	name = "client",
@@ -65,7 +64,6 @@ function CMD.start(conf)
     end
     channel_i = setmetatable({}, channel)
     channel_i:init(fd, send_package)
-    last = ""
     skynet_m.log(string.format("Start agent %d.", session))
 end
 
@@ -92,25 +90,12 @@ function CMD.stop(code)
         skynet_m.call_lua(WATCHDOG, "close", client_fd)
     end
     client_fd = nil
-    last = ""
 end
 
 function CMD.exit()
     CMD.stop(error_code.unknown_error)
     skynet_m.log(string.format("Agent %d exit.", session))
 	skynet_m.exit()
-end
-
-local function unpack_package(text)
-	local size = #text
-	if size < 2 then
-		return nil, text
-	end
-    local s = string.unpack(">I2", text)
-	if size < s+2 then
-		return nil, text
-	end
-	return text:sub(3, 2+s), text:sub(3+s)
 end
 
 skynet_m.start(function()
@@ -124,26 +109,19 @@ skynet_m.start(function()
 	skynet_m.dispatch_lua_queue(CMD)
 
 	local lock = queue()
-	skynet_m.dispatch("client", function(fd, _, content)
+	skynet_m.dispatch("client", function(fd, _, msg)
 		assert(fd == client_fd)	-- You can use fd to reply message
 		skynet_m.ignoreret()	-- session is fd, don't call skynet_m.ret
-        while true do
-            local msg
-            msg, last = unpack_package(last .. content)
-            if not msg then
-                break
-            end
-            local id = string.unpack(">I2", msg)
-            local arg = msg:sub(3)
-            local msg_name = assert(c2s_i2n[id], string.format("No c2s message %d.", id))
-            if c2s:exist_type(msg_name) then
-                arg = c2s:pdecode(msg_name, arg)
-            end
-            if channel_i then
-                lock(channel_i.process, channel_i, msg_name, arg)
-            else
-                skynet_m.log(string.format("Agent %d has stop, but receive message %s.", session, msg_name))
-            end
+        local id = string.unpack(">I2", msg)
+        local arg = msg:sub(3)
+        local msg_name = assert(c2s_i2n[id], string.format("No c2s message %d.", id))
+        if c2s:exist_type(msg_name) then
+            arg = c2s:pdecode(msg_name, arg)
+        end
+        if channel_i then
+            lock(channel_i.process, channel_i, msg_name, arg)
+        else
+            skynet_m.log(string.format("Agent %d has stop, but receive message %s.", session, msg_name))
         end
 	end)
 end)
