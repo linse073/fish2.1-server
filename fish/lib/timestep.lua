@@ -674,7 +674,7 @@ end
 
 function timestep:client_fire(info, data)
     -- my_id, angle, multi, kind, rotate, target
-    for k, v in ipairs(data) do
+    for k, v in ipairs(data.info) do
         local kind = v.kind
         if info.cannon ~= kind then
             info.cannon = kind
@@ -703,7 +703,7 @@ function timestep:is_king_fish(info)
 end
 
 function timestep:client_hit(info, data)
-    for k, v in ipairs(data) do
+    for k, v in ipairs(data.info) do
         local my_id, fishid, multi = v.my_id, v.fishid, v.multi
         local bullet = info.bullet[my_id]
         if not bullet then
