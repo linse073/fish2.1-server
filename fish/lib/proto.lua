@@ -17,7 +17,7 @@ proto.c2s = sprotoparser.parse [[
 .quit {
 }
 
-.fire {
+.fire_info {
 	my_id 0 : integer
 	angle 1 : double
 	multi 2 : integer
@@ -26,10 +26,18 @@ proto.c2s = sprotoparser.parse [[
 	target 5 : integer
 }
 
-.hit {
+.fire {
+	info 0 : *fire_info
+}
+
+.hit_info {
 	my_id 0 : integer
 	fishid 1 : integer
 	multi 2 : integer
+}
+
+.hit {
+	info 0 : *hit_info
 }
 
 .heart_beat {
