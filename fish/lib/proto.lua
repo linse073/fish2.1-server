@@ -6,12 +6,12 @@ proto.c2s = sprotoparser.parse [[
 
 .join_room {
 	user_id 0 : integer
-	room_id 1 : integer
+	room_id 1 : integer(3)
 	session 2 : string
 }
 
 .ready {
-	cannon 0 : integer
+	cannon 0 : integer(2)
 }
 
 .quit {
@@ -49,7 +49,7 @@ proto.c2s = sprotoparser.parse [[
 }
 
 .set_cannon {
-	cannon 0 : integer
+	cannon 0 : integer(2)
 }
 
 ]]
