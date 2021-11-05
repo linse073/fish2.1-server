@@ -90,7 +90,8 @@ function timestep:join_info()
         for k, v in pairs(map_data) do
             table.insert(rand_map, k)
         end
-        self._mapid = rand_map[math.random(#rand_map)]
+        -- self._mapid = rand_map[math.random(#rand_map)]
+        self._mapid = 1001
         self._next_mapid = nil
         self._map_info = map_data[self._mapid]
         self._event_index = 1
@@ -197,6 +198,16 @@ function timestep:clear()
     self._fish = {}
     self._prop = {}
     self._delay_msg = {}
+    self._fish_count = 0
+    self._mapid = nil
+    self._next_mapid = nil
+    self._map_info = nil
+    self._event_index = nil
+    self._event = nil
+    self._event_time = nil
+    self._event_phase = nil
+    self._delay_time = nil
+    self._spline = nil
     timer.del_all()
 end
 
