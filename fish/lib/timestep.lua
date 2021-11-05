@@ -392,7 +392,7 @@ function timestep:update()
         end
         local kill_msg = ""
         for k, v in ipairs(del_fish) do
-            kill_msg = kill_msg .. string.pack("<I4", v)
+            kill_msg = kill_msg .. string.pack("<I4", v.id)
         end
         for i = del_count + 1, 100 do
             kill_msg = kill_msg .. string.pack("<I4", 0)
