@@ -185,7 +185,7 @@ local function recv_fire(tableid, info)
 end
 
 local function recv_catch_fish(tableid, info)
-    if math.random(1000) <= 50 and info.fish then
+    if math.random(1000) <= 500 and info.fish then
         local fishMultis = {10, 20, 30, 40}
         info.fishKind, info.multi, info.winGold, info.fishScore, info.awardPool, info.rpt
             = fishMultis[math.random(4)], 1, 10000, 100000, 100000, 10
