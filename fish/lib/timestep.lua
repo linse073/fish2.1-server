@@ -640,7 +640,7 @@ function timestep:client_ready(info, data)
         info.ready = true
         local user_info = {}
         for _, v in pairs(self._user) do
-            if v.ready and v.user_id ~= info.user_id then
+            if v.ready then
                 table.insert(user_info, v)
             end
         end
