@@ -244,6 +244,7 @@ end
 
 function timestep:delete_fish(info, hit_user, delay_msg)
     self._fish[info.id] = nil
+    self._fish_count = self._fish_count - 1
 end
 
 local normal_status = function(info)
@@ -280,7 +281,6 @@ function timestep:update()
                     id = k,
                     fish_id = v.fish_id,
                 })
-                self._fish_count = self._fish_count - 1
             end
         end
     end
