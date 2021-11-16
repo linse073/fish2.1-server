@@ -12,6 +12,8 @@ local data = {
 			offset_y = 75.000000,
 			offset_z = 100.000000,
 			fish = 30001,
+			special_rule = {
+			},
 		},
 	},
 	[40002] = {
@@ -27,6 +29,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30002,
+			special_rule = {
+			},
 		},
 	},
 	[40003] = {
@@ -42,6 +46,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30003,
+			special_rule = {
+			},
 		},
 	},
 	[40004] = {
@@ -57,6 +63,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30004,
+			special_rule = {
+			},
 		},
 	},
 	[40005] = {
@@ -72,6 +80,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30005,
+			special_rule = {
+			},
 		},
 	},
 	[40006] = {
@@ -87,6 +97,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30006,
+			special_rule = {
+			},
 		},
 	},
 	[40007] = {
@@ -102,6 +114,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30007,
+			special_rule = {
+			},
 		},
 	},
 	[40008] = {
@@ -117,6 +131,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30008,
+			special_rule = {
+			},
 		},
 	},
 	[40009] = {
@@ -132,6 +148,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30009,
+			special_rule = {
+			},
 		},
 	},
 	[40010] = {
@@ -147,6 +165,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30010,
+			special_rule = {
+			},
 		},
 	},
 	[40011] = {
@@ -162,6 +182,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30011,
+			special_rule = {
+			},
 		},
 	},
 	[40012] = {
@@ -177,6 +199,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30012,
+			special_rule = {
+			},
 		},
 	},
 	[40013] = {
@@ -192,6 +216,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30013,
+			special_rule = {
+			},
 		},
 	},
 	[40014] = {
@@ -207,6 +233,8 @@ local data = {
 			offset_y = 50.000000,
 			offset_z = 50.000000,
 			fish = 30014,
+			special_rule = {
+			},
 		},
 	},
 }

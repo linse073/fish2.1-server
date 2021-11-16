@@ -472,11 +472,16 @@ function timestep:new_rule_fish(spline_info, rule_info, new_fish)
     end
     for i = 1, rule_info.count do
         local fid = self:new_fish_id()
+        local fish_id = rule_info.fish
+        local sfish_id = rule_info.special_rule[i]
+        if sfish_id then
+            fish_id = sfish_id
+        end
         local new_info = {
             id = fid,
             rule_id = rule_info.id,
             rule_index = rule_info.index,
-            fish_id = rule_info.fish,
+            fish_id = fish_id,
             spline_id = spline_id,
             group_id = gid,
             life_time = life_time,
@@ -498,7 +503,9 @@ function timestep:new_fish(delta, new_fish)
         if self:new_time_fish(v, new_fish) then
             v.time = 0
         elseif v.time >= v.cd then
-            table.insert(rand_spline, v)
+            if #v.normal_rule > 0 then
+                table.insert(rand_spline, v)
+            end
         end
     end
     if self._fish_count < MAX_FISH then
