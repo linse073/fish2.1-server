@@ -239,6 +239,7 @@ function timestep:clear()
         [fish_type.koi] = MAX_FISH_TYPE_CD,
         [fish_type.boss] = MAX_FISH_TYPE_CD,
     }
+    self._koi_fish = {}
     timer.del_all()
 end
 

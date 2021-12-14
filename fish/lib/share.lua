@@ -9,6 +9,7 @@ skynet_m.init(function()
     share.spline_data = sharedata.query("spline_data")
     share.rule_data = sharedata.query("rule_data")
     share.map_data = sharedata.query("map_data")
+    share.boss_data = sharedata.query("boss_data")
 
     share.c2s_i2n = sharedata.query("c2s_i2n")
     share.c2s_n2i = sharedata.query("c2s_n2i")
@@ -23,6 +24,9 @@ skynet_m.init(function()
 
     share.fish_type = sharedata.query("fish_type")
     share.fish_type_str = sharedata.query("fish_type_str")
+
+    share.max_type_fish = sharedata.query("max_type_fish")
+    share.fish_type_cd = sharedata.query("fish_type_cd")
 end)
 
 return share
