@@ -16,21 +16,29 @@ local game_mode = skynet_m.getenv("game_mode")
 local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
 local FROZEN_TIME = 15
-local MAX_FISH = 100
+local MAX_FISH_TYPE_CD = 10
 
 local error_code
 local fish_data
 local spline_data
 local map_data
 local rule_data
+local boss_data
 local prop_type
 local prop_id_map
 local s2c_n2i
+local fish_type
+local max_type_fish
+local fish_type_cd
 local s2c
 
 local agent_mgr
 local game_message
 local prop_function
+
+local function immune_aoe(ftype)
+    return ftype >= fish_type.Boss
+end
 
 skynet_m.init(function()
     agent_mgr = skynet_m.queryservice("agent_mgr")
@@ -44,9 +52,13 @@ skynet_m.init(function()
     spline_data = share.spline_data
     map_data = share.map_data
     rule_data = share.rule_data
+    boss_data = share.boss_data
     prop_type = share.prop_type
     prop_id_map = share.prop_id_map
     s2c_n2i = share.s2c_n2i
+    fish_type = share.fish_type
+    max_type_fish = share.max_type_fish
+    fish_type_cd = share.fish_type_cd
     s2c = sprotoloader.load(2)
     prop_function = {
         [prop_type.frozen] = function(self, info)
@@ -59,7 +71,9 @@ skynet_m.init(function()
             table.insert(self._prop, prop_info)
             self:broadcast("prop_info", prop_info)
             for k, v in pairs(self._fish) do
-                v.frozen = true;
+                if not immune_aoe(v.data.type) then
+                    v.frozen = true
+                end
             end
         end,
     }
@@ -197,8 +211,6 @@ function timestep:clear()
     self._group_id = 0
     self._fish = {}
     self._prop = {}
-    self._delay_msg = {}
-    self._fish_count = 0
     self._mapid = nil
     self._next_mapid = nil
     self._map_info = nil
@@ -208,6 +220,25 @@ function timestep:clear()
     self._event_phase = nil
     self._delay_time = nil
     self._spline = nil
+    self._koi_spline = nil
+    self._boss = nil
+    self._boss_index = nil
+    self._fish_count = {
+        [fish_type.normal] = 0,
+        [fish_type.big] = 0,
+        [fish_type.special] = 0,
+        [fish_type.chest] = 0,
+        [fish_type.koi] = 0,
+        [fish_type.boss] = 0,
+    }
+    self._fish_type_time = {
+        [fish_type.normal] = MAX_FISH_TYPE_CD,
+        [fish_type.big] = MAX_FISH_TYPE_CD,
+        [fish_type.special] = MAX_FISH_TYPE_CD,
+        [fish_type.chest] = MAX_FISH_TYPE_CD,
+        [fish_type.koi] = MAX_FISH_TYPE_CD,
+        [fish_type.boss] = MAX_FISH_TYPE_CD,
+    }
     timer.del_all()
 end
 
@@ -242,20 +273,36 @@ function timestep:start()
     self:update()
 end
 
-function timestep:delete_fish(info, hit_user, delay_msg)
+function timestep:delete_fish(info)
     self._fish[info.id] = nil
-    self._fish_count = self._fish_count - 1
+    self._koi_fish[info.id] = nil
+    local ftype = info.data.type
+    self._fish_count[ftype] = self._fish_count[ftype] - 1
 end
 
 local normal_status = function(info)
-    if not info.data.frozen_immune and info.frozen then
+    if info.frozen then
+        return false
+    end
+    local data = info.data
+    if info.proxy_index and info.proxy_index <= #data.fish_proxy and not info.proxy_fish then
         return false
     end
     return true
 end
 
-function timestep:kill_fish(info, hit_user, delay_msg)
-    self:delete_fish(info, hit_user, delay_msg)
+function timestep:catch_fish(info)
+    self:delete_fish(info)
+    local host_fish = info.host_fish
+    if host_fish then
+        host_fish.proxy_fish = nil
+        host_fish.proxy_id = nil
+        info.host_fish = nil
+        info.host_id = nil
+        if host_fish.proxy_index > #host_fish.data.fish_proxy then
+            self:delete_fish(host_fish)
+        end
+    end
 end
 
 function timestep:update()
@@ -271,21 +318,40 @@ function timestep:update()
             return
         end
     end
+    local new_fish = {}
     local del_fish = {}
+    local new_proxy = {}
     for k, v in pairs(self._fish) do
         if normal_status(v) then
             v.time = v.time + etime
-            if v.time >= v.life_time then
-                self:kill_fish(v, 0)
+        end
+        if v.time >= v.life_time then
+            if not v.proxy_id then
                 table.insert(del_fish, {
                     id = k,
                     fish_id = v.fish_id,
                 })
             end
+            self:delete_fish(v)
+        else
+            local fish_proxy = v.data.fish_proxy
+            if v.proxy_index and v.proxy_index <= #fish_proxy and not v.proxy_fish then
+                v.proxy_time = v.proxy_time + etime
+                if v.proxy_time >= fish_proxy[v.proxy_index].time then
+                    table.insert(new_proxy, v)
+                end
+            end
         end
     end
+    for k, v in ipairs(new_proxy) do
+        local fish_id = v.data.fish_proxy[v.proxy_index].fish_id
+        v.proxy_index = v.proxy_index + 1
+        v.proxy_time = 0
+        local proxy_fish = self:new_proxy_fish(fish_id, new_fish, v.life_time - v.time, v)
+        v.proxy_fish = proxy_fish
+        v.proxy_id = proxy_fish.id
+    end
     local stop_time = false
-    local new_fish = {}
     local prop = self._prop
     local frozen, frozen_timeout = false, false
     for i = #prop, 1, -1 do
@@ -331,6 +397,7 @@ function timestep:update()
             })
         else
             self:new_fish(etime, new_fish)
+            self:new_koi_fish(etime, new_fish, del_fish)
         end
     elseif self._event_phase == 2 then
         if self._event_time >= old_event.switch_time then
@@ -413,7 +480,7 @@ function timestep:update()
         local new_msg = ""
         for k, v in ipairs(new_fish) do
             -- NOTICE: define fish type with game server
-            new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, self:get_fish_kind(v),
+            new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, v.data.kind,
                                                 math.ceil(v.life_time - v.time + 10))
         end
         for i = new_num + 1, 100 do
@@ -429,100 +496,249 @@ function timestep:update()
     end
 end
 
+function timestep:mode_spline(ftype)
+    if ftype == fish_type.Chest then
+        local mode = self._mode
+        if not mode or mode.rpt_mode then
+            return false
+        end
+    end
+    return true
+end
+
 function timestep:fish_rule()
     local spline = {}
     for k, v in ipairs(self._event.spline) do
         local spline_info = assert(spline_data[v], string.format("No spline[%d].", v))
         local time_rule = {}
         local normal_rule = {}
+        local ftype = fish_type.normal
         for k1, v1 in ipairs(spline_info.rule) do
             local rule_info = assert(rule_data[v1], string.format("No rule[%d].", v1))
             for k2, v2 in ipairs(rule_info) do
+                local fdata = assert(fish_data[v2.fish], string.format("No fish[%d].", v2.fish))
                 if v2.time > 0 then
                     table.insert(time_rule, v2)
                 else
                     table.insert(normal_rule, v2)
                 end
+                if fdata.type > ftype then
+                    ftype = fdata.type
+                end
             end
         end
-        table.sort(time_rule, function(a, b)
-            return a.time < b.time
-        end)
-        table.insert(spline, {
-            spline_id = v,
-            length = spline_info.length,
-            time_rule = time_rule,
-            normal_rule = normal_rule,
-            cd = 10,
-            time = 10,
-            rule_index = 1,
-        })
+        if self:mode_spline(ftype) then
+            table.sort(time_rule, function(a, b)
+                return a.time < b.time
+            end)
+            local type_spline = spline[ftype]
+            if not type_spline then
+                type_spline = {}
+                spline[ftype] = type_spline
+            end
+            table.insert(type_spline, {
+                spline_id = v,
+                length = spline_info.length,
+                time_rule = time_rule,
+                normal_rule = normal_rule,
+                cd = 10,
+                time = 10,
+                rule_index = 1,
+            })
+        end
     end
     self._spline = spline
+    self._koi_spline = spline[fish_type.koi]
+    spline[fish_type.koi] = nil
+    local boss = {}
+    for k, v in ipairs(self._event.boss) do
+        local boss_info = assert(boss_data[v], string.format("No boss[%d].", v))
+        table.insert(boss, boss_info)
+    end
+    self._boss = boss
+    self._boss_index = 1
 end
 
 function timestep:new_rule_fish(spline_info, rule_info, new_fish)
-    local data = assert(fish_data[rule_info.fish], string.format("No fish[%d].", rule_info.fish))
+    local fish_id = rule_info.fish
+    local data = assert(fish_data[fish_id], string.format("No fish[%d].", fish_id))
     local gid = self:new_group_id()
     local spline_id = spline_info.spline_id
     local life_time = rule_info.life_time
     if life_time <= 0 then
-        assert(rule_info.speed > 0, string.format("Invalid rule fish[%d] speed.", rule_info.fish))
+        assert(rule_info.speed > 0, string.format("Invalid rule fish[%d] speed.", fish_id))
         life_time = spline_info.length / rule_info.speed
     end
     for i = 1, rule_info.count do
         local fid = self:new_fish_id()
-        local fish_id = rule_info.fish
+        local f_id = fish_id
+        local f_data = data
         local sfish_id = rule_info.special_rule[i]
         if sfish_id then
             fish_id = sfish_id
+            f_data = assert(fish_data[f_id], string.format("No fish[%d].", f_id))
         end
         local new_info = {
             id = fid,
             rule_id = rule_info.id,
             rule_index = rule_info.index,
-            fish_id = fish_id,
+            fish_id = f_id,
             spline_id = spline_id,
             group_id = gid,
             life_time = life_time,
             time = 0,
-            data = data,
+            data = f_data,
             group_index = i,
             rule_info = rule_info,
         }
+        if #f_data.fish_proxy > 0 then
+            new_info.proxy_index = 1
+            new_info.proxy_time = 0
+        end
         table.insert(new_fish, new_info)
         self._fish[fid] = new_info
-        self._fish_count = self._fish_count + 1
+        local ftype = f_data.type
+        if ftype == fish_type.koi then
+            self._koi_fish[fid] = new_info
+        end
+        self._fish_count[ftype] = self._fish_count[ftype] + 1
     end
 end
 
+function timestep:new_proxy_fish(fish_id, new_fish, life_time, host_fish)
+    local data = assert(fish_data[fish_id], string.format("No fish[%d].", fish_id))
+    local fid = self:new_fish_id()
+    local new_info = {
+        id = fid,
+        fish_id = fish_id,
+        life_time = life_time,
+        time = 0,
+        data = data,
+        host_fish = host_fish,
+        host_id = host_fish.id,
+    }
+    if #data.fish_proxy > 0 then
+        new_info.proxy_index = 1
+        new_info.proxy_time = 0
+    end
+    table.insert(new_fish, new_info)
+    self._fish[fid] = new_info
+    local ftype = data.type
+    self._fish_count[ftype] = self._fish_count[ftype] + 1
+    return new_info
+end
+
+function timestep:new_boss_fish(boss_info, new_fish)
+    local fish_id = boss_info.fish_id
+    local data = assert(fish_data[fish_id], string.format("No fish[%d].", fish_id))
+    local fid = self:new_fish_id()
+    local new_info = {
+        id = fid,
+        fish_id = fish_id,
+        life_time = boss_info.life_time,
+        time = 0,
+        data = data,
+        boss_id = boss_info.id,
+        boss_info = boss_info,
+    }
+    if #data.fish_proxy > 0 then
+        new_info.proxy_index = 1
+        new_info.proxy_time = 0
+    end
+    table.insert(new_fish, new_info)
+    self._fish[fid] = new_info
+    local ftype = data.type
+    self._fish_count[ftype] = self._fish_count[ftype] + 1
+    return new_info
+end
+
 function timestep:new_fish(delta, new_fish)
-    local rand_spline = {}
-    for k, v in ipairs(self._spline) do
-        v.time = v.time + delta
-        if self:new_time_fish(v, new_fish) then
-            v.time = 0
-        elseif v.time >= v.cd then
-            if #v.normal_rule > 0 then
-                table.insert(rand_spline, v)
+    local fish_type_time = self._fish_type_time
+    for k1, v1 in pairs(self._spline) do
+        fish_type_time[k1] = fish_type_time[k1] + delta
+        if fish_type_time[k1] >= fish_type_cd[k1] then
+            local rand_spline = {}
+            for k, v in ipairs(v1) do
+                v.time = v.time + delta
+                if self:new_time_fish(v, new_fish) then
+                    fish_type_time[k1] = 0
+                    v.time = 0
+                elseif v.time >= v.cd then
+                    if #v.normal_rule > 0 then
+                        table.insert(rand_spline, v)
+                    end
+                end
+            end
+            if self._fish_count[k1] < max_type_fish[k1] then
+                local count = 1
+                if #rand_spline < count then
+                    count = #rand_spline
+                end
+                for i = 1, count do
+                    local index = math.random(#rand_spline)
+                    local spline_info = rand_spline[index]
+                    table.remove(rand_spline, index)
+
+                    local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
+                    self:new_rule_fish(spline_info, rand_rule, new_fish)
+                    spline_info.time = 0
+                    fish_type_time[k1] = 0
+                    if self._fish_count[k1] >= max_type_fish[k1] then
+                        break
+                    end
+                end
             end
         end
     end
-    if self._fish_count < MAX_FISH then
-        local count = 5
-        if #rand_spline < count then
-            count = #rand_spline
+    if self._boss_index <= #self._boss then
+        local boss_info = self._boss[self._boss_index]
+        if boss_info.time >= self._event_time then
+            self:new_boss_fish(boss_info, new_fish)
+            self._boss_index = self._boss_index + 1
         end
-        for i = 1, count do
-            local index = math.random(#rand_spline)
-            local spline_info = rand_spline[index]
-            table.remove(rand_spline, index)
+    end
+end
 
-            local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
-            self:new_rule_fish(spline_info, rand_rule, new_fish)
-            spline_info.time = 0
-            if self._fish_count >= MAX_FISH then
-                break
+function timestep:new_koi_fish(delta, new_fish, del_fish)
+    local mode = self._mode
+    if not mode then
+        return
+    end
+    if mode.koi_create then
+        mode.koi_life = mode.koi_life - delta
+        if mode.koi_life > 0 then
+            if util.empty(self._koi_fish) then
+                local koi_spline = util.copy(self._koi_spline)
+                local len = #koi_spline
+                if len > 2 then
+                    len = 2
+                end
+                for i = 1, len do
+                    local index = math.random(#koi_spline)
+                    local spline_info = koi_spline[index]
+                    table.remove(koi_spline, index)
+
+                    local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
+                    self:new_rule_fish(spline_info, rand_rule, new_fish)
+                end
+            end
+        else
+            mode.koi_create = false
+            mode.koi_wait = mode.koi_wait + mode.koi_life
+            mode.koi_life = 0
+            for k, v in pairs(self._koi_fish) do
+                self:delete_fish(v)
+                table.insert(del_fish, {
+                    id = k,
+                    fish_id = v.fish_id,
+                })
+            end
+        end
+    else
+        if mode.koi_wait > 0 then
+            mode.koi_wait = mode.koi_wait - delta
+            if mode.koi_wait < 0 then
+                mode.koi_wait = 0
             end
         end
     end
@@ -538,10 +754,6 @@ function timestep:new_time_fish(spline_info, new_fish)
             return true
         end
     end
-end
-
-function timestep:get_fish_kind(info)
-    return info.data.kind
 end
 
 function timestep:kick(user_id, agent)
@@ -566,6 +778,9 @@ function timestep:kick(user_id, agent)
                 tableid = self._room_id,
                 flag = 0,
             })
+            if game_mode == "fake_game" then
+                self._mode = nil
+            end
         end
     end
 end
@@ -593,15 +808,11 @@ local function pack_msg(msg, info)
     return string.pack(">I2", id) .. info
 end
 
-function timestep:broadcast(msg, info, delay_msg)
+function timestep:broadcast(msg, info)
     local content = pack_msg(msg, info)
-    if delay_msg then
-        table.insert(self._delay_msg, content)
-    else
-        for _, v in pairs(self._user) do
-            if v.ready then
-                skynet_m.send_lua(v.agent, "send_pack", content)
-            end
+    for _, v in pairs(self._user) do
+        if v.ready then
+            skynet_m.send_lua(v.agent, "send_pack", content)
         end
     end
 end
@@ -612,19 +823,6 @@ function timestep:broadcast_exclude(msg, info, id)
         if v.ready and v.user_id ~= id then
             skynet_m.send_lua(v.agent, "send_pack", content)
         end
-    end
-end
-
-function timestep:delay_broadcast()
-    if #self._delay_msg > 0 then
-        for _, msg in ipairs(self._delay_msg) do
-            for _, v in pairs(self._user) do
-                if v.ready then
-                    skynet_m.send_lua(v.agent, "send_pack", msg)
-                end
-            end
-        end
-        self._delay_msg = {}
     end
 end
 
@@ -670,6 +868,7 @@ function timestep:client_ready(info, data)
                 event_time = self._event_time,
                 event_phase = self._event_phase,
             },
+            mode = self._mode,
         })
         skynet_m.log(string.format("Response user %d ready.", info.user_id))
     end
@@ -705,10 +904,6 @@ function timestep:client_fire(info, data)
     end
 end
 
-function timestep:is_king_fish(info)
-    return false
-end
-
 function timestep:client_hit(info, data)
     for k, v in ipairs(data.info) do
         local my_id, fishid, multi = v.my_id, v.fishid, v.multi
@@ -727,9 +922,42 @@ function timestep:client_hit(info, data)
             fishid = fishid,
             bulletMulti = multi,
             fish = fish_info,
-            king = self:is_king_fish(fish_info),
         })
     end
+end
+
+function timestep:client_hit_bomb(info, data)
+    local my_id, fishid, multi = data.my_id, data.fishid, data.multi
+    local bullet = info.bullet[my_id]
+    if not bullet then
+        skynet_m.log(string.format("Can't find bullet %d when user %d hit bomb fish %d.", my_id, info.user_id, fishid))
+        return
+    end
+    info.bullet[my_id] = nil
+    local other = data.other
+    local num = #other
+    if num > 99 then
+        num = 99
+    end
+    local msg = string.pack("<I4", fishid)
+    local count = 1
+    for i = 1, num do
+        local fish_id = other[i]
+        msg = msg .. string.pack("<I4", fish_id)
+        count = count + 1
+    end
+    for i = count + 1, 100 do
+        msg = msg .. string.pack("<I4", 0)
+    end
+    skynet_m.send_lua(game_message, "send_bomb_fish", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        bulletid = bullet.id,
+        bulletMulti = multi,
+        fish = msg,
+        bomb_fish = self._fish[fishid],
+    })
 end
 
 function timestep:client_heart_beat(info, data)
@@ -757,6 +985,20 @@ function timestep:client_set_cannon(info, data)
         pos = info.pos,
         cannon = cannon,
     })
+end
+
+function timestep:client_mode_info(info, data)
+    self._info = {
+        tableid = self._room_id,
+        rpt_mode = false,
+    }
+    self:on_koi_info(data)
+end
+
+function timestep:client_open_chest(info, data)
+    self:broadcast_exclude("open_chest", {
+        pos = info.pos,
+    }, info.user_id)
 end
 
 function timestep:on_fire(info)
@@ -792,33 +1034,27 @@ function timestep:on_dead(info)
         skynet_m.log(string.format("Dead can't find user %d.", info.userid))
         return
     end
+    -- NOTICE: no bullet my_id info
+    local msg = {
+        pos = user_info.pos,
+        fishid = info.fishid,
+        fish_id = 0,
+        multi = info.multi,
+        bullet = {
+            id = info.bulletid,
+            multi = info.bulletMulti,
+        },
+        win_gold = info.winGold,
+        fish_score = info.fishScore,
+        award_pool = info.awardPool,
+        rpt = info.rpt,
+    }
     local fish_info = self._fish[info.fishid]
     if fish_info then
-        self:kill_fish(fish_info, info.userid, true)
-        -- NOTICE: no bullet my_id info
-        self:broadcast("catch_fish", {
-            pos = user_info.pos,
-            fishid = info.fishid,
-            fish_id = fish_info.fish_id,
-            multi = info.multi,
-            bullet = {
-                id = info.bulletid,
-                multi = info.bulletMulti,
-            },
-        })
-        self:delay_broadcast()
-    else
-        self:broadcast("catch_fish", {
-            pos = user_info.pos,
-            fishid = info.fishid,
-            fish_id = 0,
-            multi = info.multi,
-            bullet = {
-                id = info.bulletid,
-                multi = info.bulletMulti,
-            },
-        })
+        self:catch_fish(fish_info)
+        msg.fish_id = fish_info.fish_id
     end
+    self:broadcast("catch_fish", msg)
 end
 
 function timestep:on_set_cannon(info)
@@ -847,6 +1083,81 @@ function timestep:on_use_prop(info)
         skynet_m.log(string.format("Use prop can't find prop data %d.", info.probid))
         return
     end
+end
+
+function timestep:on_bomb_fish(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Bomb fish can't find user %d.", info.userid))
+        return
+    end
+    local score = {}
+    for k, v in ipairs(info.fish) do
+        local sinfo = {
+            id = v.fishid,
+            fish_id = 0,
+            score = v.score,
+        }
+        local fish_info = self._fish[v.fishid]
+        if fish_info then
+            self:catch_fish(fish_info)
+            sinfo.fish_id = fish_info.fish_id
+        end
+        table.insert(score, sinfo)
+    end
+    self:broadcast("bomb_fish", {
+        pos = user_info.pos,
+        multi = info.multi,
+        bullet = {
+            id = info.bulletid,
+            multi = info.bulletMulti,
+        },
+        win_gold = info.winGold,
+        fish_score = info.fishScore,
+        score = score,
+    })
+end
+
+function timestep:on_init_info(info)
+    self._mode = info
+end
+
+function timestep:on_koi_info(info)
+    local mode = self._mode
+    mode.koi_type, mode.koi_life, mode.koi_wait, mode.koi_create
+        = info.koi_type, info.koi_life, info.koi_wait, info.koi_create
+    self:broadcast("mode_info", mode)
+end
+
+function timestep:on_king_dead(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("King dead can't find user %d.", info.userid))
+        return
+    end
+    -- NOTICE: no bullet self_id info
+    local msg = {
+        pos = user_info.pos,
+        fishid = info.fishid,
+        fish_id = 0,
+        multi = info.multi,
+        bullet = {
+            id = info.bulletid,
+            multi = info.bulletMulti,
+        },
+        win_gold = info.winGold,
+        fish_score = info.fishScore,
+        award_pool = info.awardPool,
+        rpt = info.rpt,
+        rpt_ratio = info.rpt_ratio,
+        fish_multi = info.fishMultis,
+    }
+    local fish_info = self._fish[info.fishid]
+    if fish_info then
+        self:catch_fish(fish_info)
+        msg.fish_id = fish_info.fish_id
+    end
+    self:broadcast("catch_fish", msg)
 end
 
 return {__index=timestep}

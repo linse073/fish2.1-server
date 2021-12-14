@@ -440,7 +440,8 @@ local function recv_init_info(tableid, msg)
     end
     info.koi_type, info.koi_life, info.koi_wait, info.koi_create, info.rpt_mode, index
         = string.unpack("<i4<i4<i4bb", msg, index)
-    info.rpt_mode = 1 - info.rpt_mode
+    info.rpt_mode = info.rpt_mode == 1
+    info.koi_create = info.koi_create == 1
     skynet_m.log(string.format("Table %d init info: %d %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
                                 info.koi_wait, info.koi_create, info.rpt_mode))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
@@ -451,6 +452,7 @@ local function recv_koi_start(tableid, msg)
     local info = {}
     info.tableid = tableid
     info.koi_type, info.koi_life, info.koi_wait, info.koi_create = string.unpack("<i4<i4<i4b", msg)
+    info.koi_create = info.koi_create == 1
     skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
                                 info.koi_wait, info.koi_create))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)

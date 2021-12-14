@@ -40,6 +40,13 @@ proto.c2s = sprotoparser.parse [[
 	info 0 : *hit_info
 }
 
+.hit_bomb {
+	my_id 0 : integer
+	fishid 1 : integer
+	multi 2 : integer
+	other 3 : *integer
+}
+
 .heart_beat {
 }
 
@@ -50,6 +57,17 @@ proto.c2s = sprotoparser.parse [[
 
 .set_cannon {
 	cannon 0 : integer
+}
+
+.mode_info {
+	rpt_mode 0 : boolean
+	koi_type 1 : integer
+	koi_life 2 : double
+	koi_wait 3 : double
+	koi_create 4 : boolean
+}
+
+.open_chest {
 }
 
 ]]
@@ -87,6 +105,10 @@ proto.s2c = sprotoparser.parse [[
 	group_id 5 : integer
 	time 7 : double
 	group_index 8 : integer
+	boss_id 9 : integer
+	host_id 10 : integer
+	proxy_index 11 : integer
+	frozen 12 : boolean
 }
 
 .prop_info {
@@ -96,12 +118,21 @@ proto.s2c = sprotoparser.parse [[
 	time 3 : double
 }
 
+.mode_info {
+	rpt_mode 0 : boolean
+	koi_type 1 : integer
+	koi_life 2 : double
+	koi_wait 3 : double
+	koi_create 4 : boolean
+}
+
 .room_data {
 	user 0 : *user_info
 	pos 1 : integer
 	fish 2 : *fish_info
 	prop 3 : *prop_info
 	event 4 : event_info
+	mode 5 : mode_info
 }
 
 .set_cannon {
@@ -120,6 +151,27 @@ proto.s2c = sprotoparser.parse [[
 	fish_id 2 : integer
 	multi 3 : integer
 	bullet 4 : simp_bullet
+	win_gold 5 : integer
+	fish_score 6 : integer
+	award_pool 7 : integer
+	rpt 8 : integer
+	rpt_ratio 9 : integer
+	fish_multi 10 : *integer
+}
+
+.score_info {
+	id 1 : integer
+	fish_id 2 : integer
+	score 3 : integer
+}
+
+.bomb_fish {
+	pos 0 : integer
+	multi 1 : integer
+	bullet 2 : simp_bullet
+	win_gold 3 : integer
+	fish_score 4 : integer
+	score 5 : *score_info
 }
 
 .bullet_info {
@@ -151,6 +203,10 @@ proto.s2c = sprotoparser.parse [[
 
 .del_fish {
 	fish 0 : *simp_fish
+}
+
+.open_chest {
+	pos 0 : integer
 }
 
 ]]

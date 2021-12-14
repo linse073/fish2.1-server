@@ -32,6 +32,8 @@ skynet_m.start(function()
     sharedata.new("rule_data", rule_data)
     local map_data = require("map_data")
     sharedata.new("map_data", map_data)
+    local boss_data = require("boss_data")
+    sharedata.new("boss_data", boss_data)
 
     proto_map("c2s", sprotoloader.load(1))
     proto_map("s2c", sprotoloader.load(2))
@@ -63,10 +65,32 @@ skynet_m.start(function()
 
     local fish_type, fish_type_str = util.create_enum {
         "normal",
+        "big",
         "special",
+        "chest",
         "koi",
         "boss",
     }
     sharedata.new("fish_type", fish_type)
     sharedata.new("fish_type_str", fish_type_str)
+
+    local max_type_fish = {
+        [fish_type.normal] = 80,
+        [fish_type.big] = 3,
+        [fish_type.special] = 2,
+        [fish_type.chest] = 2,
+        [fish_type.koi] = 2,
+        [fish_type.boss] = 1,
+    }
+    sharedata.new("max_type_fish", max_type_fish)
+
+    local fish_type_cd = {
+        [fish_type.normal] = 1,
+        [fish_type.big] = 5,
+        [fish_type.special] = 5,
+        [fish_type.chest] = 5,
+        [fish_type.koi] = 5,
+        [fish_type.boss] = 10,
+    }
+    sharedata.new("fish_type_cd", fish_type_cd)
 end)
