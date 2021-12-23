@@ -627,7 +627,7 @@ function timestep:new_rule_fish(spline_info, rule_info, new_fish)
         local f_data = data
         local sfish_id = rule_info.special_rule[i]
         if sfish_id then
-            fish_id = sfish_id
+            f_id = sfish_id
             f_data = assert(fish_data[f_id], string.format("No fish[%d].", f_id))
         end
         local new_info = {

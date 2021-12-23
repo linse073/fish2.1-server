@@ -166,7 +166,7 @@ local data = {
 		type = 3,
 		aoe_type = 1,
 		aoe_time = 2.770000,
-		aoe_delay = 8.170000,
+		aoe_delay = 7.670000,
 		fish_proxy = {
 		},
 	},
@@ -175,7 +175,7 @@ local data = {
 		type = 3,
 		aoe_type = 1,
 		aoe_time = 3.200000,
-		aoe_delay = 7.500000,
+		aoe_delay = 7.000000,
 		fish_proxy = {
 		},
 	},
@@ -184,7 +184,7 @@ local data = {
 		type = 3,
 		aoe_type = 1,
 		aoe_time = 2.700000,
-		aoe_delay = 6.800000,
+		aoe_delay = 6.300000,
 		fish_proxy = {
 		},
 	},
@@ -193,7 +193,7 @@ local data = {
 		type = 3,
 		aoe_type = 1,
 		aoe_time = 2.000000,
-		aoe_delay = 5.900000,
+		aoe_delay = 5.400000,
 		fish_proxy = {
 		},
 	},
