@@ -17,6 +17,9 @@ local MAX_USER = 4
 local ACTIVITY_TIMEOUT = 60 * 100 * 30
 local FROZEN_TIME = 15
 local MAX_FISH_TYPE_CD = 10
+local SWITCH_MAP_DELAY = 2
+local PENDING_DEAD_TIME = 2
+local COMMON_AOE_DELAY = 10
 
 local error_code
 local fish_data
@@ -113,6 +116,7 @@ function timestep:join_info()
         self._event_time = 0
         if self._event.stay_time > 0 then
             self._event_phase = 1
+            self._accel_count = 0
         else
             self._event_phase = 2
         end
@@ -240,6 +244,8 @@ function timestep:clear()
         [fish_type.boss] = MAX_FISH_TYPE_CD,
     }
     self._koi_fish = {}
+    self._accel_count = 0
+    self._trigger_time = 0
     timer.del_all()
 end
 
@@ -311,9 +317,9 @@ function timestep:update()
     local etime = (now - self._last_time) * 0.01
     self._last_time = now
     if self._delay_time then
-        self._delay_time = self._delay_time + etime
-        if self._delay_time >= 2 then
-            etime = self._delay_time - 2
+        self._delay_time = self._delay_time - etime
+        if self._delay_time <= 0 then
+            etime = -self._delay_time
             self._delay_time = nil
         else
             return
@@ -324,7 +330,17 @@ function timestep:update()
     local new_proxy = {}
     for k, v in pairs(self._fish) do
         if normal_status(v) then
-            v.time = v.time + etime
+            local ndelta = etime
+            if v.accel_time then
+                v.accel_time = v.accel_time - etime
+                if v.accel_time >= 0 then
+                    ndelta = etime * 3
+                else
+                    ndelta = (etime + v.accel_time) * 3 - v.accel_time
+                    v.accel_time = nil
+                end
+            end
+            v.time = v.time + ndelta
         end
         if v.time >= v.life_time then
             if not v.proxy_id then
@@ -376,9 +392,26 @@ function timestep:update()
     if not stop_time then
         self._event_time = self._event_time + etime
     end
+    if self._trigger_time > 0 then
+        self._trigger_time = self._trigger_time - etime
+    end
+    for k, v in pairs(self._user) do
+        if v.trigger_time then
+            v.trigger_time = v.trigger_time - etime
+            if v.trigger_time <= 0 then
+                v.trigger_time = nil
+                skynet_m.send_lua(game_message, "send_skill_timeout", {
+                    tableid = self._room_id,
+                    seatid = v.pos - 1,
+                    userid = v.user_id,
+                })
+            end
+        end
+    end
     local old_event = self._event
     if self._event_phase == 1 then
-        if self._event_time >= old_event.stay_time then
+        if self._event_time >= old_event.stay_time and self._trigger_time <= 0 and not stop_time then
+            self:clear_fish(del_fish)
             self._event_phase = 2
             self._event_time = 0
             if self._event_index == #self._map_info then
@@ -395,6 +428,7 @@ function timestep:update()
                 event_time = self._event_time,
                 event_phase = self._event_phase,
                 next_mapid = self._next_mapid,
+                delay_time = self._delay_time,
             })
         else
             self:new_fish(etime, new_fish)
@@ -406,10 +440,10 @@ function timestep:update()
                 self._event_index = self._event_index + 1
                 local new_event = self._map_info[self._event_index]
                 self._event = new_event
-                self:fish_rule()
                 self._event_time = 0
                 if new_event.stay_time > 0 then
                     self._event_phase = 1
+                    self._accel_count = 0
                 else
                     self._event_phase = 2
                 end
@@ -422,6 +456,7 @@ function timestep:update()
                     end
                     self._next_mapid = rand_map[math.random(#rand_map)]
                 end
+                self:fish_rule()
                 self:broadcast("event_info", {
                     eventid = new_event.event_id,
                     event_time = self._event_time,
@@ -429,7 +464,7 @@ function timestep:update()
                     next_mapid = self._next_mapid,
                 })
             else
-                self._delay_time = 0
+                self._delay_time = SWITCH_MAP_DELAY
 
                 self._mapid = self._next_mapid
                 self._next_mapid = nil
@@ -437,18 +472,20 @@ function timestep:update()
                 self._event_index = 1
                 local new_event = self._map_info[self._event_index]
                 self._event = new_event
-                self:fish_rule()
                 self._event_time = 0
                 if self._event.stay_time > 0 then
                     self._event_phase = 1
+                    self._accel_count = 0
                 else
                     self._event_phase = 2
                 end
+                self:fish_rule()
                 self:broadcast("event_info", {
                     mapid = self._mapid,
                     eventid = new_event.event_id,
                     event_time = self._event_time,
                     event_phase = self._event_phase,
+                    delay_time = self._delay_time,
                 })
             end
         end
@@ -495,6 +532,19 @@ function timestep:update()
             fish = new_fish,
         })
     end
+end
+
+function timestep:clear_fish(del_fish)
+    for k, v in pairs(self._fish) do
+        if not v.proxy_id then
+            table.insert(del_fish, {
+                id = k,
+                fish_id = v.fish_id,
+            })
+        end
+        self:delete_fish(v)
+    end
+    self._delay_time = PENDING_DEAD_TIME
 end
 
 function timestep:mode_spline(ftype)
@@ -545,6 +595,7 @@ function timestep:fish_rule()
                 cd = 10,
                 time = 10,
                 rule_index = 1,
+                accel_time = spline_info.accel_time,
             })
         end
     end
@@ -568,7 +619,7 @@ function timestep:new_rule_fish(spline_info, rule_info, new_fish)
     local life_time = rule_info.life_time
     if life_time <= 0 then
         assert(rule_info.speed > 0, string.format("Invalid rule fish[%d] speed.", fish_id))
-        life_time = spline_info.length / rule_info.speed
+        life_time = spline_info.length / rule_info.speed + 3
     end
     for i = 1, rule_info.count do
         local fid = self:new_fish_id()
@@ -592,6 +643,9 @@ function timestep:new_rule_fish(spline_info, rule_info, new_fish)
             group_index = i,
             rule_info = rule_info,
         }
+        if self._accel_count < 50 then
+            new_info.accel_time = spline_info.accel_time
+        end
         if #f_data.fish_proxy > 0 then
             new_info.proxy_index = 1
             new_info.proxy_time = 0
@@ -617,6 +671,7 @@ function timestep:new_proxy_fish(fish_id, new_fish, life_time, host_fish)
         data = data,
         host_fish = host_fish,
         host_id = host_fish.id,
+        accel_time = host_fish.accel_time,
     }
     if #data.fish_proxy > 0 then
         new_info.proxy_index = 1
@@ -682,6 +737,7 @@ function timestep:new_fish(delta, new_fish)
 
                     local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
                     self:new_rule_fish(spline_info, rand_rule, new_fish)
+                    self._accel_count = self._accel_count + rand_rule.count
                     spline_info.time = 0
                     fish_type_time[k1] = 0
                     if self._fish_count[k1] >= max_type_fish[k1] then
@@ -770,6 +826,13 @@ function timestep:kick(user_id, agent)
             self._ready_count = self._ready_count - 1
             self:broadcast("leave_room", {
                 user_id = user_id,
+            })
+        end
+        if info.trigger_time then
+            skynet_m.send_lua(game_message, "send_skill_timeout", {
+                tableid = self._room_id,
+                seatid = info.pos - 1,
+                userid = info.user_id,
             })
         end
         if self._count == 0 then
@@ -868,6 +931,7 @@ function timestep:client_ready(info, data)
                 eventid = self._event.event_id,
                 event_time = self._event_time,
                 event_phase = self._event_phase,
+                delay_time = self._delay_time,
             },
             mode = self._mode,
         })
@@ -910,7 +974,8 @@ function timestep:client_hit(info, data)
         local my_id, fishid, multi = v.my_id, v.fishid, v.multi
         local bullet = info.bullet[my_id]
         if not bullet then
-            skynet_m.log(string.format("Can't find bullet %d when user %d hit fish %d.", my_id, info.user_id, fishid))
+            skynet_m.log(string.format("Can't find bullet %d when user %d hit fish %d.",
+                                        my_id, info.user_id, fishid))
             return
         end
         info.bullet[my_id] = nil
@@ -931,7 +996,8 @@ function timestep:client_hit_bomb(info, data)
     local my_id, fishid, multi = data.my_id, data.fishid, data.multi
     local bullet = info.bullet[my_id]
     if not bullet then
-        skynet_m.log(string.format("Can't find bullet %d when user %d hit bomb fish %d.", my_id, info.user_id, fishid))
+        skynet_m.log(string.format("Can't find bullet %d when user %d hit bomb fish %d.",
+                                    my_id, info.user_id, fishid))
         return
     end
     info.bullet[my_id] = nil
@@ -961,13 +1027,73 @@ function timestep:client_hit_bomb(info, data)
     })
 end
 
+function timestep:client_hit_trigger(info, data)
+    local my_id, fishid, multi = data.my_id, data.fishid, data.multi
+    local bullet = info.bullet[my_id]
+    if not bullet then
+        skynet_m.log(string.format("Can't find bullet %d when user %d hit trigger fish %d.",
+                                    my_id, info.user_id, fishid))
+        return
+    end
+    info.bullet[my_id] = nil
+    local other = data.other
+    local num = #other
+    if num > 99 then
+        num = 99
+    end
+    local msg = string.pack("<I4", fishid)
+    local count = 1
+    for i = 1, num do
+        local fish_id = other[i]
+        msg = msg .. string.pack("<I4", fish_id)
+        count = count + 1
+    end
+    for i = count + 1, 100 do
+        msg = msg .. string.pack("<I4", 0)
+    end
+    skynet_m.send_lua(game_message, "send_trigger_fish", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        bulletid = bullet.id,
+        bulletMulti = multi,
+        fish = msg,
+        trigger_fish = self._fish[fishid],
+    })
+end
+
+function timestep:client_skill_damage(info, data)
+    local other = data.other
+    local num = #other
+    if num > 100 then
+        num = 100
+    end
+    local msg = ""
+    local count = 0
+    for i = 1, num do
+        local fish_id = other[i]
+        msg = msg .. string.pack("<I4", fish_id)
+        count = count + 1
+    end
+    for i = count + 1, 100 do
+        msg = msg .. string.pack("<I4", 0)
+    end
+    skynet_m.send_lua(game_message, "send_skill_damage", {
+        tableid = self._room_id,
+        seatid = info.pos - 1,
+        userid = info.user_id,
+        fish = msg,
+    })
+end
+
 function timestep:client_heart_beat(info, data)
 end
 
 function timestep:client_use_prop(info, data)
     local prop_id, prop_num = data.prop_id, data.prop_num
     if not prop_id_map[prop_id] then
-        skynet_m.log(string.format("Can't find prop %d when user %d use prop.", prop_id, info.user_id))
+        skynet_m.log(string.format("Can't find prop %d when user %d use prop.",
+                                    prop_id, info.user_id))
         return
     end
     skynet_m.send_lua(game_message, "send_use_prob", {
@@ -1108,7 +1234,6 @@ function timestep:on_bomb_fish(info)
     end
     self:broadcast("bomb_fish", {
         pos = user_info.pos,
-        multi = info.multi,
         bullet = {
             id = info.bulletid,
             multi = info.bulletMulti,
@@ -1136,7 +1261,7 @@ function timestep:on_king_dead(info)
         skynet_m.log(string.format("King dead can't find user %d.", info.userid))
         return
     end
-    -- NOTICE: no bullet self_id info
+    -- NOTICE: no bullet my_id info
     local msg = {
         pos = user_info.pos,
         fishid = info.fishid,
@@ -1159,6 +1284,71 @@ function timestep:on_king_dead(info)
         msg.fish_id = fish_info.fish_id
     end
     self:broadcast("catch_fish", msg)
+end
+
+function timestep:on_trigger_dead(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Trigger dead can't find user %d.", info.userid))
+        return
+    end
+    -- NOTICE: no bullet my_id info
+    local msg = {
+        pos = user_info.pos,
+        fishid = info.fishid,
+        fish_id = 0,
+        bullet = {
+            id = info.bulletid,
+            multi = info.bulletMulti,
+        },
+    }
+    local trigger_time = COMMON_AOE_DELAY
+    local fish_info = self._fish[info.fishid]
+    if fish_info then
+        self:catch_fish(fish_info)
+        msg.fish_id = fish_info.fish_id
+        trigger_time = fish_info.data.aoe_delay + 3
+    end
+    self:broadcast("catch_trigger", msg)
+    user_info.trigger_time = trigger_time
+    if trigger_time > self._trigger_time then
+        self._trigger_time = trigger_time
+    end
+    if self._event_phase == 1 and self._event_time + self._trigger_time >= self._event.stay_time then
+        self._spline[fish_type.special] = nil
+    end
+end
+
+function timestep:on_skill_damage(info)
+    local user_info = self._user[info.userid]
+    if not user_info then
+        skynet_m.log(string.format("Skill damage can't find user %d.", info.userid))
+        return
+    end
+    local score = {}
+    for k, v in ipairs(info.fish) do
+        local sinfo = {
+            id = v.fishid,
+            fish_id = 0,
+            score = v.score,
+        }
+        local fish_info = self._fish[v.fishid]
+        if fish_info then
+            self:catch_fish(fish_info)
+            sinfo.fish_id = fish_info.fish_id
+        end
+        table.insert(score, sinfo)
+    end
+    self:broadcast("skill_damage", {
+        pos = user_info.pos,
+        win_gold = info.winGold,
+        fish_score = info.fishScore,
+        score = score,
+    })
+    user_info.trigger_time = nil
+    if self._trigger_time < 5 then
+        self._trigger_time = 5
+    end
 end
 
 return {__index=timestep}

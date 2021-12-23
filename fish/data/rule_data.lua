@@ -659,7 +659,7 @@ local data = {
 			offset_x = 150.000000,
 			offset_y = 75.000000,
 			offset_z = 100.000000,
-			fish = 30021,
+			fish = 30020,
 			special_rule = {
 			},
 		},
@@ -676,7 +676,7 @@ local data = {
 			offset_x = 150.000000,
 			offset_y = 75.000000,
 			offset_z = 100.000000,
-			fish = 30022,
+			fish = 30021,
 			special_rule = {
 			},
 		},
@@ -693,7 +693,7 @@ local data = {
 			offset_x = 150.000000,
 			offset_y = 75.000000,
 			offset_z = 100.000000,
-			fish = 30023,
+			fish = 30022,
 			special_rule = {
 			},
 		},
@@ -710,9 +710,9 @@ local data = {
 			offset_x = 200.000000,
 			offset_y = 50.000000,
 			offset_z = 0.000000,
-			fish = 30024,
+			fish = 30023,
 			special_rule = {
-				[1] = 30025,
+				[1] = 30024,
 			},
 		},
 	},
@@ -728,7 +728,7 @@ local data = {
 			offset_x = 200.000000,
 			offset_y = 50.000000,
 			offset_z = 0.000000,
-			fish = 30024,
+			fish = 30023,
 			special_rule = {
 			},
 		},
@@ -745,7 +745,7 @@ local data = {
 			offset_x = 125.000000,
 			offset_y = 125.000000,
 			offset_z = 0.000000,
-			fish = 30026,
+			fish = 30025,
 			special_rule = {
 			},
 		},
@@ -762,7 +762,7 @@ local data = {
 			offset_x = 125.000000,
 			offset_y = 50.000000,
 			offset_z = 0.000000,
-			fish = 30027,
+			fish = 30026,
 			special_rule = {
 			},
 		},
@@ -779,7 +779,7 @@ local data = {
 			offset_x = 125.000000,
 			offset_y = 50.000000,
 			offset_z = 0.000000,
-			fish = 30028,
+			fish = 30027,
 			special_rule = {
 			},
 		},

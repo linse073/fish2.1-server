@@ -77,7 +77,7 @@ skynet_m.start(function()
     local max_type_fish = {
         [fish_type.normal] = 80,
         [fish_type.big] = 3,
-        [fish_type.special] = 2,
+        [fish_type.special] = 1,
         [fish_type.chest] = 2,
         [fish_type.koi] = 2,
         [fish_type.boss] = 1,

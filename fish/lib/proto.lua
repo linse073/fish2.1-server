@@ -47,6 +47,17 @@ proto.c2s = sprotoparser.parse [[
 	other 3 : *integer
 }
 
+.hit_trigger {
+	my_id 0 : integer
+	fishid 1 : integer
+	multi 2 : integer
+	other 3 : *integer
+}
+
+.skill_damage {
+	other 0 : *integer
+}
+
 .heart_beat {
 }
 
@@ -79,6 +90,7 @@ proto.s2c = sprotoparser.parse [[
 	eventid 1 : integer
 	event_time 2 : double
 	event_phase 3 : integer
+	delay_time 4 : double
 }
 
 .join_resp {
@@ -109,6 +121,8 @@ proto.s2c = sprotoparser.parse [[
 	host_id 10 : integer
 	proxy_index 11 : integer
 	frozen 12 : boolean
+	life_time 13 : double
+	accel_time 14 : double
 }
 
 .prop_info {
@@ -159,6 +173,13 @@ proto.s2c = sprotoparser.parse [[
 	fish_multi 10 : *integer
 }
 
+.catch_trigger {
+	pos 0 : integer
+	fishid 1 : integer
+	fish_id 2 : integer
+	bullet 3 : simp_bullet
+}
+
 .score_info {
 	id 1 : integer
 	fish_id 2 : integer
@@ -167,11 +188,17 @@ proto.s2c = sprotoparser.parse [[
 
 .bomb_fish {
 	pos 0 : integer
-	multi 1 : integer
-	bullet 2 : simp_bullet
-	win_gold 3 : integer
-	fish_score 4 : integer
-	score 5 : *score_info
+	bullet 1 : simp_bullet
+	win_gold 2 : integer
+	fish_score 3 : integer
+	score 4 : *score_info
+}
+
+.skill_damage {
+	pos 0 : integer
+	win_gold 1 : integer
+	fish_score 2 : integer
+	score 3 : *score_info
 }
 
 .bullet_info {
