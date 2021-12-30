@@ -764,7 +764,7 @@ function timestep:new_koi_fish(delta, new_fish, del_fish)
     if mode.koi_create then
         mode.koi_life = mode.koi_life - delta
         if mode.koi_life > 0 then
-            if util.empty(self._koi_fish) then
+            if util.empty(self._koi_fish) and self._koi_spline then
                 local koi_spline = util.copy(self._koi_spline)
                 local len = #koi_spline
                 if len > 2 then
