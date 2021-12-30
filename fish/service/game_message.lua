@@ -5,6 +5,7 @@ local string = string
 local ipairs = ipairs
 local pairs = pairs
 local assert = assert
+local tostring = tostring
 
 local server_id = skynet_m.getenv_num("server_id")
 local server_session = skynet_m.getenv("server_session")
@@ -442,8 +443,8 @@ local function recv_init_info(tableid, msg)
         = string.unpack("<i4<i4<i4bb", msg, index)
     info.rpt_mode = info.rpt_mode == 1
     info.koi_create = info.koi_create == 1
-    skynet_m.log(string.format("Table %d init info: %d %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
-                                info.koi_wait, info.koi_create, info.rpt_mode))
+    skynet_m.log(string.format("Table %d init info: %d %d %d %s %s.", info.tableid, info.koi_type, info.koi_life,
+                                info.koi_wait, tostring(info.koi_create), tostring(info.rpt_mode)))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_init_info", info)
 end
@@ -454,7 +455,7 @@ local function recv_koi_start(tableid, msg)
     info.koi_type, info.koi_life, info.koi_wait, info.koi_create = string.unpack("<i4<i4<i4b", msg)
     info.koi_create = info.koi_create == 1
     skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
-                                info.koi_wait, info.koi_create))
+                                info.koi_wait, tostring(info.koi_create)))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_koi_info", info)
 end
