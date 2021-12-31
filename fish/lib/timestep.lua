@@ -40,7 +40,11 @@ local game_message
 local prop_function
 
 local function immune_aoe(ftype)
-    return ftype >= fish_type.Boss
+    return ftype ~= fish_type.normal
+end
+
+local function immune_frozen(ftype)
+    return ftype == fish_type.boss
 end
 
 skynet_m.init(function()
@@ -74,7 +78,7 @@ skynet_m.init(function()
             table.insert(self._prop, prop_info)
             self:broadcast("prop_info", prop_info)
             for k, v in pairs(self._fish) do
-                if not immune_aoe(v.data.type) then
+                if not immune_frozen(v.data.type) then
                     v.frozen = true
                 end
             end
