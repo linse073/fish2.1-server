@@ -979,7 +979,6 @@ function timestep:client_hit(info, data)
             return
         end
         info.bullet[my_id] = nil
-        local fish_info = self._fish[fishid]
         skynet_m.send_lua(game_message, "send_catch_fish", {
             tableid = self._room_id,
             seatid = info.pos - 1,
@@ -987,7 +986,7 @@ function timestep:client_hit(info, data)
             bulletid = bullet.id,
             fishid = fishid,
             bulletMulti = multi,
-            fish = fish_info,
+            fish = self._fish[fishid]~=nil,
         })
     end
 end
@@ -1023,7 +1022,7 @@ function timestep:client_hit_bomb(info, data)
         bulletid = bullet.id,
         bulletMulti = multi,
         fish = msg,
-        bomb_fish = self._fish[fishid],
+        bomb_fish = self._fish[fishid]~=nil,
     })
 end
 
@@ -1058,7 +1057,7 @@ function timestep:client_hit_trigger(info, data)
         bulletid = bullet.id,
         bulletMulti = multi,
         fish = msg,
-        trigger_fish = self._fish[fishid],
+        trigger_fish = self._fish[fishid]~=nil,
     })
 end
 
