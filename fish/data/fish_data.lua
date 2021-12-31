@@ -233,6 +233,33 @@ local data = {
 		},
 	},
 	[30026] = {
+		kind = 80,
+		type = 6,
+		aoe_type = 0,
+		aoe_time = 0.000000,
+		aoe_delay = 2.000000,
+		fish_proxy = {
+		},
+	},
+	[30027] = {
+		kind = 81,
+		type = 6,
+		aoe_type = 0,
+		aoe_time = 0.000000,
+		aoe_delay = 2.000000,
+		fish_proxy = {
+		},
+	},
+	[30028] = {
+		kind = 82,
+		type = 6,
+		aoe_type = 0,
+		aoe_time = 0.000000,
+		aoe_delay = 2.000000,
+		fish_proxy = {
+		},
+	},
+	[30029] = {
 		kind = 50,
 		type = 3,
 		aoe_type = 1,
@@ -241,7 +268,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30027] = {
+	[30030] = {
 		kind = 51,
 		type = 3,
 		aoe_type = 1,
@@ -250,7 +277,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30028] = {
+	[30031] = {
 		kind = 53,
 		type = 3,
 		aoe_type = 1,
@@ -259,7 +286,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30029] = {
+	[30032] = {
 		kind = 54,
 		type = 3,
 		aoe_type = 1,
@@ -268,7 +295,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30030] = {
+	[30033] = {
 		kind = 10,
 		type = 1,
 		aoe_type = 0,
@@ -277,7 +304,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30031] = {
+	[30034] = {
 		kind = 30,
 		type = 2,
 		aoe_type = 0,
@@ -286,7 +313,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30032] = {
+	[30035] = {
 		kind = 5,
 		type = 1,
 		aoe_type = 0,
@@ -295,7 +322,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30033] = {
+	[30036] = {
 		kind = 6,
 		type = 1,
 		aoe_type = 0,
@@ -304,7 +331,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30034] = {
+	[30037] = {
 		kind = 7,
 		type = 1,
 		aoe_type = 0,
@@ -313,7 +340,16 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30036] = {
+	[30038] = {
+		kind = 83,
+		type = 6,
+		aoe_type = 0,
+		aoe_time = 0.000000,
+		aoe_delay = 2.000000,
+		fish_proxy = {
+		},
+	},
+	[30040] = {
 		kind = 63,
 		type = 6,
 		aoe_type = 0,
@@ -322,7 +358,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30035] = {
+	[30039] = {
 		kind = 86,
 		type = 6,
 		aoe_type = 0,
@@ -331,11 +367,11 @@ local data = {
 		fish_proxy = {
 			{
 				time = 4.200000,
-				fish_id = 30036,
+				fish_id = 30040,
 			},
 		},
 	},
-	[30038] = {
+	[30042] = {
 		kind = 62,
 		type = 6,
 		aoe_type = 0,
@@ -344,7 +380,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30039] = {
+	[30043] = {
 		kind = 63,
 		type = 6,
 		aoe_type = 0,
@@ -353,7 +389,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30037] = {
+	[30041] = {
 		kind = 85,
 		type = 6,
 		aoe_type = 0,
@@ -362,15 +398,15 @@ local data = {
 		fish_proxy = {
 			{
 				time = 5.000000,
-				fish_id = 30038,
+				fish_id = 30042,
 			},
 			{
 				time = 8.500000,
-				fish_id = 30039,
+				fish_id = 30043,
 			},
 		},
 	},
-	[30041] = {
+	[30045] = {
 		kind = 63,
 		type = 6,
 		aoe_type = 0,
@@ -379,7 +415,7 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30040] = {
+	[30044] = {
 		kind = 87,
 		type = 6,
 		aoe_type = 0,
@@ -388,7 +424,7 @@ local data = {
 		fish_proxy = {
 			{
 				time = 3.500000,
-				fish_id = 30041,
+				fish_id = 30045,
 			},
 		},
 	},

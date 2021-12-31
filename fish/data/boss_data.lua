@@ -1,9 +1,9 @@
 local data = {
 	[60001] = {
 		id = 60001,
-		fish_id = 30037,
-		time = 10.000000,
-		life_time = 90.000000,
+		fish_id = 30041,
+		time = 180.000000,
+		life_time = 120.000000,
 		rotation = {
 			x = -0.000000,
 			y = 0.000000,
@@ -23,9 +23,9 @@ local data = {
 	},
 	[60002] = {
 		id = 60002,
-		fish_id = 30040,
-		time = 1.000000,
-		life_time = 90.000000,
+		fish_id = 30044,
+		time = 240.000000,
+		life_time = 60.000000,
 		rotation = {
 			x = 0.000000,
 			y = -0.000000,
