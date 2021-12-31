@@ -753,7 +753,7 @@ function timestep:new_fish(delta, new_fish)
     end
     if self._boss_index <= #self._boss then
         local boss_info = self._boss[self._boss_index]
-        if boss_info.time >= self._event_time then
+        if boss_info.time <= self._event_time then
             self:new_boss_fish(boss_info, new_fish)
             self._boss_index = self._boss_index + 1
         end
