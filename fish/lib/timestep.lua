@@ -1176,9 +1176,13 @@ function timestep:on_fire(info)
         return
     end
     info.cannon = binfo.kind
+    bullet.multi = binfo.multi
     self:broadcast("fire", {
         pos = user_info.pos,
         bullet = bullet,
+        cost_gold = info.costGold,
+        fish_score = info.fishScore,
+        award_pool = info.awardPool,
     })
 end
 

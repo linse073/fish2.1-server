@@ -208,11 +208,15 @@ proto.s2c = sprotoparser.parse [[
 	angle 3 : double
 	rotate 4 : integer
 	target 5 : integer
+	multi 6 : integer
 }
 
 .fire {
 	pos 0 : integer
 	bullet 1 : bullet_info
+	cost_gold 2 : integer
+	fish_score 3 : integer
+	award_pool 4 : integer
 }
 
 .leave_room {
