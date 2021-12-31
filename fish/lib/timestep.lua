@@ -910,16 +910,40 @@ function timestep:client_ready(info, data)
         local user_info = {}
         for _, v in pairs(self._user) do
             if v.ready then
-                table.insert(user_info, v)
+                table.insert(user_info, {
+                    user_id = v.user_id,
+                    pos = v.pos,
+                    cannon = v.cannon,
+                })
             end
         end
         local fish_info = {}
         for k, v in pairs(self._fish) do
-            table.insert(fish_info, v)
+            table.insert(fish_info, {
+                id = v.id,
+                rule_id = v.rule_id,
+                rule_index = v.rule_index,
+                fish_id = v.fish_id,
+                spline_id = v.spline_id,
+                group_id = v.group_id,
+                time = v.time,
+                group_index = v.group_index,
+                boss_id = v.boss_id,
+                host_id = v.host_id,
+                proxy_index = v.proxy_index,
+                frozen = v.frozen,
+                life_time = v.life_time,
+                accel_time = v.accel_time,
+            })
         end
         local prop_info = {}
         for k, v in ipairs(self._prop) do
-            table.insert(prop_info, v)
+            table.insert(prop_info, {
+                prop_id = v.prop_id,
+                num = v.num,
+                user_id = v.user_id,
+                time = v.time,
+            })
         end
         skynet_m.send_lua(info.agent, "send", "room_data", {
             user = user_info,

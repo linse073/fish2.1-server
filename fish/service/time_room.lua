@@ -41,7 +41,7 @@ function CMD.on_set_cannon(info)
 end
 
 function CMD.on_use_item(info)
-    timestep_i:on_use_item(info)
+    timestep_i:on_use_prop(info)
 end
 
 function CMD.on_bomb_fish(info)
