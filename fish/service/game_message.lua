@@ -454,7 +454,7 @@ local function recv_koi_start(tableid, msg)
     info.tableid = tableid
     info.koi_type, info.koi_life, info.koi_wait, info.koi_create = string.unpack("<i4<i4<i4b", msg)
     info.koi_create = info.koi_create == 1
-    skynet_m.log(string.format("Table %d start koi: %d %d %d %d.", info.tableid, info.koi_type, info.koi_life,
+    skynet_m.log(string.format("Table %d start koi: %d %d %d %s.", info.tableid, info.koi_type, info.koi_life,
                                 info.koi_wait, tostring(info.koi_create)))
     local room = skynet_m.call_lua(room_mgr, "get", info.tableid)
     skynet_m.send_lua(room, "on_koi_info", info)
