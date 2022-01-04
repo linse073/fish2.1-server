@@ -810,6 +810,7 @@ function timestep:new_time_fish(spline_info, new_fish)
         local rule_info = spline_info.time_rule[spline_info.rule_index]
         if rule_info.time <= self._event_time then
             self:new_rule_fish(spline_info, rule_info, new_fish)
+            spline_info.rule_index = spline_info.rule_index + 1
             return true
         elseif self._event_time - rule_info.time <= 2 then
             return true
