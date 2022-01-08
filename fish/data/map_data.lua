@@ -267,7 +267,7 @@ local data = {
 		{
 			event_id = 10007,
 			stay_time = 360.000000,
-			switch_time = 3.000000,
+			switch_time = 2.000000,
 			spline = {
 				20206,
 				20207,
@@ -335,6 +335,15 @@ local data = {
 				20328,
 				20329,
 				20330,
+			},
+			boss = {
+			},
+		},
+		{
+			event_id = 10010,
+			stay_time = 3.000000,
+			switch_time = 2.000000,
+			spline = {
 			},
 			boss = {
 			},
