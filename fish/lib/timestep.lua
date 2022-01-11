@@ -924,6 +924,7 @@ function timestep:client_ready(info, data)
         end
         local fish_info = {}
         for k, v in pairs(self._fish) do
+            -- NOTICE: skynet may error, because table too deep
             table.insert(fish_info, {
                 id = v.id,
                 rule_id = v.rule_id,
