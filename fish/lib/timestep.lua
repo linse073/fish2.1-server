@@ -20,6 +20,7 @@ local MAX_FISH_TYPE_CD = 10
 local SWITCH_MAP_DELAY = 2
 local PENDING_DEAD_TIME = 2
 local COMMON_AOE_DELAY = 10
+local ACCEL_RATIO = 3.5
 
 local error_code
 local fish_data
@@ -287,8 +288,10 @@ end
 function timestep:delete_fish(info)
     self._fish[info.id] = nil
     self._koi_fish[info.id] = nil
-    local ftype = info.data.type
-    self._fish_count[ftype] = self._fish_count[ftype] - 1
+    if not info.count then
+        local ftype = info.data.type
+        self._fish_count[ftype] = self._fish_count[ftype] - 1
+    end
 end
 
 local normal_status = function(info)
@@ -338,9 +341,9 @@ function timestep:update()
             if v.accel_time then
                 v.accel_time = v.accel_time - etime
                 if v.accel_time >= 0 then
-                    ndelta = etime * 3
+                    ndelta = etime * ACCEL_RATIO
                 else
-                    ndelta = (etime + v.accel_time) * 3 - v.accel_time
+                    ndelta = (etime + v.accel_time) * ACCEL_RATIO - v.accel_time
                     v.accel_time = nil
                 end
             end
@@ -355,6 +358,11 @@ function timestep:update()
             end
             self:delete_fish(v)
         else
+            if not v.count and v.time >= v.life_time * 0.7 then
+                v.count = true
+                local ftype = v.data.type
+                self._fish_count[ftype] = self._fish_count[ftype] - 1
+            end
             local fish_proxy = v.data.fish_proxy
             if v.proxy_index and v.proxy_index <= #fish_proxy and not v.proxy_fish then
                 v.proxy_time = v.proxy_time + etime
@@ -647,7 +655,7 @@ function timestep:new_rule_fish(spline_info, rule_info, new_fish)
             group_index = i,
             rule_info = rule_info,
         }
-        if self._accel_count < 50 then
+        if self._accel_count < 80 then
             new_info.accel_time = spline_info.accel_time
         end
         if #f_data.fish_proxy > 0 then
@@ -730,7 +738,7 @@ function timestep:new_fish(delta, new_fish)
                 end
             end
             if self._fish_count[k1] < max_type_fish[k1] then
-                local count = 1
+                local count = 3
                 if #rand_spline < count then
                     count = #rand_spline
                 end
@@ -768,7 +776,7 @@ function timestep:new_koi_fish(delta, new_fish, del_fish)
     if mode.koi_create then
         mode.koi_life = mode.koi_life - delta
         if mode.koi_life > 0 then
-            if util.empty(self._koi_fish) and self._koi_spline then
+            if self._fish_count[fish_type.koi] == 0 and self._koi_spline then
                 local koi_spline = util.copy(self._koi_spline)
                 local len = #koi_spline
                 if len > 2 then

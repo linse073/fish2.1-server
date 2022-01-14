@@ -86,11 +86,11 @@ skynet_m.start(function()
 
     local fish_type_cd = {
         [fish_type.normal] = 1,
-        [fish_type.big] = 5,
-        [fish_type.special] = 5,
-        [fish_type.chest] = 5,
-        [fish_type.koi] = 5,
-        [fish_type.boss] = 10,
+        [fish_type.big] = 3,
+        [fish_type.special] = 3,
+        [fish_type.chest] = 3,
+        [fish_type.koi] = 3,
+        [fish_type.boss] = 5,
     }
     sharedata.new("fish_type_cd", fish_type_cd)
 end)
