@@ -317,6 +317,7 @@ function timestep:catch_fish(info)
             self:delete_fish(host_fish)
         end
     end
+    self._accel_count = self._accel_count - 1
 end
 
 function timestep:update()
@@ -1390,7 +1391,6 @@ function timestep:on_skill_damage(info)
     if self._trigger_time < 5 then
         self._trigger_time = 5
     end
-    self._accel_count = self._accel_count - #info.fish
 end
 
 return {__index=timestep}
