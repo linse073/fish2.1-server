@@ -184,7 +184,7 @@ local data = {
 		},
 		{
 			event_id = 10005,
-			stay_time = 10.000000,
+			stay_time = 300.000000,
 			switch_time = 3.000000,
 			spline = {
 				20085,
