@@ -657,6 +657,7 @@ function timestep:new_rule_fish(spline_info, rule_info, new_fish)
         }
         if self._accel_count < 80 then
             new_info.accel_time = spline_info.accel_time
+            self._accel_count = self._accel_count + 1
         end
         if #f_data.fish_proxy > 0 then
             new_info.proxy_index = 1
@@ -749,7 +750,6 @@ function timestep:new_fish(delta, new_fish)
 
                     local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
                     self:new_rule_fish(spline_info, rand_rule, new_fish)
-                    self._accel_count = self._accel_count + rand_rule.count
                     spline_info.time = 0
                     fish_type_time[k1] = 0
                     if self._fish_count[k1] >= max_type_fish[k1] then
@@ -1390,6 +1390,7 @@ function timestep:on_skill_damage(info)
     if self._trigger_time < 5 then
         self._trigger_time = 5
     end
+    self._accel_count = self._accel_count - #info.fish
 end
 
 return {__index=timestep}
