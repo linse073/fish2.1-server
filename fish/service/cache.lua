@@ -75,7 +75,7 @@ skynet_m.start(function()
     sharedata.new("fish_type_str", fish_type_str)
 
     local max_type_fish = {
-        [fish_type.normal] = 80,
+        [fish_type.normal] = 50,
         [fish_type.big] = 3,
         [fish_type.special] = 1,
         [fish_type.chest] = 2,
