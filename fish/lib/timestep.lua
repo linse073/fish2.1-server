@@ -1186,7 +1186,7 @@ function timestep:on_fire(info)
         skynet_m.log(string.format("Fire can't find user %d.", info.userid))
         return
     end
-    info.cannon = binfo.kind
+    user_info.cannon = binfo.kind
     bullet.multi = binfo.multi
     self:broadcast("fire", {
         pos = user_info.pos,
