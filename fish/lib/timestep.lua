@@ -561,7 +561,7 @@ function timestep:clear_fish(del_fish)
 end
 
 function timestep:mode_spline(ftype)
-    if ftype == fish_type.Chest then
+    if ftype == fish_type.chest then
         local mode = self._mode
         if not mode or mode.rpt_mode then
             return false
