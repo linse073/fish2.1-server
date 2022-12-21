@@ -531,7 +531,7 @@ function timestep:update()
         local new_msg = ""
         for k, v in ipairs(new_fish) do
             -- NOTICE: define fish type with game server
-            new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, v.data.kind,
+            new_msg = new_msg .. string.pack("<I4<I2<I2", v.id, self:get_fish_kind(v),
                                                 math.ceil(v.life_time - v.time + 10))
         end
         for i = new_num + 1, 100 do
@@ -544,6 +544,15 @@ function timestep:update()
         self:broadcast("new_fish", {
             fish = new_fish,
         })
+    end
+end
+
+function timestep:get_fish_kind(info)
+    local mode = self._mode
+    if not mode or not mode.rpt_mode then
+        return info.data.gold_kind
+    else
+        return info.data.kind
     end
 end
 
