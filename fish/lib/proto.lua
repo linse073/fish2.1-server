@@ -59,6 +59,7 @@ proto.c2s = sprotoparser.parse [[
 }
 
 .heart_beat {
+	c_time 0 : double
 }
 
 .use_prop {
@@ -238,6 +239,11 @@ proto.s2c = sprotoparser.parse [[
 
 .open_chest {
 	pos 0 : integer
+}
+
+.heart_beat {
+	c_time 0 : double
+	s_time 1 : double
 }
 
 ]]

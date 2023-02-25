@@ -1134,6 +1134,10 @@ function timestep:client_skill_damage(info, data)
 end
 
 function timestep:client_heart_beat(info, data)
+    skynet_m.send_lua(info.agent, "send", "heart_beat", {
+        c_time = data.c_time,
+        s_time = self._event_time,
+    })
 end
 
 function timestep:client_use_prop(info, data)
