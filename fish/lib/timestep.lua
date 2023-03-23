@@ -755,8 +755,7 @@ function timestep:new_fish(delta, new_fish)
                 end
                 for i = 1, count do
                     local index = math.random(#rand_spline)
-                    local spline_info = rand_spline[index]
-                    table.remove(rand_spline, index)
+                    local spline_info = table.remove(rand_spline, index)
 
                     local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
                     self:new_rule_fish(spline_info, rand_rule, new_fish)
@@ -794,8 +793,7 @@ function timestep:new_koi_fish(delta, new_fish, del_fish)
                 end
                 for i = 1, len do
                     local index = math.random(#koi_spline)
-                    local spline_info = koi_spline[index]
-                    table.remove(koi_spline, index)
+                    local spline_info = table.remove(koi_spline, index)
 
                     local rand_rule = spline_info.normal_rule[math.random(#spline_info.normal_rule)]
                     self:new_rule_fish(spline_info, rand_rule, new_fish)
