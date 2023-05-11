@@ -111,7 +111,7 @@ local data = {
 		},
 		{
 			event_id = 10004,
-			stay_time = 205.000000,
+			stay_time = 215.000000,
 			switch_time = 3.000000,
 			spline = {
 				20081,
@@ -183,7 +183,7 @@ local data = {
 		},
 		{
 			event_id = 10005,
-			stay_time = 155.000000,
+			stay_time = 165.000000,
 			switch_time = 3.000000,
 			spline = {
 				20084,
@@ -267,7 +267,7 @@ local data = {
 		},
 		{
 			event_id = 10007,
-			stay_time = 200.000000,
+			stay_time = 210.000000,
 			switch_time = 2.000000,
 			spline = {
 				20207,
@@ -359,7 +359,7 @@ local data = {
 		},
 		{
 			event_id = 10008,
-			stay_time = 160.000000,
+			stay_time = 170.000000,
 			switch_time = 3.000000,
 			spline = {
 				20210,
