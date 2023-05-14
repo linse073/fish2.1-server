@@ -1238,6 +1238,7 @@ function timestep:tick_bullet(delta)
             log = log .. string.format(" user %d bullet num %d,", v.user_id, uc)
         end
         log = log .. string.format(" user total bullet num %d.", ubc)
+        skynet_m.log(log)
     end
 end
 
