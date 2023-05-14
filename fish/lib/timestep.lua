@@ -1029,6 +1029,7 @@ function timestep:client_hit(info, data)
             return
         end
         -- info.bullet[my_id] = nil
+        self:del_bullet(info, bullet.id)
         skynet_m.send_lua(game_message, "send_catch_fish", {
             tableid = self._room_id,
             seatid = info.pos - 1,
@@ -1050,6 +1051,7 @@ function timestep:client_hit_bomb(info, data)
         return
     end
     -- info.bullet[my_id] = nil
+    self:del_bullet(info, bullet.id)
     local other = data.other
     local num = #other
     if num > 99 then
@@ -1085,6 +1087,7 @@ function timestep:client_hit_trigger(info, data)
         return
     end
     -- info.bullet[my_id] = nil
+    self:del_bullet(info, bullet.id)
     local other = data.other
     local num = #other
     if num > 99 then
@@ -1215,12 +1218,12 @@ end
 function timestep:del_bullet(user_info, bullet_id)
     local bullet = self._bullet[bullet_id]
     if not bullet then
-        skynet_m.log(string.format("Del_bullet can't find bullet %d of user %d.", bullet_id, user_info.user_id))
+        skynet_m.log(string.format("Delete bullet can't find bullet %d of user %d.", bullet_id, user_info.user_id))
         return
     end
     self._bullet[bullet_id] = nil
     if not user_info.bullet[bullet.my_id] then
-        skynet_m.log(string.format("Del_bullet can't find user %d bullet %d, %d.", user_info.user_id, bullet_id, bullet.my_id))
+        skynet_m.log(string.format("Delete bullet can't find user %d bullet %d, %d.", user_info.user_id, bullet_id, bullet.my_id))
         return
     end
     user_info.bullet[bullet.my_id] = nil
@@ -1249,7 +1252,7 @@ function timestep:on_dead(info)
         return
     end
     -- NOTICE: no bullet my_id info
-    self:del_bullet(user_info, info.bulletid)
+    -- self:del_bullet(user_info, info.bulletid)
     local msg = {
         pos = user_info.pos,
         fishid = info.fishid,
@@ -1306,7 +1309,7 @@ function timestep:on_bomb_fish(info)
         skynet_m.log(string.format("Bomb fish can't find user %d.", info.userid))
         return
     end
-    self:del_bullet(user_info, info.bulletid)
+    -- self:del_bullet(user_info, info.bulletid)
     local score = {}
     for k, v in ipairs(info.fish) do
         local sinfo = {
@@ -1351,7 +1354,7 @@ function timestep:on_king_dead(info)
         return
     end
     -- NOTICE: no bullet my_id info
-    self:del_bullet(user_info, info.bulletid)
+    -- self:del_bullet(user_info, info.bulletid)
     local msg = {
         pos = user_info.pos,
         fishid = info.fishid,
@@ -1383,7 +1386,7 @@ function timestep:on_trigger_dead(info)
         return
     end
     -- NOTICE: no bullet my_id info
-    self:del_bullet(user_info, info.bulletid)
+    -- self:del_bullet(user_info, info.bulletid)
     local msg = {
         pos = user_info.pos,
         fishid = info.fishid,
