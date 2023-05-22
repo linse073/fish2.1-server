@@ -837,9 +837,12 @@ end
 function timestep:kick(user_id, agent)
     local info = self._user[user_id]
     if info and (not agent or info.agent == agent) then
-        for k, v in ipairs(info.bullet) do
+        local bcount = 0
+        for k, v in pairs(info.bullet) do
             self._bullet[v.id] = nil
+            bcount = bcount + 1
         end
+        skynet_m.log(string.format("There is %d pending bullet when kick user %d.", bcount, user_id))
         self._user[user_id] = nil
         self._pos[info.pos] = nil
         self._count = self._count - 1
