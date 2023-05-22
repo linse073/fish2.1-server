@@ -837,12 +837,15 @@ end
 function timestep:kick(user_id, agent)
     local info = self._user[user_id]
     if info and (not agent or info.agent == agent) then
-        local bcount = 0
+        local bcount, cbcount = 0, 0
         for k, v in pairs(info.bullet) do
             self._bullet[v.id] = nil
             bcount = bcount + 1
+            if v.confirm then
+                cbcount = cbcount + 1
+            end
         end
-        skynet_m.log(string.format("There is %d pending bullet when kick user %d.", bcount, user_id))
+        skynet_m.log(string.format("There is %d[%d] pending bullet when kick user %d.", bcount, cbcount, user_id))
         self._user[user_id] = nil
         self._pos[info.pos] = nil
         self._count = self._count - 1
@@ -1190,6 +1193,7 @@ function timestep:on_fire(info)
     if binfo.kind ~= bullet.kind or binfo.multi ~= bullet.multi then
         skynet_m.log(string.format("Fire info is different."))
     end
+    bullet.confirm = true
     self._bullet[binfo.id] = nil
     if info.code ~= 0 then
         skynet_m.log(string.format("User %d fire bullet %d fail.", info.userid, binfo.id))
