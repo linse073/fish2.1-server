@@ -328,6 +328,17 @@ local data = {
 	},
 	[30030] = {
 		id = 30030,
+		kind = 61,
+		gold_kind = 84,
+		type = 6,
+		aoe_type = 0,
+		aoe_time = 0.000000,
+		aoe_delay = 2.000000,
+		fish_proxy = {
+		},
+	},
+	[30031] = {
+		id = 30031,
 		kind = 54,
 		gold_kind = 54,
 		type = 3,
@@ -337,8 +348,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30031] = {
-		id = 30031,
+	[30032] = {
+		id = 30032,
 		kind = 53,
 		gold_kind = 53,
 		type = 3,
@@ -348,8 +359,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30032] = {
-		id = 30032,
+	[30033] = {
+		id = 30033,
 		kind = 51,
 		gold_kind = 51,
 		type = 3,
@@ -359,8 +370,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30033] = {
-		id = 30033,
+	[30034] = {
+		id = 30034,
 		kind = 50,
 		gold_kind = 50,
 		type = 3,
@@ -370,8 +381,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30034] = {
-		id = 30034,
+	[30035] = {
+		id = 30035,
 		kind = 10,
 		gold_kind = 10,
 		type = 1,
@@ -381,8 +392,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30035] = {
-		id = 30035,
+	[30036] = {
+		id = 30036,
 		kind = 30,
 		gold_kind = 30,
 		type = 2,
@@ -392,8 +403,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30036] = {
-		id = 30036,
+	[30037] = {
+		id = 30037,
 		kind = 2,
 		gold_kind = 2,
 		type = 1,
@@ -403,8 +414,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30037] = {
-		id = 30037,
+	[30038] = {
+		id = 30038,
 		kind = 3,
 		gold_kind = 3,
 		type = 1,
@@ -414,8 +425,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30038] = {
-		id = 30038,
+	[30039] = {
+		id = 30039,
 		kind = 5,
 		gold_kind = 5,
 		type = 1,
@@ -425,8 +436,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30039] = {
-		id = 30039,
+	[30040] = {
+		id = 30040,
 		kind = 62,
 		gold_kind = 85,
 		type = 6,
@@ -436,8 +447,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30041] = {
-		id = 30041,
+	[30042] = {
+		id = 30042,
 		kind = 68,
 		gold_kind = 91,
 		type = 6,
@@ -447,8 +458,8 @@ local data = {
 		fish_proxy = {
 		},
 	},
-	[30040] = {
-		id = 30040,
+	[30041] = {
+		id = 30041,
 		kind = 77,
 		gold_kind = 97,
 		type = 6,
@@ -458,19 +469,8 @@ local data = {
 		fish_proxy = {
 			{
 				time = 4.200000,
-				fish_id = 30041,
+				fish_id = 30042,
 			},
-		},
-	},
-	[30042] = {
-		id = 30042,
-		kind = 61,
-		gold_kind = 84,
-		type = 6,
-		aoe_type = 0,
-		aoe_time = 0.000000,
-		aoe_delay = 2.000000,
-		fish_proxy = {
 		},
 	},
 	[30044] = {
